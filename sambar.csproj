@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="WidgetPacks\**" />
+    <Compile Remove="scripts\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="WidgetPacks\Base\.layout.cs" />
+    <None Include="WidgetPacks\Base\.theme.cs" />
+    <None Include="WidgetPacks\Base\Workspaces.widget.cs" />
+    <None Include="WidgetPacks\Base\NetworkManager.widget.cs" />
+    <None Include="WidgetPacks\Base\Tray.widget.cs" />
+    <None Include="WidgetPacks\Base\HideTaskbar.widget.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Interop.UIAutomationClient.Signed" Version="10.19041.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Tmds.ExecFunction" Version="0.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="_.dll\" />
+  </ItemGroup>
+
+</Project>
