@@ -44,7 +44,7 @@ public partial class Api
         //};
         //menu.MouseEnter += (s, e) => menu.Activate(); 
         Api.barWindow.MouseEnter += (s, e) => { Api.barWindow.Activate(); };
-        Api.barWindow.MouseLeave += (s, e) => { menu.Activate(); };
+        Api.barWindow.MouseLeave += (s, e) => { if(menu != null) menu.Activate(); };
         FOCUS_CHANGED_EVENT += DestroyMenu;
         
         menu.Content = menuContent;
