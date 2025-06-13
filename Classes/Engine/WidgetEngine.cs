@@ -177,6 +177,7 @@ public class WidgetLoader
 			MetadataReference.CreateFromFile(typeof(JsonConvert).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(Enum).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(DependencyObject).Assembly.Location),
+			MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 		];
