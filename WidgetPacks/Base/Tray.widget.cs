@@ -6,7 +6,6 @@ public class Tray : Widget
     {
         index = 3;
 
-        
         trayIcons = Api.GetTrayIcons();
         WrapPanel panel = new();
         panel.Orientation = Orientation.Horizontal;
@@ -30,7 +29,10 @@ public class Tray : Widget
         }
 
         RoundedButton btn = new();
-        btn.Text = "T";
+        //btn.Text = "T";
+        btn.ImageSrc = "C:\\Users\\Jayakuttan\\Downloads\\arrow-204-16.ico";
+        btn.IconHeight = 13;
+        btn.IconWidth = 13;
         btn.Height = Theme.BUTTON_HEIGHT;
         btn.Width = Theme.BUTTON_WIDTH;
         btn.Margin = Theme.BUTTON_MARGIN;
@@ -38,9 +40,12 @@ public class Tray : Widget
         btn.Background = Theme.BUTTON_BACKGROUND;
         btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
         btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
+        bool open = false;
         btn.MouseDown += (s, e) =>
         {
-            Api.CreateMenu(btn, panel);
+            if(!open) Api.CreateMenu(btn, panel);
+            else Api.DestroyMenu();
+            open = !open;
         };
 
         this.Content = btn;

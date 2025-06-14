@@ -1,6 +1,7 @@
 using System.Diagnostics.Eventing.Reader;
 using System.Runtime.InteropServices;
 using System.Drawing;
+using System.Text;
 
 namespace sambar;
 
@@ -39,6 +40,15 @@ public class Win32
 
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern bool GetWindowRect(IntPtr hWnd, out RECT windowRect);
+
+	[DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
+
+	[DllImport("user32.dll")]
+	public static extern IntPtr WindowFromPoint(POINT Point);
+
+	[DllImport("user32.dll", SetLastError = true)]
+	public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
 	// shell32
     [DllImport("shell32.dll")]

@@ -42,17 +42,14 @@ public partial class Api {
         return api.trayIcons;
     }
 
-    private void MoveContextMenuToCursor(IntPtr hWnd_ContextMenu)
+    private void MoveContextMenuToCursor(IntPtr hWnd)
     {
         if (menu == null) return;
-
-        uint styles = Win32.GetWindowLong(hWnd_ContextMenu, (int)GETWINDOWLONG.GWL_STYLE);
-        var styleList = Utils.GetStyleListFromUInt(styles);
-        if (!styleList.Contains("WS_POPUP")) return;
-
+        if (!Utils.IsContextMenu(hWnd)) return;
+        if (!Utils.IsWindowVisible(hWnd)) return;
+        
         Win32.GetCursorPos(out POINT cursorPos);
-        bool result = Win32.SetWindowPos(hWnd_ContextMenu, IntPtr.Zero, cursorPos.X, cursorPos.Y, 0, 0, (uint)SETWINDOWPOS.SWP_NOSIZE);
-        styleList.ForEach(style => Debug.WriteLine($"STYLE: {style}"));
+        bool result = Win32.SetWindowPos(hWnd, IntPtr.Zero, cursorPos.X, cursorPos.Y, 0, 0, (uint)SETWINDOWPOS.SWP_NOSIZE);
     }
 }
 

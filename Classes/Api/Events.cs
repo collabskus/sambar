@@ -16,6 +16,7 @@ public partial class Api
             msg.className = sender.CurrentClassName;
             msg.type = sender.CurrentItemType;
             msg.name = sender.CurrentName;
+            msg.hWnd = sender.CurrentNativeWindowHandle;
             FOCUS_CHANGED_EVENT(msg);
         }
     }
@@ -52,6 +53,7 @@ public class FocusChangedMessage
 {
     public string name;
     public string className;
+    public IntPtr hWnd;
     public string type;
 }
 
