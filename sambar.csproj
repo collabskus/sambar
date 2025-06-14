@@ -16,7 +16,6 @@
   <ItemGroup>
     <None Include="WidgetPacks\Base\.layout.cs" />
     <None Include="WidgetPacks\Base\.theme.cs" />
-    <None Include="WidgetPacks\Base\Workspaces.widget.cs" />
     <None Include="WidgetPacks\Base\NetworkManager.widget.cs" />
     <None Include="WidgetPacks\Base\Tray.widget.cs" />
     <None Include="WidgetPacks\Base\HideTaskbar.widget.cs" />

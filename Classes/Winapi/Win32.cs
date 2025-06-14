@@ -34,6 +34,12 @@ public class Win32
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
 
+	[DllImport("user32.dll", SetLastError = true)]
+	public static extern bool GetCursorPos(out POINT cursorPos);
+
+	[DllImport("user32.dll", SetLastError = true)]
+	public static extern bool GetWindowRect(IntPtr hWnd, out RECT windowRect);
+
 	// shell32
     [DllImport("shell32.dll")]
     public static extern uint SHAppBarMessage(uint dwMessage, ref APPBARDATA pData);
@@ -222,8 +228,8 @@ public struct POINT
 public struct RECT
 {
 	public int Left;
-	public int Right;
 	public int Top;
+	public int Right;
 	public int Bottom;
 }
 
@@ -238,4 +244,9 @@ public struct WINDOWPLACEMENT
 	public RECT rcNormalPosition;
 	public RECT rcDevice;
 
+}
+
+public enum SETWINDOWPOS : uint
+{
+	SWP_NOSIZE = 0x0001
 }
