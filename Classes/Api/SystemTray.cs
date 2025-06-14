@@ -7,8 +7,6 @@ namespace sambar;
 
 public partial class Api {
 
-    private bool isCustomSystemTrayMenuOpen = false;
-
     private List<TrayIcon> trayIcons = new();
 
     // Constructor
@@ -30,11 +28,8 @@ public partial class Api {
         }
 
         STRUCTURE_CHANGED_EVENT += (msg) => {
-            if(menu != null)
-            {
-                Debug.WriteLine($"moving name: {msg.name}, {msg.className}, hWnd: {msg.hWnd}");
-                MoveContextMenuToCursor(msg.hWnd); 
-            }
+            MoveContextMenuToCursor(msg.hWnd);
+            Debug.WriteLine($"Moving context menu: {msg.name}, {msg.className}, {msg.hWnd}");
         };
 
         _isSystemTrayInitRun = true;
@@ -49,9 +44,15 @@ public partial class Api {
 
     private void MoveContextMenuToCursor(IntPtr hWnd_ContextMenu)
     {
+        if (menu == null) return;
+
+        uint styles = Win32.GetWindowLong(hWnd_ContextMenu, (int)GETWINDOWLONG.GWL_STYLE);
+        var styleList = Utils.GetStyleListFromUInt(styles);
+        if (!styleList.Contains("WS_POPUP")) return;
+
         Win32.GetCursorPos(out POINT cursorPos);
-        bool result = Win32.SetWindowPos(hWnd_ContextMenu, IntPtr.Zero, cursorPos.X, cursorPos.Y, 0, 0, 0x001);
-        Debug.WriteLine(result + " " + Marshal.GetLastWin32Error() + " " + hWnd_ContextMenu);
+        bool result = Win32.SetWindowPos(hWnd_ContextMenu, IntPtr.Zero, cursorPos.X, cursorPos.Y, 0, 0, (uint)SETWINDOWPOS.SWP_NOSIZE);
+        styleList.ForEach(style => Debug.WriteLine($"STYLE: {style}"));
     }
 }
 

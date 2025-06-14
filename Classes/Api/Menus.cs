@@ -32,8 +32,8 @@ public partial class Api
         FOCUS_CHANGED_EVENT += DestroyMenu;
 
         IntPtr hWnd = new WindowInteropHelper(menu).EnsureHandle();
-        int exStyles = Win32.GetWindowLong(hWnd, -20);
-        Win32.SetWindowLong(hWnd, -20, exStyles | (int)WindowStyles.WS_EX_TOOLWINDOW);
+        uint exStyles = Win32.GetWindowLong(hWnd, -20);
+        Win32.SetWindowLong(hWnd, -20, (int)(exStyles | (uint)WindowStyles.WS_EX_TOOLWINDOW));
 		int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
 		Win32.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
 
