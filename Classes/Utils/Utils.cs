@@ -37,14 +37,14 @@ public partial class Utils
 	public static List<string> GetStylesFromHwnd(IntPtr hWnd)
 	{
 		uint stylesUInt = Win32.GetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_STYLE);
-		Debug.WriteLine($"GetStylesFromHwnd(): {Marshal.GetLastWin32Error()}");
+		//Debug.WriteLine($"GetStylesFromHwnd(): {Marshal.GetLastWin32Error()}");
 		return GetStyleListFromUInt(stylesUInt);
 	}
 
 	public static bool IsContextMenu(IntPtr hWnd)
 	{
 		var styleList = Utils.GetStylesFromHwnd(hWnd);
-		Debug.WriteLine($"IsContextMenu(): {Marshal.GetLastWin32Error()}");
+		//Debug.WriteLine($"IsContextMenu(): {Marshal.GetLastWin32Error()}");
         if (styleList.Contains("WS_POPUP")) return true;
 		return false;
 	}
@@ -52,7 +52,7 @@ public partial class Utils
 	public static bool IsWindowVisible(IntPtr hWnd)
 	{
 		var styleList = Utils.GetStylesFromHwnd(hWnd);
-		Debug.WriteLine($"IsWindowVisible(): {Marshal.GetLastWin32Error()}");
+		//Debug.WriteLine($"IsWindowVisible(): {Marshal.GetLastWin32Error()}");
         if (styleList.Contains("WS_VISIBLE")) return true;
         return false;
 	}
@@ -63,10 +63,10 @@ public partial class Utils
 		return Win32.WindowFromPoint(pt);
 	}
 
-	public static void MoveWindowToCursor(IntPtr hWnd)
+	public static void MoveWindowToCursor(IntPtr hWnd, int offsetX = 0, int offsetY = 0)
 	{
 		Win32.GetCursorPos(out POINT cursorPos);
-		Win32.SetWindowPos(hWnd, IntPtr.Zero, cursorPos.X, cursorPos.Y, 0, 0, (uint)SETWINDOWPOS.SWP_NOSIZE);
+		Win32.SetWindowPos(hWnd, IntPtr.Zero, cursorPos.X + offsetX, cursorPos.Y + offsetY, 0, 0, (uint)SETWINDOWPOS.SWP_NOSIZE);
 	}
 
 	public static void MoveWindow(IntPtr hWnd, int x, int y)
@@ -79,5 +79,13 @@ public partial class Utils
 		StringBuilder str = new(256);
 		Win32.GetClassName(hWnd, str, str.Capacity);
 		return str.ToString();
+	}
+
+	public static (int, int) GetWindowDimensions(IntPtr hWnd)
+	{
+		Win32.GetWindowRect(hWnd, out RECT rect);
+		int Width = rect.Right - rect.Left;
+		int Height = rect.Bottom - rect.Top;
+		return (Width, Height);
 	}
 }

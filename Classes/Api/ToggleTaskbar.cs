@@ -7,7 +7,7 @@ namespace sambar;
 public partial class Api {
 
     // Constructor
-    static bool _isToggleTaskbarInitRun = false;
+    bool _isToggleTaskbarInitRun = false;
     private void ToggleTaskbarInit()
     {
         taskbar_hWnd = Win32.FindWindow("Shell_TrayWnd", null);
@@ -43,7 +43,7 @@ public partial class Api {
     }
 
     // API Endpoint
-    public static void HideTaskbar()
+    public void HideTaskbar()
     {
         if(!_isToggleTaskbarInitRun) api.ToggleTaskbarInit();
         api.ToggleTaskbar();

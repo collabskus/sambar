@@ -9,7 +9,7 @@ namespace sambar;
 
 public partial class Api {
 
-    public static async Task LaunchUri(string uri) {
+    public async Task LaunchUri(string uri) {
 
         await Launcher.LaunchUriAsync(new Uri(uri));
     }

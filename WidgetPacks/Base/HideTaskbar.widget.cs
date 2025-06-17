@@ -1,11 +1,15 @@
 
 
+
 public class HideTaskbar : Widget
 {
+    private Api api;
     public HideTaskbar() : base()
     {
         index = 2;
         RoundedButton btn = new();
+        api = Api.GetInstance();
+        
         btn.Height = Theme.BUTTON_HEIGHT;
         btn.Width = Theme.BUTTON_WIDTH;
         btn.Text = "H";
@@ -17,7 +21,7 @@ public class HideTaskbar : Widget
         this.Content = btn;
     }
     public void ButtonMouseDown(object? sender, MouseEventArgs e) {
-        Api.HideTaskbar();    
+        api.HideTaskbar();    
     }
 }
 

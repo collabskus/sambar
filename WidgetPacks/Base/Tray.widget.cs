@@ -1,12 +1,15 @@
 
+
 public class Tray : Widget
 {
+    private Api api;
     List<TrayIcon> trayIcons = new();
     public Tray() : base()
     {
         index = 3;
+        api = Api.GetInstance();
 
-        trayIcons = Api.GetTrayIcons();
+        trayIcons = api.GetTrayIcons();
         WrapPanel panel = new();
         panel.Orientation = Orientation.Horizontal;
         panel.Width = 100;
@@ -40,11 +43,11 @@ public class Tray : Widget
         btn.Background = Theme.BUTTON_BACKGROUND;
         btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
         btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
+        btn.Margin = new(50, 0, 0, 0);
         bool open = false;
         btn.MouseDown += (s, e) =>
         {
-            if(!open) Api.CreateMenu(btn, panel);
-            else Api.DestroyMenu();
+            if(!open) api.CreateMenu(btn, panel);
             open = !open;
         };
 

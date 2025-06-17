@@ -1,11 +1,13 @@
 ﻿
 
-public class NetworkManager : Widget 
+public class NetworkManager : Widget
 {
-
+    private Api api; 
     public NetworkManager() : base()
     {
         index = 1;
+        api = Api.GetInstance();
+        
         RoundedButton btn = new();
         //btn.Text = "W";
         btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS; 
@@ -25,7 +27,7 @@ public class NetworkManager : Widget
     }
 
     public void ButtonMouseDown(object? sender, MouseEventArgs e) { 
-        Task.Run(() => { Api.LaunchUri("ms-actioncenter:controlcenter/"); });
+        Task.Run(() => { api.LaunchUri("ms-actioncenter:controlcenter/"); });
     }
 }
 

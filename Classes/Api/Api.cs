@@ -12,6 +12,7 @@ public partial class Api {
     public Api()
     {
         EventsInit();
+        WindowingInit();
     }
 
     public static void Print(string text) {
@@ -26,6 +27,11 @@ public partial class Api {
 
     // IUIAutomation
     CUIAutomation ui = new();
-
+    
+    // Get Api object
+    public static Api GetInstance()
+    {
+        return api;
+    }
 }
 
