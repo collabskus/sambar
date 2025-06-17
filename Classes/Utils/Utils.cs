@@ -46,6 +46,13 @@ public partial class Utils
 		var styleList = Utils.GetStylesFromHwnd(hWnd);
 		//Debug.WriteLine($"IsContextMenu(): {Marshal.GetLastWin32Error()}");
         if (styleList.Contains("WS_POPUP")) return true;
+        
+        string className = Utils.GetClassNameFromHWND(hWnd);
+        if (className == "#32768") return true;
+        if (className == "#32770") return true;
+        if (className == "SysListView32") return true;
+        if (className == "SysShadow") return true;
+        if (className == "TrayiconMessageWindow") return true;
 		return false;
 	}
 

@@ -44,11 +44,9 @@ public class Tray : Widget
         btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
         btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
         btn.Margin = new(50, 0, 0, 0);
-        bool open = false;
         btn.MouseDown += (s, e) =>
         {
-            if(!open) api.CreateMenu(btn, panel);
-            open = !open;
+            api.CreateMenu(btn, panel);
         };
 
         this.Content = btn;

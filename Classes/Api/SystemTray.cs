@@ -58,6 +58,8 @@ public partial class Api {
     } 
     private void CaptureMenuChildren(StructureChangedMessage msg)
     {
+        Debug.WriteLine($"StructureChanged, name: {msg.name}, class: {msg.className}, type: {msg.controlType}");
+        if (msg.className == "sambarContextMenu") return;
         if (trayIconRightClicked)
         {
             Utils.MoveWindowToCursor(msg.hWnd);

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Windows.Devices.SmartCards;
 using Interop.UIAutomationClient;
 
 namespace sambar;
@@ -17,6 +18,7 @@ public partial class Api
             msg.type = sender.CurrentItemType;
             msg.name = sender.CurrentName;
             msg.hWnd = sender.CurrentNativeWindowHandle;
+            msg.controlType = (ControlType)sender.CurrentControlType;
             FOCUS_CHANGED_EVENT(msg);
         }
     }
@@ -33,6 +35,7 @@ public partial class Api
             msg.type = changeType;
             msg.name = sender.CurrentName;
             msg.hWnd = sender.CurrentNativeWindowHandle;
+            msg.controlType = (ControlType)sender.CurrentControlType;
             STRUCTURE_CHANGED_EVENT(msg);
         }
     }
@@ -55,6 +58,7 @@ public class FocusChangedMessage
     public string className;
     public IntPtr hWnd;
     public string type;
+    public ControlType controlType;
 }
 
 public class StructureChangedMessage
@@ -63,4 +67,50 @@ public class StructureChangedMessage
     public string className;
     public IntPtr hWnd;
     public StructureChangeType type;
+    public ControlType controlType;
+}
+
+public enum ControlType : int
+{
+    APPBAR = 50040,
+    BUTTON = 50000,
+    CALENDAR = 50001,
+    CHECKBOX = 50002,
+    COMBOBOX = 50003,
+    CUSTOM = 50025,
+    DATAGRID = 50028,
+    DATAITEM = 50029,
+    DOCUMENT = 50030,
+    EDIT = 50004,
+    GROUP = 50026,
+    HEADER = 50034,
+    HEADERITEM = 50035,
+    HYPERLINK = 50005,
+    IMAGE = 50006,
+    LIST = 50008,
+    LISTITEM = 50007,
+    MENUBAR = 50010,
+    MENU = 50009,
+    MENUITEM = 50011,
+    PANE = 50033,
+    PROGRESSBAR = 50012,
+    RADIOBUTTON = 50013,
+    SCROLLBAR = 50014,
+    SEMANTICZOOM = 50039,
+    SEPARATOR = 50038,
+    SLIDER = 50015,
+    SPINNER = 50016,
+    SPLITBUTTON = 50031,
+    STATUSBAR = 50017,
+    TAB = 50018,
+    TABITEM = 50019,
+    TABLE = 50036,
+    TEXT = 50020,
+    THUMB = 50027,
+    TITLEBAR = 50037,
+    TOOLBAR = 50021,
+    TOOLTIP = 50022,
+    TREE = 50023,
+    TREEITEM = 50024,
+    WINDOW = 50032
 }
