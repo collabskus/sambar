@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -6,6 +7,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SharpVectors;
 using SharpVectors.Converters;
+using Brush = System.Windows.Media.Brush;
+using Image = System.Windows.Controls.Image;
 
 namespace sambar;
 
@@ -57,6 +60,20 @@ public class RoundedButton : UserControl
 				RoundedButtonSvgImage.Source = new Uri(value);
 				this.RoundedButtonBorder.Child = RoundedButtonSvgImage;
 			}
+		}
+	}
+
+	public BitmapImage BitmapIcon
+	{
+		get
+		{
+			return bi;
+		}
+		set
+		{
+			RoundedButtonImage = new();
+			RoundedButtonImage.Source = bi = value;
+			RoundedButtonBorder.Child = RoundedButtonImage;
 		}
 	}
 

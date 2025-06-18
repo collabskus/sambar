@@ -24,6 +24,7 @@ public class Tray : Widget
             iconBtn.Background = Theme.BUTTON_BACKGROUND;
             iconBtn.HoverColor = Theme.BUTTON_HOVER_COLOR;
             iconBtn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
+            //iconBtn.BitmapIcon = icon.BitmapIcon;
             iconBtn.MouseDown += (s, e) =>
             {
                 icon.RightClick();

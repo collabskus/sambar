@@ -1,35 +1,67 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
+using System.Windows.Media.Imaging;
 using System.Windows.Media.TextFormatting;
 using Interop.UIAutomationClient;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Win32;
 
 namespace sambar;
 
 public partial class Api {
 
     private List<TrayIcon> trayIcons = new();
+    private RegistryKey trayIconsRegistryKeyRoot;
+    private List<TrayIconRegKey> trayIconRegKeys = new();
 
     // Constructor
     bool _isSystemTrayInitRun = false;
     private void SystemTrayInit()
     {
+        // for trayIcon's images
+        trayIconsRegistryKeyRoot = Registry.CurrentUser.OpenSubKey("Control Panel").OpenSubKey("NotifyIconSettings");
+        byte[] raw_UIOrderList = (byte[])trayIconsRegistryKeyRoot.GetValue("UIOrderList");
+        string fullHex = Convert.ToHexStringLower(raw_UIOrderList);
+        Debug.WriteLine($"UIOrderList: {fullHex}");
+        fullHex.Chunk(16).ToList().ForEach(chunk => {
+            string hex = new(chunk);
+            char[][] chunks = hex.Chunk(2).ToArray();
+            chunks = chunks.Reverse().ToArray();
+            string reverse = "";
+            chunks.ToList().ForEach(_c => reverse += new string(_c));
+            ulong num = (ulong)Int64.Parse(reverse, System.Globalization.NumberStyles.HexNumber);
+            //Debug.WriteLine($"chunk: {hex}, reverse: {reverse}, decimal: {num}");
+            TrayIconRegKey key = new();
+            key.ExecutablePath = (string)trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("ExecutablePath");
+            key.IconGuid = (string)trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("IconGuid");
+            key.IconSnapshot = (byte[])trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("IconSnapshot");
+            trayIconRegKeys.Add(key);
+            Debug.WriteLine($"{num}, {key.ExecutablePath}");
+        });
+
+        Process[] runningProcesses = Process.GetProcesses();
+        runningProcesses.ToList().ForEach(p => Debug.WriteLine("executable path: " + p.ProcessName));
+        
+        //
         IntPtr hWnd_Overflow = Win32.FindWindow("TopLevelWindowForOverflowXamlIsland", null);
         IntPtr hWnd_IconContainer = Win32.FindWindowEx(hWnd_Overflow, IntPtr.Zero, "Windows.UI.Composition.DesktopWindowContentBridge", null);
 
         var innerIconContainer = ui.ElementFromHandle(hWnd_IconContainer);
-        int classPropertyId = 30012;
+        //int classPropertyId = 30012;
         var icons = innerIconContainer.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition());
-        var trayMenuDimensions = Utils.GetWindowDimensions(hWnd_Overflow);
+        //var trayMenuDimensions = Utils.GetWindowDimensions(hWnd_Overflow);
         
         for(int i = 0; i < icons.Length; i++) {
             var icon = icons.GetElement(i);
             TrayIcon trayIcon = new(i, api, hWnd_Overflow, icon as IUIAutomationElement3);
             trayIcon.name = icon.CurrentName;
+            GetTrayIconImage(trayIcon.name);
             trayIcons.Add(trayIcon);
         }
-
+        
         STRUCTURE_CHANGED_EVENT += CaptureMenuChildren;
 
         _isSystemTrayInitRun = true;
@@ -83,6 +115,22 @@ public partial class Api {
         if(!_isSystemTrayInitRun) api.SystemTrayInit();
         return api.trayIcons;
     }
+
+    void GetTrayIconImage(string tooltipText)
+    {
+        var subKeys = trayIconsRegistryKeyRoot.GetSubKeyNames();
+        string? iconKeyName = subKeys
+            .ToList()
+            .Where(key =>
+            {
+                return 
+                    (string?)trayIconsRegistryKeyRoot
+                    ?.OpenSubKey(key)
+                    ?.GetValue("InitialTooltip") == tooltipText;
+            })
+            ?.FirstOrDefault();
+        Debug.WriteLine($"regkey found: {iconKeyName}");
+    }
 }
 
 public class TrayIcon
@@ -110,3 +158,11 @@ public class TrayIcon
         Win32.ShowWindowAsync(hWnd_Overflow, SHOWWINDOW.SW_HIDE);
     }
 }
+
+public class TrayIconRegKey
+{
+    public string ExecutablePath;
+    public string IconGuid;
+    public byte[] IconSnapshot;
+}
+

@@ -15,6 +15,7 @@ using System.Runtime.Loader;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Net.Http;
 
 namespace sambar;
 
@@ -178,6 +179,7 @@ public class WidgetLoader
 			MetadataReference.CreateFromFile(typeof(Enum).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(DependencyObject).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location),
+			MetadataReference.CreateFromFile(typeof(HttpClient).Assembly.Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 		];
@@ -195,6 +197,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Net.Http;
 using Newtonsoft.Json;
 """;
 

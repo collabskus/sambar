@@ -53,7 +53,8 @@ public partial class Utils
         if (className == "SysListView32") return true;
         if (className == "SysShadow") return true;
         if (className == "TrayiconMessageWindow") return true;
-		return false;
+        if (className == "tray_icon_app") return true;
+        return false;
 	}
 
 	public static bool IsWindowVisible(IntPtr hWnd)
