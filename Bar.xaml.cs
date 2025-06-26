@@ -64,7 +64,7 @@ public partial class Bar : Window
 		if(this.Background.Equals(Colors.Transparent)) { barTransparent = true; }
 
 		uint exStyles = Win32.GetWindowLong(hWnd, -20);
-		Win32.SetWindowLong(hWnd, -20, (int)(exStyles | (uint)WindowStyles.WS_EX_TOOLWINDOW));
+        Win32.SetWindowLong(hWnd, -20, (int)(exStyles | (uint)sambar.WINDOWSTYLE.WS_EX_TOOLWINDOW));
 
 		//Win32.SetWindowPos(hWnd, IntPtr.Zero, config.marginXLeft, config.marginYTop, config.width, config.height, 0x0400);
 		this.Width = config.width;

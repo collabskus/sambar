@@ -22,9 +22,9 @@ public partial class Utils
 
 	public static List<string> GetStyleListFromUInt(uint styleUInt)
 	{
-		WindowStyles styles = (WindowStyles)styleUInt;
+		WINDOWSTYLE styles = (WINDOWSTYLE)styleUInt;
 		List<string> styleList = new();
-		foreach(WindowStyles style in Enum.GetValues(typeof(WindowStyles)))
+		foreach(WINDOWSTYLE style in Enum.GetValues(typeof(WINDOWSTYLE)))
 		{
 			if(styles.HasFlag(style))
 			{
@@ -96,4 +96,66 @@ public partial class Utils
 		int Height = rect.Bottom - rect.Top;
 		return (Width, Height);
 	}
+
+    public static IntPtr GetHWNDFromPID(int processId)
+    {
+        IntPtr found_hWnd = new();
+        EnumWindowProc enumWindowProc = (IntPtr hWnd, IntPtr lParam) => {
+            Win32.GetWindowThreadProcessId(hWnd, out int _processId);	
+            if(_processId == processId) {
+                found_hWnd = hWnd;	
+                return false;
+            }
+            return true;
+        };
+        Win32.EnumWindows(enumWindowProc, (IntPtr)processId);
+        return found_hWnd;
+    }
+
+    public static List<GUIProcess> EnumWindowProcesses()
+    {
+        List<GUIProcess> guiProcesses = new();
+        EnumWindowProc enumWindowProc = (nint hWnd, nint lParam) =>
+        {
+            Win32.GetWindowThreadProcessId(hWnd, out int processId);
+            Process process = Process.GetProcessById(processId);
+            GUIProcess guiProcess;
+            if((guiProcess = guiProcesses.Where(_p => _p.name == process.ProcessName).FirstOrDefault()) == null) {
+                guiProcess = new() { name = process.ProcessName };
+                guiProcesses.Add(guiProcess);
+            }
+            guiProcess.process = process;
+            _Window window = new();
+            window.hWnd = hWnd;
+            window.className = GetClassNameFromHWND(hWnd);
+            guiProcess.windows.Add(window);
+            EnumWindowProc enumChildWindowProc = (nint c_hWnd, nint lParam) =>
+            {
+                _Window c_window = new();
+                c_window.hWnd = c_hWnd;
+                c_window.className = GetClassNameFromHWND(c_hWnd);
+                guiProcess.windows.Add(c_window);
+                return true;
+            };
+            Win32.EnumChildWindows(hWnd, enumChildWindowProc, nint.Zero);
+            return true;
+        };
+        Win32.EnumWindows(enumWindowProc, nint.Zero);
+        return guiProcesses;
+    }	
 }
+
+public class _Window
+{
+	public string name;
+	public string className;
+	public nint hWnd;
+}
+
+public class GUIProcess
+{
+	public string name;
+	public Process process;
+	public List<_Window> windows = new();
+}
+

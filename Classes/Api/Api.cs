@@ -6,7 +6,7 @@ using Interop.UIAutomationClient;
 
 namespace sambar;
 
-public partial class Api { 
+public partial class Api {
 
     private static Api api = new();
     public Api()

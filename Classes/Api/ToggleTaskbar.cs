@@ -23,23 +23,23 @@ public partial class Api {
     {
         if (taskbar_hWnd == null) return;
         if (shown) {
-            SetTaskbarState(AppBarStates.AutoHide);
+            SetTaskbarState(APPBARSTATE.AutoHide);
             Win32.ShowWindow(taskbar_hWnd, SHOWWINDOW.SW_HIDE);
             shown = false; 
         }
         else { 
-            SetTaskbarState(AppBarStates.AlwaysOnTop);
+            SetTaskbarState(APPBARSTATE.AlwaysOnTop);
             Win32.ShowWindow(taskbar_hWnd, SHOWWINDOW.SW_SHOW);
             shown = true;
         }
     } 
 
-    private void SetTaskbarState(AppBarStates state) {
+    private void SetTaskbarState(APPBARSTATE state) {
         APPBARDATA msgData = new();
         msgData.cbSize = (uint)Marshal.SizeOf<APPBARDATA>();
         msgData.hWnd = taskbar_hWnd;
         msgData.lParam = (uint)state;
-        Win32.SHAppBarMessage((uint)AppBarMessages.SetState, ref msgData);
+        Win32.SHAppBarMessage((uint)APPBARMESSAGE.SetState, ref msgData);
     }
 
     // API Endpoint

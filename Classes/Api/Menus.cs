@@ -20,7 +20,7 @@ public partial class Api
         
         menu = new();
         menu.Title = "sambarContextMenu";
-        menu.WindowStyle = WindowStyle.None;
+        menu.WindowStyle = WINDOWSTYLE.None;
         menu.Topmost = true;
         menu.AllowsTransparency = true;
         menu.ResizeMode = ResizeMode.NoResize;
@@ -32,7 +32,7 @@ public partial class Api
 
         hWnd= new WindowInteropHelper(menu).EnsureHandle();
         uint exStyles = Win32.GetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE);
-        Win32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, (int)(exStyles | (uint)WindowStyles.WS_EX_TOOLWINDOW));
+        Win32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, (int)(exStyles | (uint)WINDOWSTYLE.WS_EX_TOOLWINDOW));
 		int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
 		Win32.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
 
