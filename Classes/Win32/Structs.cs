@@ -3,11 +3,17 @@ using System.Drawing;
 
 namespace sambar;
 
+/// <summary>
+/// DWORD := uint
+/// HWND  := nint
+/// PVOID := nint
+/// </summary>
+
 [StructLayout(LayoutKind.Sequential)]
 public struct APPBARDATA
 {
     public uint cbSize;
-    public IntPtr hWnd;
+    public nint hWnd;
     public uint uCallbackMessage;
     public uint uEdge;
     public Rectangle rc;
@@ -44,7 +50,7 @@ public struct WINDOWPLACEMENT
 
 [StructLayout(LayoutKind.Sequential)]
 public struct _NOTIFYICONIDENTIFIER {
-	public ulong cbSize;
+	public uint cbSize;
 	public nint hWnd;
 	public uint UID;
 	public Guid guidItem;
@@ -113,5 +119,17 @@ public struct SHELLTRAYDATA
 	public int dwHz;
 	public uint dwMessage;
 	public NOTIFYICONDATA nid;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct MSG
+{
+	public nint hwnd;
+	public WINDOWMESSAGE message;
+	public nint wParam;
+	public nint lParam;
+	public uint time;
+	public POINT pt;
+	public uint lPrivate;
 }
 
