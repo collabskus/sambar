@@ -353,9 +353,9 @@ public struct SHELLTRAYDATA
 
 public enum SETWINDOWPOS : uint
 {
-	SWP_NOMOVE = 0x0002,
 	SWP_NOSIZE = 0x0001,
-	SWP_NOACTIVATE = 0x0010
+    SWP_NOMOVE = 0x0002,
+    SWP_NOACTIVATE = 0x0010
 }
 
 public enum WINDOWMESSAGE : uint

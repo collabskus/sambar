@@ -74,12 +74,12 @@ public partial class Utils
 	public static void MoveWindowToCursor(IntPtr hWnd, int offsetX = 0, int offsetY = 0)
 	{
 		User32.GetCursorPos(out POINT cursorPos);
-		User32.SetWindowPos(hWnd, IntPtr.Zero, cursorPos.X + offsetX, cursorPos.Y + offsetY, 0, 0, (uint)SETWINDOWPOS.SWP_NOSIZE);
+		User32.SetWindowPos(hWnd, IntPtr.Zero, cursorPos.X + offsetX, cursorPos.Y + offsetY, 0, 0, SETWINDOWPOS.SWP_NOSIZE);
 	}
 
 	public static void MoveWindow(IntPtr hWnd, int x, int y)
 	{
-		User32.SetWindowPos(hWnd, IntPtr.Zero, x, y, 0, 0, (uint)SETWINDOWPOS.SWP_NOSIZE);
+		User32.SetWindowPos(hWnd, IntPtr.Zero, x, y, 0, 0, SETWINDOWPOS.SWP_NOSIZE);
 	}
 
 	public static string GetClassNameFromHWND(IntPtr hWnd)

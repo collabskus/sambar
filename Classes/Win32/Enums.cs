@@ -157,7 +157,10 @@ public enum SHOWWINDOW
 
 public enum SETWINDOWPOS : uint
 {
-	SWP_NOSIZE = 0x0001
+	SWP_NOSIZE = 0x0001,
+    SWP_NOMOVE = 0x0002,
+    SWP_NOACTIVATE = 0x0010
+
 }
 
 public enum GETWINDOWLONG : int

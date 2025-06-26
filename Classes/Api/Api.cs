@@ -17,6 +17,7 @@ public partial class Api {
     {
         EventsInit();
         WindowingInit();
+        TaskbarInit();
     }
 
     public static void Print(string text) {

@@ -13,7 +13,7 @@ public class User32
 	public static extern uint GetWindowLong(nint hWnd, int nIndex);
 
 	[DllImport("user32.dll", SetLastError = true)]
-	public static extern bool SetWindowPos(nint hWnd, nint hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
+	public static extern int SetWindowPos(nint hWnd, nint hWndInsertAfter, int x, int y, int cx, int cy, SETWINDOWPOS uFlags);
 
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern int GetSystemMetrics(int nIndex);
@@ -90,25 +90,25 @@ public class User32
     public static extern nint DefWindowProc(nint hWnd, WINDOWMESSAGE uMsg, nint wParam, nint lParam);
 
     [DllImport("user32.dll", SetLastError = true)]
-    static extern int DestroyWindow(nint hWnd);
+    public static extern int DestroyWindow(nint hWnd);
 
     [DllImport("user32.dll", SetLastError = true)]
-    static extern int GetMessage(out MSG msg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
+    public static extern int GetMessage(out MSG msg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
 
     [DllImport("user32.dll", SetLastError = true)]
-    static extern bool TranslateMessage(ref MSG msg);
+    public static extern bool TranslateMessage(ref MSG msg);
 
     [DllImport("user32.dll", SetLastError = true)]
-    static extern bool DispatchMessage(ref MSG msg);
+    public static extern bool DispatchMessage(ref MSG msg);
 
     [DllImport("user32.dll", SetLastError = true)]
-    static extern void PostQuitMessage(int nExitCode);
+    public static extern void PostQuitMessage(int nExitCode);
 
     [DllImport("user32.dll", SetLastError = true)]
-    static extern uint RegisterWindowMessage(string message);
+    public static extern uint RegisterWindowMessage(string message);
 
     [DllImport("user32.dll", SetLastError = true)]
-    static extern int SendNotifyMessage(
+    public static extern int SendNotifyMessage(
         nint hWnd,
         uint msg,
         nint wParam,

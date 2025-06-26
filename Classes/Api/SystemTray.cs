@@ -65,6 +65,7 @@ public partial class Api {
 
         // from these use either IconGuid or hWnd + UID to figure out which is in overflow
         // tray by Shell_NotifyIconGetRect()
+        /*
         List<GUIProcess> allWindows = Utils.EnumWindowProcesses();
         List<TrayIconRegKey> actuallyInTrayRegKeys = new();
         foreach(var key in UIOrderListRegKeys)
@@ -125,7 +126,7 @@ public partial class Api {
         }
 
         actuallyInTrayRegKeys.ForEach(key => Debug.WriteLine("regInTrayFound: " + key.ExecutablePath));
-
+        */
         // Enumerate TrayOverflowMenu
         IntPtr hWnd_Overflow = User32.FindWindow("TopLevelWindowForOverflowXamlIsland", null);
         IntPtr hWnd_IconContainer = User32.FindWindowEx(hWnd_Overflow, IntPtr.Zero, "Windows.UI.Composition.DesktopWindowContentBridge", null);
