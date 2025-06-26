@@ -20,7 +20,7 @@ public partial class Api
         
         menu = new();
         menu.Title = "sambarContextMenu";
-        menu.WindowStyle = WINDOWSTYLE.None;
+        menu.WindowStyle = WindowStyle.None;
         menu.Topmost = true;
         menu.AllowsTransparency = true;
         menu.ResizeMode = ResizeMode.NoResize;
@@ -31,10 +31,10 @@ public partial class Api
         menu.Content = menuContent;
 
         hWnd= new WindowInteropHelper(menu).EnsureHandle();
-        uint exStyles = Win32.GetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE);
-        Win32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, (int)(exStyles | (uint)WINDOWSTYLE.WS_EX_TOOLWINDOW));
+        uint exStyles = User32.GetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE);
+        User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, (int)(exStyles | (uint)WINDOWSTYLE.WS_EX_TOOLWINDOW));
 		int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
-		Win32.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
+		Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
 
         menu.Show();
         FOCUS_CHANGED_EVENT += MenuFocusChangedHandler;

@@ -44,11 +44,11 @@ public partial class Api
     {
         FOCUS_CHANGED_EVENT = (msg) => { };
         FocusChangedEventHandlerClass focusChangedHandlerObject = new();
-        //ui.AddFocusChangedEventHandler(null, focusChangedHandlerObject);
+        ui.AddFocusChangedEventHandler(null, focusChangedHandlerObject);
 
         STRUCTURE_CHANGED_EVENT = (msg) => { };
         StructureChangedEventHandlerClass structureChangedHandlerObject = new();
-        //ui.AddStructureChangedEventHandler(ui.GetRootElement(), TreeScope.TreeScope_Children, null, structureChangedHandlerObject);
+        ui.AddStructureChangedEventHandler(ui.GetRootElement(), TreeScope.TreeScope_Children, null, structureChangedHandlerObject);
     }
 }
 

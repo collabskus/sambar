@@ -3,7 +3,7 @@ using System.Text;
 
 namespace sambar;
 
-public class Win32
+public class User32
 {
 	// user32
 	[DllImport("user32.dll", SetLastError = true)]
@@ -60,7 +60,6 @@ public class Win32
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern bool GetWindowThreadProcessId(IntPtr hWnd, out int processId);
 
-
     [DllImport("user32.dll", SetLastError = true)]
     public static extern ushort RegisterClassEx(WNDCLASSEX wc);
 
@@ -79,20 +78,26 @@ public class Win32
         nint hInstance,
         nint lpParam
     );
+}
 
-    // shell32
+public class Shell32
+{
     [DllImport("shell32.dll", SetLastError = true)]
     public static extern uint SHAppBarMessage(uint dwMessage, ref APPBARDATA pData);
 
 	[DllImport("shell32.dll", SetLastError = true)]
 	public static extern long Shell_NotifyIconGetRect(ref _NOTIFYICONIDENTIFIER identifier, out RECT iconLocation); 
+}
 
-	// kernel32
-	[DllImport("kernel32.dll", SetLastError = true)]
+public class Kernel32
+{
+    [DllImport("kernel32.dll", SetLastError = true)]
 	public static extern bool AttachConsole(int processId);
+}
 
-	// dwmapi
-	[DllImport("dwmapi.dll", SetLastError = true)]
+public class Dwmapi
+{
+    [DllImport("dwmapi.dll", SetLastError = true)]
 	public static extern int DwmSetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE attr, ref int attrValue, int attrSize);
 }
 

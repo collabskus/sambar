@@ -10,9 +10,9 @@ public partial class Api {
     bool _isToggleTaskbarInitRun = false;
     private void ToggleTaskbarInit()
     {
-        taskbar_hWnd = Win32.FindWindow("Shell_TrayWnd", null);
+        taskbar_hWnd = User32.FindWindow("Shell_TrayWnd", null);
         WINDOWPLACEMENT lpwndpl = new();
-        Win32.GetWindowPlacement(taskbar_hWnd, ref lpwndpl);
+        User32.GetWindowPlacement(taskbar_hWnd, ref lpwndpl);
         Debug.WriteLine($"ToggleTaskBarInit: {lpwndpl.showCmd}");
         bool _isToggleTaskbarInitRun = true;
     }
@@ -24,12 +24,12 @@ public partial class Api {
         if (taskbar_hWnd == null) return;
         if (shown) {
             SetTaskbarState(APPBARSTATE.AutoHide);
-            Win32.ShowWindow(taskbar_hWnd, SHOWWINDOW.SW_HIDE);
+            User32.ShowWindow(taskbar_hWnd, SHOWWINDOW.SW_HIDE);
             shown = false; 
         }
         else { 
             SetTaskbarState(APPBARSTATE.AlwaysOnTop);
-            Win32.ShowWindow(taskbar_hWnd, SHOWWINDOW.SW_SHOW);
+            User32.ShowWindow(taskbar_hWnd, SHOWWINDOW.SW_SHOW);
             shown = true;
         }
     } 
@@ -39,7 +39,7 @@ public partial class Api {
         msgData.cbSize = (uint)Marshal.SizeOf<APPBARDATA>();
         msgData.hWnd = taskbar_hWnd;
         msgData.lParam = (uint)state;
-        Win32.SHAppBarMessage((uint)APPBARMESSAGE.SetState, ref msgData);
+        Shell32.SHAppBarMessage((uint)APPBARMESSAGE.SetState, ref msgData);
     }
 
     // API Endpoint

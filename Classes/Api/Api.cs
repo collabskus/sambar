@@ -6,6 +6,10 @@ using Interop.UIAutomationClient;
 
 namespace sambar;
 
+/// <summary>
+/// The entire Api class provides core functionalities that a widget developer
+/// can use in their plugins so that they dont have to reinvent the wheel.
+/// </summary>
 public partial class Api {
 
     private static Api api = new();

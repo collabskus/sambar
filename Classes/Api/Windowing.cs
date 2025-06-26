@@ -10,7 +10,7 @@ public partial class Api
 	}
 	public Dictionary<string, IntPtr> GetAllWindows()
 	{
-		Win32.EnumWindows(
+		User32.EnumWindows(
 			(hWnd, lParam) =>
 			{
 				preloadedWindows[Utils.GetClassNameFromHWND(hWnd)] = hWnd;

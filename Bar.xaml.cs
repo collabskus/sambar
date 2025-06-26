@@ -47,8 +47,8 @@ public partial class Bar : Window
 	{
 		this.Topmost = true;
 
-        int screenWidth = Win32.GetSystemMetrics(0);
-		int screentHeight = Win32.GetSystemMetrics(1);
+        int screenWidth = User32.GetSystemMetrics(0);
+		int screentHeight = User32.GetSystemMetrics(1);
 
 		config = new(screenWidth);
 
@@ -63,8 +63,8 @@ public partial class Bar : Window
 		this.Background = Utils.BrushFromHex(config.backgroundColor);
 		if(this.Background.Equals(Colors.Transparent)) { barTransparent = true; }
 
-		uint exStyles = Win32.GetWindowLong(hWnd, -20);
-        Win32.SetWindowLong(hWnd, -20, (int)(exStyles | (uint)sambar.WINDOWSTYLE.WS_EX_TOOLWINDOW));
+		uint exStyles = User32.GetWindowLong(hWnd, -20);
+        User32.SetWindowLong(hWnd, -20, (int)(exStyles | (uint)sambar.WINDOWSTYLE.WS_EX_TOOLWINDOW));
 
 		//Win32.SetWindowPos(hWnd, IntPtr.Zero, config.marginXLeft, config.marginYTop, config.width, config.height, 0x0400);
 		this.Width = config.width;
@@ -73,7 +73,7 @@ public partial class Bar : Window
 		this.Top = config.marginYTop;
 
 		int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
-		if (!barTransparent) Win32.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
+		if (!barTransparent) Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
 	}
 
 	public void AddWidgets()

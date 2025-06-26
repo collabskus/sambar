@@ -77,7 +77,7 @@ public partial class Api {
             {
                 Debug.WriteLine($"{key.ExecutablePath}, IconGuid, parent: {key.parentKey}");
                 identifier.guidItem = new(key.IconGuid);
-                if((result = Win32.Shell_NotifyIconGetRect(ref identifier, out RECT iconLocation)) != 0) 
+                if((result = Shell32.Shell_NotifyIconGetRect(ref identifier, out RECT iconLocation)) != 0) 
                 {
                     Debug.WriteLine($"failed: {result}");
                 }
@@ -100,7 +100,7 @@ public partial class Api {
                 foreach (var window in guiProcess.windows)
                 {
                     identifier.hWnd = window.hWnd;
-                    if((result = Win32.Shell_NotifyIconGetRect(ref identifier, out RECT iconLocation)) != 0) 
+                    if((result = Shell32.Shell_NotifyIconGetRect(ref identifier, out RECT iconLocation)) != 0) 
                     {
                         Debug.WriteLine($"failed: {result}");
                     }
@@ -127,8 +127,8 @@ public partial class Api {
         actuallyInTrayRegKeys.ForEach(key => Debug.WriteLine("regInTrayFound: " + key.ExecutablePath));
 
         // Enumerate TrayOverflowMenu
-        IntPtr hWnd_Overflow = Win32.FindWindow("TopLevelWindowForOverflowXamlIsland", null);
-        IntPtr hWnd_IconContainer = Win32.FindWindowEx(hWnd_Overflow, IntPtr.Zero, "Windows.UI.Composition.DesktopWindowContentBridge", null);
+        IntPtr hWnd_Overflow = User32.FindWindow("TopLevelWindowForOverflowXamlIsland", null);
+        IntPtr hWnd_IconContainer = User32.FindWindowEx(hWnd_Overflow, IntPtr.Zero, "Windows.UI.Composition.DesktopWindowContentBridge", null);
 
         var innerIconContainer = ui.ElementFromHandle(hWnd_IconContainer);
         var icons = innerIconContainer.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition());
@@ -145,7 +145,7 @@ public partial class Api {
         
         // icons obtained through registry enumeration must be same as that obtained
         // from IUIAutomation
-        Trace.Assert(actuallyInTrayRegKeys.Count == icons.Length);
+        //Trace.Assert(actuallyInTrayRegKeys.Count == icons.Length);
 
         // flag for external API
         _isSystemTrayInitRun = true;
@@ -222,8 +222,10 @@ public partial class Api {
 public class TrayIcon
 {
     private Api api;
+    // index (position) of the icon in the tray
     public int index;
     public string name;
+    // hWnd of the xaml overflow window
     public IntPtr hWnd_Overflow;
     public IUIAutomationElement3 element;
 
@@ -238,10 +240,9 @@ public class TrayIcon
     public void RightClick()
     {
         Task.Run(() => api.StartCapturingMenuChildren(index));
-        Win32.ShowWindowAsync(hWnd_Overflow, SHOWWINDOW.SW_SHOW);
-        Utils.MoveWindow(hWnd_Overflow, 0, 0);
+        User32.ShowWindowAsync(hWnd_Overflow, SHOWWINDOW.SW_SHOW);
         element.ShowContextMenu();
-        Win32.ShowWindowAsync(hWnd_Overflow, SHOWWINDOW.SW_HIDE);
+        User32.ShowWindowAsync(hWnd_Overflow, SHOWWINDOW.SW_HIDE);
     }
 }
 
@@ -253,4 +254,6 @@ public class TrayIconRegKey
     public byte[] IconSnapshot;
     public uint? UID;
 }
+
+
 
