@@ -166,7 +166,6 @@ public partial class Utils
         SYSTEM_PROCESS_ID_INFORMATION info = new() { ProcessId = processId, ImageName = new() { Length = 0, MaximumLength = 256, Buffer = Marshal.AllocHGlobal(512) } };
         int result = Ntdll.NtQuerySystemInformation(SystemProcessIdInformation, ref info, (uint)Marshal.SizeOf<SYSTEM_PROCESS_ID_INFORMATION>(), out uint returnLength);
         string exePath = Marshal.PtrToStringUni(info.ImageName.Buffer);
-        Debug.WriteLine($"exe: {exePath}, result: {result}");
 		Marshal.FreeHGlobal(info.ImageName.Buffer);
 
         // List all device paths
@@ -174,7 +173,6 @@ public partial class Utils
         List<string> driveNames = new();
         Dictionary<string, string> devicePathToDrivePath = new();
         driveNames = DriveInfo.GetDrives().Select(drive => drive.Name.Substring(0, 2)).ToList();
-        driveNames.ForEach(path => Debug.WriteLine(path));
         driveDevicePaths = driveNames.Select(drive => {
             StringBuilder str = new(256);
             Kernel32.QueryDosDevice(drive, str, (uint)str.Capacity);
@@ -182,15 +180,12 @@ public partial class Utils
             devicePathToDrivePath[devicePath] = drive;
             return devicePath;
         }).ToList();	
-        driveDevicePaths.ForEach(path => Debug.WriteLine(path));
 
         //
         string exePathDeviceName = driveDevicePaths.Where(path => exePath.Contains(path)).FirstOrDefault();
         string exePathDriveName = devicePathToDrivePath[exePathDeviceName];
-        Debug.WriteLine($"exe in {exePathDeviceName} which is {exePathDriveName}");
 
         string exeNtPath = Path.Join(exePathDriveName, exePath.Replace(exePathDeviceName, ""));
-        Debug.WriteLine($"exeNtPath: {exeNtPath}");
         return exeNtPath;
     }
 

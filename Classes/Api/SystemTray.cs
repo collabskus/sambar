@@ -136,11 +136,13 @@ public partial class Api {
         
         for(int i = 0; i < icons.Length; i++) {
             var icon = icons.GetElement(i);
-            TrayIcon trayIcon = new(i, api, hWnd_Overflow, icon as IUIAutomationElement3);
-            trayIcon.name = icon.CurrentName;
-            GetTrayIconImage(trayIcon.name);
+            TrayIcon trayIcon = new(i, api, hWnd_Overflow, icon as IUIAutomationElement9);
+            trayIcon.szTip = icon.CurrentName;
+            GetTrayIconImage(trayIcon.szTip);
             trayIcons.Add(trayIcon);
         }
+
+        trayIcons.ForEach(icon => Debug.WriteLine($"trayIcon, {icon.element.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition()).GetElement(0).CurrentClassName}") );
         
         STRUCTURE_CHANGED_EVENT += CaptureMenuChildren;
         
@@ -223,14 +225,19 @@ public partial class Api {
 public class TrayIcon
 {
     private Api api;
+    // hWnd of the message window responsible 
+    public int hWnd_messageWindow;
     // index (position) of the icon in the tray
     public int index;
-    public string name;
-    // hWnd of the xaml overflow window
-    public IntPtr hWnd_Overflow;
-    public IUIAutomationElement3 element;
+    // tooltip text
+    public string szTip;
+    // hWnd of the parent xaml overflow window
+    public nint hWnd_Overflow;
+    
+    // ShowContext() lives in IUIAutomationElement3 and higher
+    public IUIAutomationElement9 element;
 
-    public TrayIcon(int index, Api api, IntPtr hWnd_Overflow, IUIAutomationElement3 element)
+    public TrayIcon(int index, Api api, IntPtr hWnd_Overflow, IUIAutomationElement9 element)
     {
         this.index = index;
         this.api = api;

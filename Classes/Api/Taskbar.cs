@@ -20,7 +20,6 @@ public class TaskbarInterceptor
 {
     nint hWnd;
     CancellationTokenSource cts;
-    List<NOTIFYICONDATA> notifiedIcons = new();
     public TaskbarInterceptor() 
     { 
         cts = new();
@@ -72,6 +71,26 @@ public class TaskbarInterceptor
         }, cts.Token);
     }
 
+    List<NOTIFYICONDATA> notifiedIcons = new();
+    public void AddUnique(NOTIFYICONDATA icon)
+    {
+        var indexedIcons = notifiedIcons.Index().ToList();
+        var repIndexedIcons = indexedIcons.Where(indexedIcon => indexedIcon.Item.hWnd == icon.hWnd);
+        if(repIndexedIcons.Count() == 0)
+        {
+            notifiedIcons.Add(icon);
+        } else
+        {
+            notifiedIcons[repIndexedIcons.First().Index] = icon;
+        }
+    }
+    List<NOTIFYICONDATA> overflowIcons = new();
+    List<string> NON_OVERFLOW_CLASSES = 
+    [
+        "ATL:00007FFE3066B050", // SPEAKER
+        "BluetoothNotificationAreaIconWindowClass",
+        "ASYNCUI_NOTIFYICON_WINDOW_CLASS"
+    ];
     nint WndProc(nint hWnd, WINDOWMESSAGE uMsg, nint wParam, nint lParam)
     {
         //Debug.WriteLine($"Message: {uMsg}");
@@ -91,9 +110,15 @@ public class TaskbarInterceptor
                     case SHELLTRAYMESSAGE.ICONUPDATE:
                         SHELLTRAYDATA shellTrayData = Marshal.PtrToStructure<SHELLTRAYDATA>(copydata.lpData);
                         NOTIFYICONDATA nid = shellTrayData.nid;
-                        if (notifiedIcons.Where(icon => icon.hWnd == nid.hWnd).Count() == 0) notifiedIcons.Add(nid);
+                        // avoid adding duplicate nids targetted at the same icon
+                        // if an icon recieves new messages old ones are removed
+                        // so that notifiedIcons are unique and up to date.
+                        AddUnique(nid); 
+                        // Filter out non overflow icons to build the overflow icons collection
+                        overflowIcons = notifiedIcons.Where(icon => !NON_OVERFLOW_CLASSES.Contains(Utils.GetClassNameFromHWND((nint)icon.hWnd))).ToList();
                         Debug.WriteLine($"uid: {nid.uID}, hWnd: {nid.hWnd}, nids: {notifiedIcons.Count}");
-                        notifiedIcons.ForEach(icon => Debug.WriteLine($"class: {Utils.GetClassNameFromHWND((nint)icon.hWnd)}, exe: {Utils.GetExePathFromHWND((nint)icon.hWnd)}"));
+                        //notifiedIcons.ForEach(icon => Debug.WriteLine($"class: {Utils.GetClassNameFromHWND((nint)icon.hWnd)}, exe: {Utils.GetExePathFromHWND((nint)icon.hWnd)}"));
+                        overflowIcons.ForEach(icon => Debug.WriteLine($"class: {Utils.GetClassNameFromHWND((nint)icon.hWnd)}, exe: {Utils.GetExePathFromHWND((nint)icon.hWnd)}"));
                         break;
                 }
                 return 0;
@@ -119,3 +144,5 @@ public class TaskbarInterceptor
         Destroy();
     }
 }
+
+

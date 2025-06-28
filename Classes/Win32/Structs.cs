@@ -1,6 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 using System.Drawing;
-using System.Reflection.Metadata;
 
 namespace sambar;
 
@@ -8,6 +7,13 @@ namespace sambar;
 /// DWORD := uint
 /// HWND  := nint
 /// PVOID := nint
+/// </summary>
+/// ------------------------
+
+
+
+/// <summary>
+/// For controlling the visibility and autohide behaviours of the taksbar
 /// </summary>
 
 [StructLayout(LayoutKind.Sequential)]
@@ -91,6 +97,11 @@ public struct TIMEOUTVERSIONUNION
 	public uint uVersion;
 }
 
+/// <summary>
+/// Very delicate struct, you might also notice that hWnd is an uint instead of the usual nint
+/// (IntPtr)
+/// </summary>
+
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
 public struct NOTIFYICONDATA
 {
@@ -114,6 +125,11 @@ public struct NOTIFYICONDATA
 	public uint hBalloonIcon;
 }
 
+/// <summary>
+/// Message Type recieved or send to Taskbar [Shell_TrayWnd]
+/// during the WM_COPYDATA event
+/// </summary>
+
 [StructLayout(LayoutKind.Sequential)]
 public struct SHELLTRAYDATA
 {
@@ -121,6 +137,11 @@ public struct SHELLTRAYDATA
 	public uint dwMessage;
 	public NOTIFYICONDATA nid;
 }
+
+/// <summary>
+/// Win32 basic window message type used by SendMessage(), GetMessage(), TranslateMessage()
+/// DispatchMessage() etc
+/// </summary>
 
 [StructLayout(LayoutKind.Sequential)]
 public struct MSG
@@ -141,6 +162,11 @@ public struct UNICODE_STRING
 	public ushort MaximumLength;
 	public nint Buffer;
 }
+
+/// <summary>
+/// Used by NtQuerySystemInformation in ntdll to query process module paths without 
+/// elevated priveleges. Part of the undocumented windows api
+/// </summary>
 
 [StructLayout(LayoutKind.Sequential)]
 public struct SYSTEM_PROCESS_ID_INFORMATION
