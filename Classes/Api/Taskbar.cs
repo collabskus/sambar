@@ -20,6 +20,7 @@ public class TaskbarInterceptor
 {
     nint hWnd;
     CancellationTokenSource cts;
+    List<NOTIFYICONDATA> notifiedIcons = new();
     public TaskbarInterceptor() 
     { 
         cts = new();
@@ -61,9 +62,8 @@ public class TaskbarInterceptor
                 Debug.WriteLine($"SetWindowPos() failed: {Marshal.GetLastWin32Error()}");
             }
 
-            uint taskbarCreatedMsg = User32.RegisterWindowMessage("TaskbarCreated");
-            User32.SendNotifyMessage((nint)0xffff, taskbarCreatedMsg, 0, 0);
-
+            RefreshTaskbar();
+            
             while (User32.GetMessage(out MSG msg, hWnd, 0, 0) > 0)
             {
                 User32.TranslateMessage(ref msg);
@@ -74,7 +74,7 @@ public class TaskbarInterceptor
 
     nint WndProc(nint hWnd, WINDOWMESSAGE uMsg, nint wParam, nint lParam)
     {
-        Debug.WriteLine($"Message: {uMsg}");
+        //Debug.WriteLine($"Message: {uMsg}");
         switch (uMsg)
         {
             case WINDOWMESSAGE.WM_CLOSE:
@@ -83,29 +83,32 @@ public class TaskbarInterceptor
             case WINDOWMESSAGE.WM_DESTROY:
                 User32.PostQuitMessage(0);
                 return 0;
-            case WINDOWMESSAGE.WM_TIMER:
-                User32.SetWindowPos(hWnd, (nint)(-1), 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE);
-                return 0;
             case WINDOWMESSAGE.WM_COPYDATA:
                 COPYDATASTRUCT copydata = Marshal.PtrToStructure<COPYDATASTRUCT>(lParam);
                 if (copydata.cbData == 0) return 0;
-                SHELLTRAYDATA shellTrayData = Marshal.PtrToStructure<SHELLTRAYDATA>(copydata.lpData);
-                NOTIFYICONDATA notifyIconData = shellTrayData.nid;
-                switch ((TASKBARMESSAGE)copydata.dwData)
+                switch ((SHELLTRAYMESSAGE)copydata.dwData)
                 {
-                    case TASKBARMESSAGE.NIM_ADD:
-                        Debug.WriteLine($"Icon add");
-                        return 0;
-                    case TASKBARMESSAGE.NIM_MODIFY:
-                        Debug.WriteLine($"Icon modify, {copydata.cbData}");
-                        Debug.WriteLine($"uid: {notifyIconData.uID}, hWnd: {notifyIconData.hWnd}, tip: {notifyIconData.szTip}, tipCount: {notifyIconData.szTip.Count()}, cbSize: {notifyIconData.cbSize}");
-                        return 0;
+                    case SHELLTRAYMESSAGE.ICONUPDATE:
+                        SHELLTRAYDATA shellTrayData = Marshal.PtrToStructure<SHELLTRAYDATA>(copydata.lpData);
+                        NOTIFYICONDATA nid = shellTrayData.nid;
+                        if (notifiedIcons.Where(icon => icon.hWnd == nid.hWnd).Count() == 0) notifiedIcons.Add(nid);
+                        Debug.WriteLine($"uid: {nid.uID}, hWnd: {nid.hWnd}, nids: {notifiedIcons.Count}");
+                        notifiedIcons.ForEach(icon => Debug.WriteLine($"class: {Utils.GetClassNameFromHWND((nint)icon.hWnd)}, exe: {Utils.GetExePathFromHWND((nint)icon.hWnd)}"));
+                        break;
                 }
                 return 0;
             default:
                 return User32.DefWindowProc(hWnd, uMsg, wParam, lParam);
         }
     }
+
+    public void RefreshTaskbar()
+    {
+        uint taskbarCreatedMsg = User32.RegisterWindowMessage("TaskbarCreated");
+        // 0xffff := HWND_BROADCAST
+        User32.SendNotifyMessage((nint)0xffff, taskbarCreatedMsg, 0, 0);
+    }
+
     public void Destroy()
     {
         User32.DestroyWindow(hWnd);

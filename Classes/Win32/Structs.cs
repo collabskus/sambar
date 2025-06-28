@@ -82,7 +82,7 @@ public struct COPYDATASTRUCT
 }
 
 [StructLayout(LayoutKind.Explicit)]
-public struct TimeoutVersionUnion
+public struct TIMEOUTVERSIONUNION
 {
 	[FieldOffset(0)]
 	public uint uTimeout;
@@ -105,7 +105,7 @@ public struct NOTIFYICONDATA
 	public uint dwStateMask;
 	[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
 	public string szInfo;
-	public TimeoutVersionUnion uTimeoutOrVersion;
+	public TIMEOUTVERSIONUNION uTimeoutOrVersion;
 	[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
 	public string szInfoTitle;
 	public uint dwInfoFlags;

@@ -136,11 +136,21 @@ public class Kernel32
 
     [DllImport("kernel32.dll", SetLastError = true)]
     public static extern nint GetModuleHandle(string moduleName);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    public static extern nint OpenProcess(uint processAccess, bool bInheritHandle, int processId);
+
 }
 
 public class Dwmapi
 {
     [DllImport("dwmapi.dll", SetLastError = true)]
 	public static extern int DwmSetWindowAttribute(nint hWnd, DWMWINDOWATTRIBUTE attr, ref int attrValue, int attrSize);
+}
+
+public class Psapi
+{
+    [DllImport("psapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+	public static extern uint GetModuleFileNameEx(nint hProcess, nint hModule, out StringBuilder moduleFileName, uint nSize);
 }
 

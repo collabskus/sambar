@@ -388,12 +388,30 @@ public enum WINDOWMESSAGE : uint
 	WM_XBUTTONUP = 0x020C,
 }
 
-public enum TASKBARMESSAGE : int
+/// <summary>
+/// WM_COPYDATA message sent to Taskbar [Shell_TrayWnd] carries data
+/// in its lpData field which is one of the three 
+/// different types identified by its dwData field
+/// </summary>
+public enum SHELLTRAYMESSAGE : int
+{
+	// Resolve to SHELLTRAYDATA struct to use data for ICONUPDATE
+	ICONUPDATE = 1,
+	APPBAR = 2,
+	TRAYICONPOSITION = 3
+}
+
+public enum SHELLTRAYICONACTION : int
 {
 	NIM_ADD = 0x00000000,
 	NIM_MODIFY = 0x00000001,
 	NIM_DELETE = 0x00000002,
 	NIM_SETFOCUS = 0x00000003,
 	NIM_SETVERSION = 0x00000004
+}
+
+public enum SHELLTRAYICONSTATE : int
+{
+
 }
 

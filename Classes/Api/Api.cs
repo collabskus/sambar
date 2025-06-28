@@ -17,6 +17,7 @@ public partial class Api {
     {
         EventsInit();
         WindowingInit();
+        SystemTrayInit();
         TaskbarInit();
     }
 

@@ -7,6 +7,7 @@ using System.Windows.Media;
 using SharpVectors.Dom.Stylesheets;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Management;
 
 namespace sambar;
 
@@ -34,14 +35,14 @@ public partial class Utils
 		return styleList;
 	}
 
-	public static List<string> GetStylesFromHwnd(IntPtr hWnd)
+	public static List<string> GetStylesFromHwnd(nint hWnd)
 	{
 		uint stylesUInt = User32.GetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_STYLE);
 		//Debug.WriteLine($"GetStylesFromHwnd(): {Marshal.GetLastWin32Error()}");
 		return GetStyleListFromUInt(stylesUInt);
 	}
 
-	public static bool IsContextMenu(IntPtr hWnd)
+	public static bool IsContextMenu(nint hWnd)
 	{
 		var styleList = Utils.GetStylesFromHwnd(hWnd);
 		//Debug.WriteLine($"IsContextMenu(): {Marshal.GetLastWin32Error()}");
@@ -57,7 +58,7 @@ public partial class Utils
         return false;
 	}
 
-	public static bool IsWindowVisible(IntPtr hWnd)
+	public static bool IsWindowVisible(nint hWnd)
 	{
 		var styleList = Utils.GetStylesFromHwnd(hWnd);
 		//Debug.WriteLine($"IsWindowVisible(): {Marshal.GetLastWin32Error()}");
@@ -65,31 +66,31 @@ public partial class Utils
         return false;
 	}
 
-	public static IntPtr GetWindowUnderCursor()
+	public static nint GetWindowUnderCursor()
 	{
 		User32.GetCursorPos(out POINT pt);
 		return User32.WindowFromPoint(pt);
 	}
 
-	public static void MoveWindowToCursor(IntPtr hWnd, int offsetX = 0, int offsetY = 0)
+	public static void MoveWindowToCursor(nint hWnd, int offsetX = 0, int offsetY = 0)
 	{
 		User32.GetCursorPos(out POINT cursorPos);
-		User32.SetWindowPos(hWnd, IntPtr.Zero, cursorPos.X + offsetX, cursorPos.Y + offsetY, 0, 0, SETWINDOWPOS.SWP_NOSIZE);
+		User32.SetWindowPos(hWnd, nint.Zero, cursorPos.X + offsetX, cursorPos.Y + offsetY, 0, 0, SETWINDOWPOS.SWP_NOSIZE);
 	}
 
-	public static void MoveWindow(IntPtr hWnd, int x, int y)
+	public static void MoveWindow(nint hWnd, int x, int y)
 	{
-		User32.SetWindowPos(hWnd, IntPtr.Zero, x, y, 0, 0, SETWINDOWPOS.SWP_NOSIZE);
+		User32.SetWindowPos(hWnd, nint.Zero, x, y, 0, 0, SETWINDOWPOS.SWP_NOSIZE);
 	}
 
-	public static string GetClassNameFromHWND(IntPtr hWnd)
+	public static string GetClassNameFromHWND(nint hWnd)
 	{
 		StringBuilder str = new(256);
 		User32.GetClassName(hWnd, str, str.Capacity);
 		return str.ToString();
 	}
 
-	public static (int, int) GetWindowDimensions(IntPtr hWnd)
+	public static (int, int) GetWindowDimensions(nint hWnd)
 	{
 		User32.GetWindowRect(hWnd, out RECT rect);
 		int Width = rect.Right - rect.Left;
@@ -97,10 +98,10 @@ public partial class Utils
 		return (Width, Height);
 	}
 
-    public static IntPtr GetHWNDFromPID(int processId)
+    public static nint GetHWNDFromPID(int processId)
     {
-        IntPtr found_hWnd = new();
-        EnumWindowProc enumWindowProc = (IntPtr hWnd, IntPtr lParam) => {
+        nint found_hWnd = new();
+        EnumWindowProc enumWindowProc = (nint hWnd, nint lParam) => {
             User32.GetWindowThreadProcessId(hWnd, out int _processId);	
             if(_processId == processId) {
                 found_hWnd = hWnd;	
@@ -108,7 +109,7 @@ public partial class Utils
             }
             return true;
         };
-        User32.EnumWindows(enumWindowProc, (IntPtr)processId);
+        User32.EnumWindows(enumWindowProc, (nint)processId);
         return found_hWnd;
     }
 
@@ -143,6 +144,15 @@ public partial class Utils
         User32.EnumWindows(enumWindowProc, nint.Zero);
         return guiProcesses;
     }	
+
+	public static string? GetExePathFromHWND(nint hWnd)
+	{
+		User32.GetWindowThreadProcessId(hWnd, out int processId);
+		List<GUIProcess> allWindows = EnumWindowProcesses();
+		Process? process = allWindows.Where(guiProcess => guiProcess.process.Id == processId).FirstOrDefault()?.process;
+		return "";
+    }
+
 }
 
 public class _Window

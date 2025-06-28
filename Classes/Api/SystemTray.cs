@@ -199,8 +199,8 @@ public partial class Api {
     // API Endpoint
     public List<TrayIcon> GetTrayIcons()
     {
-        if(!_isSystemTrayInitRun) api.SystemTrayInit();
-        return api.trayIcons;
+        if(!_isSystemTrayInitRun) SystemTrayInit();
+        return trayIcons;
     }
 
     void GetTrayIconImage(string tooltipText)
