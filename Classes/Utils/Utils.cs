@@ -8,6 +8,7 @@ using SharpVectors.Dom.Stylesheets;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Management;
+using System.IO;
 
 namespace sambar;
 
@@ -148,9 +149,49 @@ public partial class Utils
 	public static string? GetExePathFromHWND(nint hWnd)
 	{
 		User32.GetWindowThreadProcessId(hWnd, out int processId);
-		List<GUIProcess> allWindows = EnumWindowProcesses();
-		Process? process = allWindows.Where(guiProcess => guiProcess.process.Id == processId).FirstOrDefault()?.process;
-		return "";
+
+		if (Environment.IsPrivilegedProcess)
+		{
+			List<GUIProcess> allWindows = EnumWindowProcesses();
+			Process? process = allWindows.Where(guiProcess => guiProcess.process.Id == processId).FirstOrDefault()?.process;
+			return process?.MainModule?.FileName;
+		}
+		
+		/// <summary>
+        /// Getting module filenames without elevated privileges
+        /// NtQuerySystemInformation() := undocumented internal API
+        /// https://stackoverflow.com/a/75084784/14588925
+        /// </summary>
+		const uint SystemProcessIdInformation = 0x58;
+        SYSTEM_PROCESS_ID_INFORMATION info = new() { ProcessId = processId, ImageName = new() { Length = 0, MaximumLength = 256, Buffer = Marshal.AllocHGlobal(512) } };
+        int result = Ntdll.NtQuerySystemInformation(SystemProcessIdInformation, ref info, (uint)Marshal.SizeOf<SYSTEM_PROCESS_ID_INFORMATION>(), out uint returnLength);
+        string exePath = Marshal.PtrToStringUni(info.ImageName.Buffer);
+        Debug.WriteLine($"exe: {exePath}, result: {result}");
+		Marshal.FreeHGlobal(info.ImageName.Buffer);
+
+        // List all device paths
+        List<string> driveDevicePaths = new();
+        List<string> driveNames = new();
+        Dictionary<string, string> devicePathToDrivePath = new();
+        driveNames = DriveInfo.GetDrives().Select(drive => drive.Name.Substring(0, 2)).ToList();
+        driveNames.ForEach(path => Debug.WriteLine(path));
+        driveDevicePaths = driveNames.Select(drive => {
+            StringBuilder str = new(256);
+            Kernel32.QueryDosDevice(drive, str, (uint)str.Capacity);
+            string devicePath = str.ToString();
+            devicePathToDrivePath[devicePath] = drive;
+            return devicePath;
+        }).ToList();	
+        driveDevicePaths.ForEach(path => Debug.WriteLine(path));
+
+        //
+        string exePathDeviceName = driveDevicePaths.Where(path => exePath.Contains(path)).FirstOrDefault();
+        string exePathDriveName = devicePathToDrivePath[exePathDeviceName];
+        Debug.WriteLine($"exe in {exePathDeviceName} which is {exePathDriveName}");
+
+        string exeNtPath = Path.Join(exePathDriveName, exePath.Replace(exePathDeviceName, ""));
+        Debug.WriteLine($"exeNtPath: {exeNtPath}");
+        return exeNtPath;
     }
 
 }

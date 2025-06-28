@@ -1,3 +1,10 @@
+/*
+*   Utility to get Module File Name without admin elevated rights
+*   Process?.MainModule?.FileName fails in non elevated environments
+*   Relies on the undocumented NtQuerySystemInformation() function inside ntdll.dll
+*   COMPILE: gcc ntquery.c -lntdll
+*/
+
 #include <windows.h>
 #include <BaseTsd.h>
 #include <ntdef.h>

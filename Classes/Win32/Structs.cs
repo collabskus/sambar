@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Drawing;
+using System.Reflection.Metadata;
 
 namespace sambar;
 
@@ -132,4 +133,20 @@ public struct MSG
 	public POINT pt;
 	public uint lPrivate;
 }
+
+[StructLayout(LayoutKind.Sequential)]
+public struct UNICODE_STRING
+{
+	public ushort Length;
+	public ushort MaximumLength;
+	public nint Buffer;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct SYSTEM_PROCESS_ID_INFORMATION
+{
+	public nint ProcessId;
+	public UNICODE_STRING ImageName;
+}
+
 

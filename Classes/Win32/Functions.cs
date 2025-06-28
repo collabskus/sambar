@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Text;
+using SharpVectors.Dom;
 
 namespace sambar;
 
@@ -140,6 +141,18 @@ public class Kernel32
     [DllImport("kernel32.dll", SetLastError = true)]
     public static extern nint OpenProcess(uint processAccess, bool bInheritHandle, int processId);
 
+    [DllImport("kernel32.dll")]
+    public static extern uint GetLogicalDriveStringsW(
+      uint nBufferLength,
+      StringBuilder lpBuffer
+    );
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern uint QueryDosDevice(
+      string lpDeviceName,
+      StringBuilder lpTargetPath,
+      uint ucchMax
+    );
 }
 
 public class Dwmapi
@@ -152,5 +165,12 @@ public class Psapi
 {
     [DllImport("psapi.dll", SetLastError = true, CharSet = CharSet.Unicode)]
 	public static extern uint GetModuleFileNameEx(nint hProcess, nint hModule, out StringBuilder moduleFileName, uint nSize);
+}
+
+public class Ntdll
+{
+    [DllImport("ntdll.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern int NtQuerySystemInformation(uint infoType, ref SYSTEM_PROCESS_ID_INFORMATION info, uint infoLength, out uint returnLength);
+
 }
 
