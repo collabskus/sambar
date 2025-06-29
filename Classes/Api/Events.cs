@@ -70,6 +70,10 @@ public class StructureChangedMessage
     public ControlType controlType;
 }
 
+/// <summary>
+/// IUIAutomation ControlTypes
+/// </summary>
+
 public enum ControlType : int
 {
     APPBAR = 50040,

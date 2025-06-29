@@ -108,6 +108,16 @@ public class User32
     [DllImport("user32.dll", SetLastError = true)]
     public static extern uint RegisterWindowMessage(string message);
 
+    /// <summary>
+    /// Use when msg is not in WINDOWMESSAGE enum, like in situations where a new boradcast
+    /// message has to be sent
+    /// </summary>
+    /// <param name="hWnd"></param>
+    /// <param name="msg"></param>
+    /// <param name="wParam"></param>
+    /// <param name="lParam"></param>
+    /// <returns></returns>
+
     [DllImport("user32.dll", SetLastError = true)]
     public static extern int SendNotifyMessage(
         nint hWnd,
@@ -116,9 +126,24 @@ public class User32
         nint lParam
     );
 
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern int SendNotifyMessage(
+        nint hWnd,
+        WINDOWMESSAGE msg,
+        nint wParam,
+        nint lParam
+    );
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern int SendMessage(
+        nint hWnd,
+        WINDOWMESSAGE msg,
+        nint wParam,
+        nint lParam
+    );
+
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern void SetTimer(nint hWnd, nint nIdEvent, uint uElapse, TIMERPROC timerProc);
-
 }
 
 public class Shell32

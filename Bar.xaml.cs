@@ -22,16 +22,16 @@ namespace sambar;
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class Bar : Window
+public partial class Sambar : Window
 {
 	private IntPtr hWnd;
-
+    public static Api api = new();
 	string configFile = "C:\\Users\\Jayakuttan\\dev\\sambar\\sambar.json";
 	BarConfig config = new();
-	public Bar()
+	public Sambar()
 	{
         InitializeComponent();
-
+		api.barWindow = this;
 		SourceInitialized += (s, e) =>
 		{
 			hWnd = new WindowInteropHelper(this).Handle;
@@ -39,7 +39,6 @@ public partial class Bar : Window
             AddWidgets();
 		};
 
-		Api.barWindow = this;
 	}
 	
     bool barTransparent = false;
@@ -58,7 +57,7 @@ public partial class Bar : Window
         }
 		
 		// setting a copy of the config to the API
-		Api.config = config;
+		api.config = config;
 
 		this.Background = Utils.BrushFromHex(config.backgroundColor);
 		if(this.Background.Equals(Colors.Transparent)) { barTransparent = true; }

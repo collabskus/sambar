@@ -116,9 +116,9 @@ public class TaskbarInterceptor
                         AddUnique(nid); 
                         // Filter out non overflow icons to build the overflow icons collection
                         overflowIcons = notifiedIcons.Where(icon => !NON_OVERFLOW_CLASSES.Contains(Utils.GetClassNameFromHWND((nint)icon.hWnd))).ToList();
-                        Debug.WriteLine($"uid: {nid.uID}, hWnd: {nid.hWnd}, nids: {notifiedIcons.Count}");
+                        //Debug.WriteLine($"uid: {nid.uID}, hWnd: {nid.hWnd}, nids: {notifiedIcons.Count}");
                         //notifiedIcons.ForEach(icon => Debug.WriteLine($"class: {Utils.GetClassNameFromHWND((nint)icon.hWnd)}, exe: {Utils.GetExePathFromHWND((nint)icon.hWnd)}"));
-                        overflowIcons.ForEach(icon => Debug.WriteLine($"class: {Utils.GetClassNameFromHWND((nint)icon.hWnd)}, exe: {Utils.GetExePathFromHWND((nint)icon.hWnd)}"));
+                        //overflowIcons.ForEach(icon => Debug.WriteLine($"class: {Utils.GetClassNameFromHWND((nint)icon.hWnd)}, exe: {Utils.GetExePathFromHWND((nint)icon.hWnd)}"));
                         break;
                 }
                 return 0;

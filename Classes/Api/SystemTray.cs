@@ -18,7 +18,6 @@ public partial class Api {
     private List<TrayIconRegKey> UIOrderListRegKeys = new();
 
     // Constructor
-    bool _isSystemTrayInitRun = false;
     private void SystemTrayInit()
     {
         // for trayIcon's images
@@ -136,95 +135,31 @@ public partial class Api {
         
         for(int i = 0; i < icons.Length; i++) {
             var icon = icons.GetElement(i);
-            TrayIcon trayIcon = new(i, api, hWnd_Overflow, icon as IUIAutomationElement9);
+            TrayIcon trayIcon = new(i, hWnd_Overflow, icon as IUIAutomationElement3);
             trayIcon.szTip = icon.CurrentName;
-            GetTrayIconImage(trayIcon.szTip);
             trayIcons.Add(trayIcon);
         }
 
-        trayIcons.ForEach(icon => Debug.WriteLine($"trayIcon, {icon.element.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition()).GetElement(0).CurrentClassName}") );
+        //trayIcons.ForEach(icon => Debug.WriteLine($"trayIcon, {icon.element.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition()).GetElement(0).CurrentClassName}") );
         
-        STRUCTURE_CHANGED_EVENT += CaptureMenuChildren;
         
         // icons obtained through registry enumeration must be same as that obtained
         // from IUIAutomation
         //Trace.Assert(actuallyInTrayRegKeys.Count == icons.Length);
 
-        // flag for external API
-        _isSystemTrayInitRun = true;
 
-    }
-
-    private bool trayIconRightClicked = false;
-    private Dictionary<int, List<StructureChangedMessage>> trayIconMenuChildren = new();
-    private int rightClickedTrayIconIndex; 
-    public async void StartCapturingMenuChildren(int iconIndex)
-    { 
-        trayIconRightClicked = true;
-        rightClickedTrayIconIndex = iconIndex;
-        if (trayIconMenuChildren.ContainsKey(rightClickedTrayIconIndex))
-        {
-            trayIconMenuChildren[rightClickedTrayIconIndex].ForEach(msg => Utils.MoveWindowToCursor(msg.hWnd));
-            return;
-        }
-        // 2s capturing window for CaptureMenuChildren()
-        await Task.Delay(2000);
-        Debug.WriteLine("Collection finished");
-        trayIconRightClicked = false;
-        if (trayIconMenuChildren.ContainsKey(rightClickedTrayIconIndex))
-        {
-            trayIconMenuChildren[rightClickedTrayIconIndex]
-                .Add(new StructureChangedMessage() { name = "END" }); // mark list as completed
-        }
-    } 
-    private void CaptureMenuChildren(StructureChangedMessage msg)
-    {
-        Debug.WriteLine($"StructureChanged, name: {msg.name}, class: {msg.className}, type: {msg.controlType}");
-        if (msg.className == "sambarContextMenu") return;
-        if (trayIconRightClicked)
-        {
-            Utils.MoveWindowToCursor(msg.hWnd);
-            if (!trayIconMenuChildren.ContainsKey(rightClickedTrayIconIndex))
-            {
-                trayIconMenuChildren[rightClickedTrayIconIndex] = new();
-                trayIconMenuChildren[rightClickedTrayIconIndex].Add(msg); 
-                return;
-            }
-
-            if (trayIconMenuChildren[rightClickedTrayIconIndex].Last().name != "END")
-            {
-                trayIconMenuChildren[rightClickedTrayIconIndex].Add(msg); 
-            }
-        }
     }
 
     // API Endpoint
     public List<TrayIcon> GetTrayIcons()
     {
-        if(!_isSystemTrayInitRun) SystemTrayInit();
         return trayIcons;
     }
 
-    void GetTrayIconImage(string tooltipText)
-    {
-        var subKeys = trayIconsRegistryKeyRoot.GetSubKeyNames();
-        string? iconKeyName = subKeys
-            .ToList()
-            .Where(key =>
-            {
-                return 
-                    (string?)trayIconsRegistryKeyRoot
-                    ?.OpenSubKey(key)
-                    ?.GetValue("InitialTooltip") == tooltipText;
-            })
-            ?.FirstOrDefault();
-        Debug.WriteLine($"regkey found: {iconKeyName}");
-    }
 }
 
 public class TrayIcon
 {
-    private Api api;
     // hWnd of the message window responsible 
     public int hWnd_messageWindow;
     // index (position) of the icon in the tray
@@ -233,21 +168,22 @@ public class TrayIcon
     public string szTip;
     // hWnd of the parent xaml overflow window
     public nint hWnd_Overflow;
+    // our custom menu
+    public Menu ourMenu;
     
     // ShowContext() lives in IUIAutomationElement3 and higher
-    public IUIAutomationElement9 element;
+    public IUIAutomationElement3 element;
 
-    public TrayIcon(int index, Api api, IntPtr hWnd_Overflow, IUIAutomationElement9 element)
+    public TrayIcon(int index, IntPtr hWnd_Overflow, IUIAutomationElement3 element)
     {
         this.index = index;
-        this.api = api;
         this.hWnd_Overflow = hWnd_Overflow;
         this.element = element;
     }
 
     public void RightClick()
     {
-        Task.Run(() => api.StartCapturingMenuChildren(index));
+        Task.Run(() => Sambar.api.StartTimedWindowCapture());
         User32.ShowWindowAsync(hWnd_Overflow, SHOWWINDOW.SW_SHOW);
         element.ShowContextMenu();
         User32.ShowWindowAsync(hWnd_Overflow, SHOWWINDOW.SW_HIDE);

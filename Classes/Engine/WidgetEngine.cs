@@ -42,7 +42,7 @@ public class Widget : Border
 	BarConfig config;	
 	public Widget() {
 		this.HorizontalAlignment = HorizontalAlignment.Left;
-		config = Api.config;
+		config = Sambar.api.config;
 	}
 }
 
@@ -165,7 +165,7 @@ public class WidgetLoader
 		[
 			MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(Object).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Bar).Assembly.Location),
+			MetadataReference.CreateFromFile(typeof(Sambar).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(Debug).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(Thread).Assembly.Location),

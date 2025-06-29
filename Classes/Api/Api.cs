@@ -12,7 +12,6 @@ namespace sambar;
 /// </summary>
 public partial class Api {
 
-    private static Api api = new();
     public Api()
     {
         EventsInit();
@@ -26,10 +25,10 @@ public partial class Api {
     }
     
     // so that widgets and scripts can use it
-    public static BarConfig config;
+    public BarConfig config;
     
     // instance of mainWindow
-    public static Window barWindow; 
+    public Window barWindow; 
 
     // IUIAutomation
     CUIAutomation ui = new();
@@ -37,7 +36,7 @@ public partial class Api {
     // Get Api object
     public static Api GetInstance()
     {
-        return api;
+        return Sambar.api;
     }
 }
 

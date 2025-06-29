@@ -45,8 +45,8 @@ public partial class Api {
     // API Endpoint
     public void HideTaskbar()
     {
-        if(!_isToggleTaskbarInitRun) api.ToggleTaskbarInit();
-        api.ToggleTaskbar();
+        if(!_isToggleTaskbarInitRun) ToggleTaskbarInit();
+        ToggleTaskbar();
     }
 }
 
