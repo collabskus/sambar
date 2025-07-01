@@ -18,6 +18,7 @@ public partial class Api {
         WindowingInit();
         SystemTrayInit();
         TaskbarInit();
+        ClockInit();
     }
 
     public static void Print(string text) {

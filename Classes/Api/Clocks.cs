@@ -12,7 +12,9 @@ public partial class Api
         {
             while(true)
             {
-                await Task.Delay(60000);
+                Time now = new();
+                CLOCK_TICKED(now);
+                await Task.Delay(1000);
             }
         });
     }
@@ -23,11 +25,11 @@ public partial class Api
 
 public class Time
 {
-    public int seconds;
-    public int minutes;
-    public int hours;
-    public int day;
-    public int month;
-    public int year;
+    public int seconds = DateTime.Now.Second;
+    public int minutes = DateTime.Now.Minute;
+    public int hours = DateTime.Now.Hour;
+    public int day = DateTime.Now.Day;
+    public int month = DateTime.Now.Month;
+    public int year = DateTime.Now.Year;
 }
 

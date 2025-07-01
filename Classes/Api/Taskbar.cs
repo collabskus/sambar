@@ -262,7 +262,6 @@ public class TrayIcon
             validatedNid.uCallbackMessage = nid.uID;
         }
 
-        
         // handling special classes
         // [ATL:00007FFE197FD000] SecurityHealthSystray.exe
         if(this.className == "ATL:00007FFE197FD000")
