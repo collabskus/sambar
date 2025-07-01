@@ -4,7 +4,6 @@ namespace sambar;
 
 public partial class Api
 {
-
     public void WindowCatcherInit()
     {
         STRUCTURE_CHANGED_EVENT += CaptureWindows;

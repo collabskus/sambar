@@ -127,18 +127,18 @@ public partial class Api {
         actuallyInTrayRegKeys.ForEach(key => Debug.WriteLine("regInTrayFound: " + key.ExecutablePath));
         */
         // Enumerate TrayOverflowMenu
-        IntPtr hWnd_Overflow = User32.FindWindow("TopLevelWindowForOverflowXamlIsland", null);
-        IntPtr hWnd_IconContainer = User32.FindWindowEx(hWnd_Overflow, IntPtr.Zero, "Windows.UI.Composition.DesktopWindowContentBridge", null);
+        //IntPtr hWnd_Overflow = User32.FindWindow("TopLevelWindowForOverflowXamlIsland", null);
+        //IntPtr hWnd_IconContainer = User32.FindWindowEx(hWnd_Overflow, IntPtr.Zero, "Windows.UI.Composition.DesktopWindowContentBridge", null);
 
-        var innerIconContainer = ui.ElementFromHandle(hWnd_IconContainer);
-        var icons = innerIconContainer.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition());
-        
-        for(int i = 0; i < icons.Length; i++) {
-            var icon = icons.GetElement(i);
-            TrayIcon trayIcon = new(i, hWnd_Overflow, icon as IUIAutomationElement3);
-            trayIcon.szTip = icon.CurrentName;
-            trayIcons.Add(trayIcon);
-        }
+        //var innerIconContainer = ui.ElementFromHandle(hWnd_IconContainer);
+        //var icons = innerIconContainer.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition());
+        //
+        //for(int i = 0; i < icons.Length; i++) {
+        //    var icon = icons.GetElement(i);
+        //    TrayIcon trayIcon = new(i, hWnd_Overflow, icon as IUIAutomationElement3);
+        //    trayIcon.szTip = icon.CurrentName;
+        //    trayIcons.Add(trayIcon);
+        //}
 
         //trayIcons.ForEach(icon => Debug.WriteLine($"trayIcon, {icon.element.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition()).GetElement(0).CurrentClassName}") );
         
@@ -150,45 +150,9 @@ public partial class Api {
 
     }
 
-    // API Endpoint
-    public List<TrayIcon> GetTrayIcons()
-    {
-        return trayIcons;
-    }
-
+   
 }
 
-public class TrayIcon
-{
-    // hWnd of the message window responsible 
-    public int hWnd_messageWindow;
-    // index (position) of the icon in the tray
-    public int index;
-    // tooltip text
-    public string szTip;
-    // hWnd of the parent xaml overflow window
-    public nint hWnd_Overflow;
-    // our custom menu
-    public Menu ourMenu;
-    
-    // ShowContext() lives in IUIAutomationElement3 and higher
-    public IUIAutomationElement3 element;
-
-    public TrayIcon(int index, IntPtr hWnd_Overflow, IUIAutomationElement3 element)
-    {
-        this.index = index;
-        this.hWnd_Overflow = hWnd_Overflow;
-        this.element = element;
-    }
-
-    public void RightClick()
-    {
-        Task.Run(() => Sambar.api.StartTimedWindowCapture());
-        User32.ShowWindowAsync(hWnd_Overflow, SHOWWINDOW.SW_SHOW);
-        element.ShowContextMenu();
-        User32.ShowWindowAsync(hWnd_Overflow, SHOWWINDOW.SW_HIDE);
-    }
-}
 
 public class TrayIconRegKey
 {

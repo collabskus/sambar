@@ -55,9 +55,32 @@ public struct WINDOWPLACEMENT
 	public RECT rcDevice;
 }
 
+/// <summary>
+/// struct that applications use to query its tray icon information using
+/// Shell_NotifyIcon() and Shell_NotifyIconGetRect(), these functions would then send
+/// another internal struct [_NOTIFYICONIDENTIFIERINTERNAL] containing additional items 
+/// to Shell_TrayWnd
+/// </summary>
+
 [StructLayout(LayoutKind.Sequential)]
 public struct _NOTIFYICONIDENTIFIER {
 	public uint cbSize;
+	public nint hWnd;
+	public uint UID;
+	public Guid guidItem;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct _NOTIFYICONIDENTIFIERINTERNAL
+{
+	//--------------------
+	public int magicNumber;
+	public int msg;
+	//---------------------
+	public int callbackSize;
+	//---------------------
+	public int padding;
+	//---------------------
 	public nint hWnd;
 	public uint UID;
 	public Guid guidItem;
@@ -106,9 +129,23 @@ public struct TIMEOUTVERSIONUNION
 public struct NOTIFYICONDATA
 {
 	public uint cbSize;
+	/// <summary>
+	/// Window handle of the message processing window for the tray icon. This is NOT
+	/// the handle to the actual icon's window, the actual icon might not even have a window
+	/// to begin with (which is the case with XAML elements)
+	/// </summary>
 	public uint hWnd;
 	public uint uID;
 	public uint uFlags;
+	/// <summary>
+	/// SendMessage(hWnd, uCallbackMessage, ..., ...) 
+	/// Wait what ? ......^...
+	/// isnt it supposed to be a window message defined in WINDOWMESSAGE such as WM_CONTEXTMENU 
+	/// or WM_RIGHTBUTTONDOWN ? well the actual window the gets the WM_RIGHTBUTTONDOWN when 
+	/// the icon is rightclicked is the window hoisting the icon TopLevelXamlOverflowWindow
+	/// or even Shell_TrayWnd. It then requests the message processing window of the icon (window with handle hWnd)
+	/// for a context menu.
+	/// </summary>
 	public uint uCallbackMessage;
 	public uint hIcon;
 	[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
@@ -131,7 +168,7 @@ public struct NOTIFYICONDATA
 /// </summary>
 
 [StructLayout(LayoutKind.Sequential)]
-public struct SHELLTRAYDATA
+public struct SHELLTRAYICONUPDATEDATA
 {
 	public int dwHz;
 	public uint dwMessage;

@@ -103,7 +103,7 @@ public partial class Utils
     {
         nint found_hWnd = new();
         EnumWindowProc enumWindowProc = (nint hWnd, nint lParam) => {
-            User32.GetWindowThreadProcessId(hWnd, out int _processId);	
+            User32.GetWindowThreadProcessId(hWnd, out uint _processId);	
             if(_processId == processId) {
                 found_hWnd = hWnd;	
                 return false;
@@ -119,8 +119,8 @@ public partial class Utils
         List<GUIProcess> guiProcesses = new();
         EnumWindowProc enumWindowProc = (nint hWnd, nint lParam) =>
         {
-            User32.GetWindowThreadProcessId(hWnd, out int processId);
-            Process process = Process.GetProcessById(processId);
+            User32.GetWindowThreadProcessId(hWnd, out uint processId);
+            Process process = Process.GetProcessById((int)processId);
             GUIProcess guiProcess;
             if((guiProcess = guiProcesses.Where(_p => _p.name == process.ProcessName).FirstOrDefault()) == null) {
                 guiProcess = new() { name = process.ProcessName };
@@ -148,7 +148,7 @@ public partial class Utils
 
 	public static string? GetExePathFromHWND(nint hWnd)
 	{
-		User32.GetWindowThreadProcessId(hWnd, out int processId);
+		User32.GetWindowThreadProcessId(hWnd, out uint processId);
 
 		if (Environment.IsPrivilegedProcess)
 		{
@@ -163,7 +163,7 @@ public partial class Utils
         /// https://stackoverflow.com/a/75084784/14588925
         /// </summary>
 		const uint SystemProcessIdInformation = 0x58;
-        SYSTEM_PROCESS_ID_INFORMATION info = new() { ProcessId = processId, ImageName = new() { Length = 0, MaximumLength = 256, Buffer = Marshal.AllocHGlobal(512) } };
+        SYSTEM_PROCESS_ID_INFORMATION info = new() { ProcessId = (nint)processId, ImageName = new() { Length = 0, MaximumLength = 256, Buffer = Marshal.AllocHGlobal(512) } };
         int result = Ntdll.NtQuerySystemInformation(SystemProcessIdInformation, ref info, (uint)Marshal.SizeOf<SYSTEM_PROCESS_ID_INFORMATION>(), out uint returnLength);
         string exePath = Marshal.PtrToStringUni(info.ImageName.Buffer);
 		Marshal.FreeHGlobal(info.ImageName.Buffer);
@@ -187,6 +187,16 @@ public partial class Utils
 
         string exeNtPath = Path.Join(exePathDriveName, exePath.Replace(exePathDeviceName, ""));
         return exeNtPath;
+    }
+
+    public static int MAKEWPARAM(short L, short H)
+    {
+        return (int)H << 16 | (int)L; 
+    }
+
+    public static int MAKELPARAM(short L, short H)
+    {
+        return (int)H << 16 | (int)L; 
     }
 
 }

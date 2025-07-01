@@ -43,8 +43,14 @@ public class User32
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern bool GetClientRect(nint hWnd, out RECT clientRect);
 
-	[DllImport("user32.dll")]
+	[DllImport("user32.dll", SetLastError = true)]
     public static extern nint GetForegroundWindow();
+
+	[DllImport("user32.dll", SetLastError = true)]
+    public static extern int SetForegroundWindow(nint hWnd);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern int AllowSetForegroundWindow(uint dwProcessId);
 
 	[DllImport("user32.dll")]
 	public static extern nint WindowFromPoint(POINT Point);
@@ -59,7 +65,7 @@ public class User32
 	public static extern bool EnumChildWindows(nint hWndParent, EnumWindowProc enumWindowProc, nint lParam);
 
 	[DllImport("user32.dll", SetLastError = true)]
-	public static extern bool GetWindowThreadProcessId(nint hWnd, out int processId);
+	public static extern bool GetWindowThreadProcessId(nint hWnd, out uint processId);
 
 
     [DllImport("user32.dll", SetLastError = true)]
@@ -127,17 +133,9 @@ public class User32
     );
 
     [DllImport("user32.dll", SetLastError = true)]
-    public static extern int SendNotifyMessage(
-        nint hWnd,
-        WINDOWMESSAGE msg,
-        nint wParam,
-        nint lParam
-    );
-
-    [DllImport("user32.dll", SetLastError = true)]
     public static extern int SendMessage(
         nint hWnd,
-        WINDOWMESSAGE msg,
+        uint msg,
         nint wParam,
         nint lParam
     );
