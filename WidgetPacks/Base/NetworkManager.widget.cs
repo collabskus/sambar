@@ -1,6 +1,4 @@
-﻿
-
-public class NetworkManager : Widget
+﻿public class NetworkManager : Widget
 {
     public NetworkManager() : base()
     {
@@ -27,4 +25,3 @@ public class NetworkManager : Widget
     }
 }
 
-//return new NetworkManager();

@@ -1,5 +1,3 @@
-
-
 public class Tray : Widget
 {
     List<TrayIcon> trayIcons = new();

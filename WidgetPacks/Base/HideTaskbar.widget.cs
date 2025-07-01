@@ -1,6 +1,3 @@
-
-
-
 public class HideTaskbar : Widget
 {
     public HideTaskbar() : base()
@@ -22,5 +19,3 @@ public class HideTaskbar : Widget
         Sambar.api.HideTaskbar();    
     }
 }
-
-//return new HideTaskbar();

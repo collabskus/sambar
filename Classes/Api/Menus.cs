@@ -13,7 +13,7 @@ public partial class Api
     }
     public async void CreateMenu(UserControl callingElement, UIElement menuContent, int width = 100, int height = 100)
     {
-        Menu menu = new(Sambar.api, callingElement, menuContent, width: 100, height: 100);
+        Menu menu = new(Sambar.api, callingElement, menuContent, width, height);
     }
 }
 
@@ -21,7 +21,8 @@ public class Menu: Window
 {
     Api api;
     nint hWnd;
-    public Menu(Api api, UserControl callingElement, UIElement menuContent, int width = 100, int height = 100)
+    int _left, _top, _right, _bottom;
+    public Menu(Api api, UserControl callingElement, UIElement menuContent, int width, int height)
     {
         this.api = api;
 
@@ -35,7 +36,6 @@ public class Menu: Window
         this.Left = callingElement.PointToScreen(new Point(callingElement.Width/2, callingElement.Height/2)).X - (width/2);
         this.Top = Sambar.api.config.marginYTop + Sambar.api.config.height + 5;
         this.Content = menuContent;
-        
 
         hWnd = new WindowInteropHelper(this).EnsureHandle();
         uint exStyles = User32.GetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE);
@@ -45,12 +45,24 @@ public class Menu: Window
 
         this.Show();
         Task.Delay(100);
+
+        _left = (int)this.Left;
+        _top = (int)this.Top;
+        _right = _left + (int)this.Width;
+        _bottom = _top + (int)this.Height;
+        Debug.WriteLine($"Menu, L: {_left}, T: {_top}, R: {_right}, B: {_bottom}");
+
         Api.FOCUS_CHANGED_EVENT += MenuFocusChangedHandler;
     }
 
     private async void MenuFocusChangedHandler(FocusChangedMessage msg)
     {
         Debug.WriteLine($"MenuFocusChanged, name: {msg.name}, class: {msg.className}, controlType: {msg.controlType}");
+        // if cursor inside menu
+        User32.GetCursorPos(out POINT cursorPos);
+        if (cursorPos.X > _left && cursorPos.X < _right)
+            if (cursorPos.Y > _top && cursorPos.Y < _bottom)
+                return;
         // Filter using ControlType
         if ( 
             msg.controlType == ControlType.MENU ||

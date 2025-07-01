@@ -10,6 +10,7 @@ class BaseLayout : Layout
         Border border3 = new();
         Border border4 = new();
         Border border5 = new();
+        Border border6 = new();
         border1.VerticalAlignment = VerticalAlignment.Center;
         border5.VerticalAlignment = VerticalAlignment.Center;
         panel.Children.Add(border1);
@@ -17,6 +18,7 @@ class BaseLayout : Layout
         panel.Children.Add(border3);
         panel.Children.Add(border4);
         panel.Children.Add(border5);
+        panel.Children.Add(border6);
 
         this.Container = panel;
         this.WidgetToContainerMap["Workspaces"] = border1;
@@ -24,7 +26,6 @@ class BaseLayout : Layout
         this.WidgetToContainerMap["NetworkManager"] = border3;
         this.WidgetToContainerMap["HideTaskbar"] = border4;
         this.WidgetToContainerMap["Clock"] = border5;
+        this.WidgetToContainerMap["ScribblePad"] = border6;
     }
 }
-
-//return new BaseLayout();

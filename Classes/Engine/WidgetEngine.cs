@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Diagnostics;
 using System.Windows.Media;
 using System.Windows;
+using System.Windows.Ink;
 using System.Windows.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
@@ -180,6 +181,7 @@ public class WidgetLoader
 			MetadataReference.CreateFromFile(typeof(DependencyObject).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(HttpClient).Assembly.Location),
+			MetadataReference.CreateFromFile(typeof(DrawingAttributes).Assembly.Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 		];
@@ -198,6 +200,7 @@ using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Net.Http;
+using System.Windows.Ink;
 using Newtonsoft.Json;
 """;
 
