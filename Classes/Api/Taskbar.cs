@@ -127,27 +127,7 @@ public class TaskbarInterceptor
         }, cts.Token);
     }
 
-    List<TrayIcon> notifiedIcons = new();
-    /// <summary>
-    /// Adds nids to notifiedIcons so that it doesnt contain repeated elements and newer nids 
-    /// of already present tray icons when recieved are only added while removing the older one. 
-    /// However additional care has to be taken while adding newer nids because certain apps such
-    /// as Taskmgr for example wont have a valid uCallbackMessage when sending subsequent nids through
-    /// NIM_MODIFY, so we dont want to add the nid directly as then we would lose 
-    /// </summary>
-    /// <param name="nid"></param>
-    public void AddNidSafely(NOTIFYICONDATA nid)
-    {
-        var indexedIcons = notifiedIcons.Index().ToList();
-        var repIndexedIcons = indexedIcons.Where(indexedIcon => indexedIcon.Item.nid.hWnd == nid.hWnd);
-        if(repIndexedIcons.Count() == 0)
-        {
-            notifiedIcons.Add(new(nid));
-        } else
-        {
-            notifiedIcons[repIndexedIcons.First().Index] = new(nid);
-        }
-    }
+    TrayIconsManager trayIconsManager = new();
     public List<TrayIcon> overflowIcons = new();
     List<string> NON_OVERFLOW_CLASSES = 
     [
@@ -184,14 +164,17 @@ public class TaskbarInterceptor
                         switch((ICONUPDATEACTION)iconData.dwMessage)
                         {
                             case ICONUPDATEACTION.NIM_ADD:
+                                trayIconsManager.Add(nid);
+                                break;
                             case ICONUPDATEACTION.NIM_MODIFY:
                             case ICONUPDATEACTION.NIM_SETVERSION:
-                                AddNidSafely(nid); 
+                                //AddNidSafely(nid); 
+                                trayIconsManager.Update(nid);
                                 break;
                         }
                         // Filter out non overflow icons to build the overflow icons collection
-                        overflowIcons = notifiedIcons.Where(icon => !NON_OVERFLOW_CLASSES.Contains(icon.className)).ToList();
-                        Debug.WriteLine($"ICONUPDATEACTION: {(ICONUPDATEACTION)(iconData.dwMessage)}, uid: {nid.uID}, hWnd: {nid.hWnd}, nids: {notifiedIcons.Count}, class: {Utils.GetClassNameFromHWND((nint)nid.hWnd)}, version: {nid.uTimeoutOrVersion.uVersion}, callback: {nid.uCallbackMessage}");
+                        overflowIcons = trayIconsManager.icons.Where(icon => !NON_OVERFLOW_CLASSES.Contains(icon.className)).ToList();
+                        Debug.WriteLine($"ICONUPDATEACTION: {(ICONUPDATEACTION)(iconData.dwMessage)}, uid: {nid.uID}, hWnd: {nid.hWnd}, nids: {trayIconsManager.icons.Count}, class: {Utils.GetClassNameFromHWND((nint)nid.hWnd)}, version: {nid.uTimeoutOrVersion.uVersion}, callback: {nid.uCallbackMessage}");
                         //notifiedIcons.ForEach(icon => Debug.WriteLine($"class: {Utils.GetClassNameFromHWND((nint)icon.hWnd)}, exe: {Utils.GetExePathFromHWND((nint)icon.hWnd)}"));
                         //overflowIcons.ForEach(icon => Debug.WriteLine($"class: {icon.className}, exe: {icon.exePath}"));
                         break;
@@ -254,43 +237,56 @@ public class TrayIcon
         this.nid = nid;
         this.className = Utils.GetClassNameFromHWND((nint)nid.hWnd);
         this.exePath = Utils.GetExePathFromHWND((nint)nid.hWnd);
-
-        // validate uVersion. If uVersion is exorbitantly large that means that it probably 
-        // isnt uVersion but uTimeout
-        if(nid.uTimeoutOrVersion.uVersion > 4)
-        {
-            old_uVersion = nid.uTimeoutOrVersion.uVersion;
-            this.nid.uTimeoutOrVersion.uVersion = 0;
-        }
-
-        // check if uCallbackMessage is valid, for most user applications it might be, but
-        // for certain system tray apps it isnt, when it isnt use uid as callback message
-        // eg. SystemTray_Main
-        if(!nid.uFlags.ContainsFlag((uint)NOTIFYICONDATAVALIDITY.NIF_MESSAGE))
-        {
-            this.nid.uCallbackMessage = this.nid.uID;
-        }
-
-        // handling special classes
-        // [ATL:00007FFE197FD000] SecurityHealthSystray.exe
-        if(this.className == "ATL:00007FFE197FD000")
-        {
-            this.nid.uTimeoutOrVersion.uVersion = 4;
-        }
     }
 
     public void RightClick()
     {
+        NOTIFYICONDATA validatedNid = nid;
+
+        // validate uVersion. If uVersion is exorbitantly large that means that it probably 
+        // isnt uVersion but uTimeout
+        if(validatedNid.uTimeoutOrVersion.uVersion > 4)
+        {
+            old_uVersion = nid.uTimeoutOrVersion.uVersion;
+            validatedNid.uTimeoutOrVersion.uVersion = 0;
+        }
+
+        // check if uCallbackMessage is still invalid, for most user applications it wont be, but
+        // for certain system tray apps it still could, if so use uid as callback message
+        // eg. SystemTray_Main
+        if(
+            validatedNid.uCallbackMessage == 0 && 
+            !validatedNid.uFlags.ContainsFlag((uint)NOTIFYICONDATAVALIDITY.NIF_MESSAGE)
+        )
+        {
+            validatedNid.uCallbackMessage = nid.uID;
+        }
+
+        
+        // handling special classes
+        // [ATL:00007FFE197FD000] SecurityHealthSystray.exe
+        if(this.className == "ATL:00007FFE197FD000")
+        {
+            validatedNid.uTimeoutOrVersion.uVersion = 4;
+        } 
+
         //RightClick, class: tray_icon_app, exe: C:\Program Files\glzr.io\GlazeWM\glazewm.exe, hWnd: 3802056, uVersion: 0, callback: 6002 
-        Debug.WriteLine($"RightClick, class: {className}, exe: {exePath}, hWnd: {nid.hWnd}, uid: {nid.uID}, uVersion: {nid.uTimeoutOrVersion.uVersion}, callback: {nid.uCallbackMessage}, callbackValid: {(nid.uFlags & 0x00000001) != 0},  old_uid: {old_uVersion}");
-        Sambar.api.ImpersonateTrayEvent(nid, ICONACTION.RIGHT_CLICK);
+        Debug.WriteLine($"RightClick, class: {className}, exe: {exePath}, hWnd: {validatedNid.hWnd}, uid: {validatedNid.uID}, uVersion: {validatedNid.uTimeoutOrVersion.uVersion}, callback: {validatedNid.uCallbackMessage}, callbackValid: {(validatedNid.uFlags & 0x00000001) != 0},  old_uid: {old_uVersion}");
+        Sambar.api.ImpersonateTrayEvent(validatedNid, ICONACTION.RIGHT_CLICK);
     }
 }
 
-public class TrayIcons 
+/// <summary>
+/// Adds nids to notifiedIcons so that it doesnt contain repeated elements and newer nids 
+/// of already present tray icons when recieved are only added while removing the older one. 
+/// However additional care has to be taken while adding newer nids because certain apps such
+/// as Taskmgr for example wont have a valid uCallbackMessage when sending subsequent nids through
+/// NIM_MODIFY, so we dont want to add the nid directly as then we would lose our uCallbackMessage
+/// </summary>
+public class TrayIconsManager 
 {
-    List<TrayIcon> icons = new();
-    public TrayIcons()
+    public List<TrayIcon> icons = new();
+    public TrayIconsManager()
     {
     }
 
@@ -305,8 +301,22 @@ public class TrayIcons
         }
         Debug.WriteLine($"icon already exists, use Upate() to modify");
     }
-    public void Update()
+    public void Update(NOTIFYICONDATA nid)
     {
+        var indexedIcons = icons.Index().ToList();
+        var repIndexedIcons = indexedIcons.Where(indexedIcon => indexedIcon.Item.nid.hWnd == nid.hWnd);
+        if(repIndexedIcons.Count() > 0)
+        {
+            if(nid.uCallbackMessage == 0)
+            {
+                // if new nids contain invalid uCallbackMessage replace them with the old ones
+                nid.uCallbackMessage = repIndexedIcons.First().Item.nid.uCallbackMessage;
+            }
+
+            icons[repIndexedIcons.First().Index] = new(nid);
+            return;
+        }
+        Debug.WriteLine($"icon does not exist, use Add() instead");
 
     }
     public void Delete()
