@@ -2,12 +2,8 @@
 
 public class NetworkManager : Widget
 {
-    private Api api; 
     public NetworkManager() : base()
     {
-        index = 1;
-        api = Api.GetInstance();
-        
         RoundedButton btn = new();
         //btn.Text = "W";
         btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS; 
@@ -17,7 +13,7 @@ public class NetworkManager : Widget
         btn.ImageSrc = "C:\\Users\\Jayakuttan\\Downloads\\wireless-16.ico";
         btn.IconWidth = 13;
         btn.IconHeight = 13;
-
+        btn.FontFamily = Theme.FONT_FAMILY;
         btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
         btn.Background = Theme.BUTTON_BACKGROUND;
         btn.MouseDown += ButtonMouseDown;
@@ -27,7 +23,7 @@ public class NetworkManager : Widget
     }
 
     public void ButtonMouseDown(object? sender, MouseEventArgs e) { 
-        Task.Run(() => { api.LaunchUri("ms-actioncenter:controlcenter/"); });
+        Task.Run(() => { Sambar.api.LaunchUri("ms-actioncenter:controlcenter/"); });
     }
 }
 

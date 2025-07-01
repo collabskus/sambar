@@ -2,14 +2,10 @@
 
 public class Tray : Widget
 {
-    private Api api;
     List<TrayIcon> trayIcons = new();
     public Tray() : base()
     {
-        index = 3;
-        api = Api.GetInstance();
-
-        trayIcons = api.GetTrayIcons();
+        trayIcons = Sambar.api.GetTrayIcons();
         WrapPanel panel = new();
         panel.Orientation = Orientation.Horizontal;
         panel.Width = 100;
@@ -24,6 +20,7 @@ public class Tray : Widget
             iconBtn.Background = Theme.BUTTON_BACKGROUND;
             iconBtn.HoverColor = Theme.BUTTON_HOVER_COLOR;
             iconBtn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
+            iconBtn.FontFamily = Theme.FONT_FAMILY;
             //iconBtn.BitmapIcon = icon.BitmapIcon;
             iconBtn.MouseDown += (s, e) =>
             {
@@ -47,7 +44,7 @@ public class Tray : Widget
         btn.Margin = new(50, 0, 0, 0);
         btn.MouseDown += (s, e) =>
         {
-            api.CreateMenu(btn, panel);
+            Sambar.api.CreateMenu(btn, panel);
         };
 
         this.Content = btn;
