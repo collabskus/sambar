@@ -49,7 +49,6 @@ public partial class Api
             Debug.WriteLine($"ACTIVE WINDOW CHANGED: {apps.First().title}");
         }
 	}
-    
 }
 
 public class RunningApp 

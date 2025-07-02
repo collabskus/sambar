@@ -1,6 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Drawing;
+using System.Windows.Media.Imaging;
 
 namespace sambar;
 
@@ -174,7 +176,7 @@ public class TaskbarInterceptor
                         }
                         // Filter out non overflow icons to build the overflow icons collection
                         overflowIcons = trayIconsManager.icons.Where(icon => !NON_OVERFLOW_CLASSES.Contains(icon.className)).ToList();
-                        Debug.WriteLine($"ICONUPDATEACTION: {(ICONUPDATEACTION)(iconData.dwMessage)}, uid: {nid.uID}, hWnd: {nid.hWnd}, nids: {trayIconsManager.icons.Count}, class: {Utils.GetClassNameFromHWND((nint)nid.hWnd)}, version: {nid.uTimeoutOrVersion.uVersion}, callback: {nid.uCallbackMessage}");
+                        Debug.WriteLine($"ICONUPDATEACTION: {(ICONUPDATEACTION)(iconData.dwMessage)}, uid: {nid.uID}, hWnd: {nid.hWnd}, nids: {trayIconsManager.icons.Count}, class: {Utils.GetClassNameFromHWND((nint)nid.hWnd)}, version: {nid.uTimeoutOrVersion.uVersion}, callback: {nid.uCallbackMessage}, hIcon: {nid.hIcon}");
                         //notifiedIcons.ForEach(icon => Debug.WriteLine($"class: {Utils.GetClassNameFromHWND((nint)icon.hWnd)}, exe: {Utils.GetExePathFromHWND((nint)icon.hWnd)}"));
                         //overflowIcons.ForEach(icon => Debug.WriteLine($"class: {icon.className}, exe: {icon.exePath}"));
                         break;
@@ -231,12 +233,17 @@ public class TrayIcon
     public string? className;
     public string? exePath;
     public uint old_uVersion;
+    public BitmapImage icon = new();
     
     public TrayIcon(NOTIFYICONDATA nid)
     {
         this.nid = nid;
         this.className = Utils.GetClassNameFromHWND((nint)nid.hWnd);
         this.exePath = Utils.GetExePathFromHWND((nint)nid.hWnd);
+
+        var bmp = Bitmap.FromHicon((nint)nid.hIcon);
+        this.icon = icon.FromBitmap(bmp);
+        Debug.WriteLine($"ICON: {this.icon.Width}x{this.icon.Height}");
     }
 
     public void RightClick()
@@ -306,10 +313,15 @@ public class TrayIconsManager
         var repIndexedIcons = indexedIcons.Where(indexedIcon => indexedIcon.Item.nid.hWnd == nid.hWnd);
         if(repIndexedIcons.Count() > 0)
         {
-            if(nid.uCallbackMessage == 0)
+            // if new nids contain invalid uCallbackMessage replace them with the old ones
+            if (nid.uCallbackMessage == 0)
             {
-                // if new nids contain invalid uCallbackMessage replace them with the old ones
                 nid.uCallbackMessage = repIndexedIcons.First().Item.nid.uCallbackMessage;
+            }
+            // if new nids contain invalid hIcon replace them with old ones
+            if(!nid.uFlags.ContainsFlag((int)NOTIFYICONDATAVALIDITY.NIF_ICON))
+            {
+                nid.hIcon = repIndexedIcons.First().Item.nid.hIcon;
             }
 
             icons[repIndexedIcons.First().Index] = new(nid);

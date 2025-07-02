@@ -1,4 +1,8 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using System.Windows.Media.Imaging;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Drawing;
+using System.IO;
+using System.Drawing.Imaging;
 
 namespace sambar;
 
@@ -12,4 +16,21 @@ public static class Extensions
        }
         return false;
     } 
+
+    public static BitmapImage FromBitmap(this BitmapImage self, Bitmap bitmap)
+    {
+        using(MemoryStream ms = new())
+        {
+            bitmap.Save(ms, ImageFormat.Png);
+            ms.Position = 0;
+
+            self.BeginInit();
+            self.StreamSource = ms;
+            self.CacheOption = BitmapCacheOption.OnLoad;
+            self.EndInit();
+            self.Freeze();
+
+            return self;
+        }
+    }
 }

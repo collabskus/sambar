@@ -7,10 +7,10 @@ public class Tray : Widget
         WrapPanel panel = new();
         panel.Orientation = Orientation.Horizontal;
         panel.Width = 100;
-        foreach (var icon in trayIcons)
+        foreach (var trayIcon in trayIcons)
         {
             RoundedButton iconBtn = new();
-            iconBtn.Text = "A";
+            //iconBtn.Text = "A";
             iconBtn.Height = Theme.BUTTON_HEIGHT;
             iconBtn.Width = Theme.BUTTON_WIDTH;
             iconBtn.Margin = Theme.BUTTON_MARGIN;
@@ -19,10 +19,10 @@ public class Tray : Widget
             iconBtn.HoverColor = Theme.BUTTON_HOVER_COLOR;
             iconBtn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
             iconBtn.FontFamily = Theme.FONT_FAMILY;
-            //iconBtn.BitmapIcon = icon.BitmapIcon;
+            iconBtn.BitmapIcon = trayIcon.icon;
             iconBtn.MouseDown += (s, e) =>
             {
-                icon.RightClick();
+                trayIcon.RightClick();
             };
             panel.Children.Add(iconBtn);
         }

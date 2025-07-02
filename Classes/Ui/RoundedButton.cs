@@ -30,7 +30,6 @@ public class RoundedButton : UserControl
 	}
 
 	private string ImageType;
-
 	public string ImageSrc
 	{
 		get { return bi.UriSource.AbsoluteUri; }

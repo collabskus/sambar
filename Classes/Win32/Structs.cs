@@ -10,8 +10,6 @@ namespace sambar;
 /// </summary>
 /// ------------------------
 
-
-
 /// <summary>
 /// For controlling the visibility and autohide behaviours of the taksbar
 /// </summary>
