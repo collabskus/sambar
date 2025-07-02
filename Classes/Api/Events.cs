@@ -19,6 +19,7 @@ public partial class Api
             msg.name = sender.CurrentName;
             msg.hWnd = sender.CurrentNativeWindowHandle;
             msg.controlType = (ControlType)sender.CurrentControlType;
+            msg.sender = sender;
             FOCUS_CHANGED_EVENT(msg);
         }
     }
@@ -59,6 +60,7 @@ public class FocusChangedMessage
     public IntPtr hWnd;
     public string type;
     public ControlType controlType;
+    public IUIAutomationElement sender;
 }
 
 public class StructureChangedMessage

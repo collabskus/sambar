@@ -19,4 +19,11 @@ public partial class Api {
         nint hWnd = User32.FindWindow("Shell_TrayWnd", null);
         User32.SendMessage(hWnd, (uint)WINDOWMESSAGE.WM_SYSCOMMAND, (nint)SYSCOMMAND.SC_TASKLIST, 0);
     }
+
+    public void ActionCenter()
+    {
+        string actionCenterUri = "ms-actioncenter:controlcenter/&showFooter=true";
+        LaunchUri(actionCenterUri).Wait();
+    }
 }
+

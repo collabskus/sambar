@@ -13,6 +13,9 @@ public class User32
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern uint GetWindowLong(nint hWnd, GETWINDOWLONG nIndex);
 
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern int GetWindowText(nint hWnd, StringBuilder lpString, int nMaxCount);
+
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern int SetWindowPos(nint hWnd, nint hWndInsertAfter, int x, int y, int cx, int cy, SETWINDOWPOS uFlags);
 
@@ -66,7 +69,6 @@ public class User32
 
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern bool GetWindowThreadProcessId(nint hWnd, out uint processId);
-
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern nint CreateWindowEx(

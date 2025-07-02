@@ -213,20 +213,15 @@ public partial class Utils
         if (!User32.IsWindowVisible(hWnd)) return false;
 
         uint exStyle = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
-        if (
-            exStyle.ContainsFlag((uint)WINDOWSTYLE.WS_EX_TOOLWINDOW) ||
-            exStyle.ContainsFlag((uint)WINDOWSTYLE.WS_EX_APPWINDOW)
-        ) return false;
-
-        string className = GetClassNameFromHWND(hWnd);
-        if (
-            className == "Windows.UI.Core.CoreWindow" ||
-            className == "ApplicationFrameWindow"
-        ) return false;
-
         nint dwmOutput = nint.Zero;
         Dwmapi.DwmGetWindowAttribute(hWnd, (uint)DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, dwmOutput, sizeof(uint));
-        if (dwmOutput != 0) return false;
+        string className = GetClassNameFromHWND(hWnd);
+
+        if (exStyle.ContainsFlag((uint)WINDOWSTYLE.WS_EX_TOOLWINDOW)) return false;
+        //if (exStyle.ContainsFlag((uint)WINDOWSTYLE.WS_EX_APPWINDOW)) return false;
+
+        if (className == "Windows.UI.Core.CoreWindow") return false;
+        if(className == "ApplicationFrameWindow" && dwmOutput != 0) return false;
         // ---------------------------------------------------------------
 
         // https://devblogs.microsoft.com/oldnewthing/20071008-00/?p=24863 
