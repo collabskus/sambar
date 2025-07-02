@@ -14,4 +14,9 @@ public partial class Api {
         await Launcher.LaunchUriAsync(new Uri(uri));
     }
 
+    public void StartMenu()
+    {
+        nint hWnd = User32.FindWindow("Shell_TrayWnd", null);
+        User32.SendMessage(hWnd, (uint)WINDOWMESSAGE.WM_SYSCOMMAND, (nint)SYSCOMMAND.SC_TASKLIST, 0);
+    }
 }
