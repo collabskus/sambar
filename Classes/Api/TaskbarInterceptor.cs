@@ -7,7 +7,7 @@ namespace sambar;
 public partial class Api
 {
     TaskbarInterceptor interceptor;
-    public void TaskbarInit()
+    public void TaskbarInterceptorInit()
     {
         interceptor = new();
     }

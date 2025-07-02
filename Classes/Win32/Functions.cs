@@ -11,7 +11,7 @@ public class User32
 	public static extern int SetWindowLong(nint hWnd, int nIndex, int dwNewLong);
 
 	[DllImport("user32.dll", SetLastError = true)]
-	public static extern uint GetWindowLong(nint hWnd, int nIndex);
+	public static extern uint GetWindowLong(nint hWnd, GETWINDOWLONG nIndex);
 
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern int SetWindowPos(nint hWnd, nint hWndInsertAfter, int x, int y, int cx, int cy, SETWINDOWPOS uFlags);
@@ -142,6 +142,20 @@ public class User32
 
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern void SetTimer(nint hWnd, nint nIdEvent, uint uElapse, TIMERPROC timerProc);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public extern static nint GetAncestor(
+      nint hwnd,
+      uint gaFlags
+    );
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public extern static nint GetLastActivePopup(
+        nint hWnd
+    );
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public extern static bool IsWindowVisible(nint hWnd);
 }
 
 public class Shell32
@@ -182,6 +196,14 @@ public class Dwmapi
 {
     [DllImport("dwmapi.dll", SetLastError = true)]
 	public static extern int DwmSetWindowAttribute(nint hWnd, DWMWINDOWATTRIBUTE attr, ref int attrValue, int attrSize);
+
+    [DllImport("dwmapi.dll", SetLastError = true)]
+	public static extern int DwmGetWindowAttribute(
+        nint hWnd,
+        uint dwAttribute,
+        nint pvAttribute,
+        uint cbAttribute
+    );
 }
 
 public class Psapi

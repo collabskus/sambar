@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Management;
 using System.IO;
+using System.Windows.Navigation;
+using System.Windows;
 
 namespace sambar;
 
@@ -38,7 +40,7 @@ public partial class Utils
 
 	public static List<string> GetStylesFromHwnd(nint hWnd)
 	{
-		uint stylesUInt = User32.GetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_STYLE);
+		uint stylesUInt = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_STYLE);
 		//Debug.WriteLine($"GetStylesFromHwnd(): {Marshal.GetLastWin32Error()}");
 		return GetStyleListFromUInt(stylesUInt);
 	}
@@ -199,6 +201,63 @@ public partial class Utils
         return (int)H << 16 | (int)L; 
     }
 
+    /// <summary>
+    /// Determines if a window is visible and running in the Taskbar/Alt-Tab
+    /// not the pinned icons in the taskbar, source:
+    /// </summary>
+    /// <param name="hWnd"></param>
+    /// <returns></returns>
+    public static bool IsWindowInTaskBar(nint hWnd)
+    {
+        // filter out the obvious -------------------------
+        if (!User32.IsWindowVisible(hWnd)) return false;
+
+        uint exStyle = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
+        if (
+            exStyle.ContainsFlag((uint)WINDOWSTYLE.WS_EX_TOOLWINDOW) ||
+            exStyle.ContainsFlag((uint)WINDOWSTYLE.WS_EX_APPWINDOW)
+        ) return false;
+
+        string className = GetClassNameFromHWND(hWnd);
+        if (
+            className == "Windows.UI.Core.CoreWindow" ||
+            className == "ApplicationFrameWindow"
+        ) return false;
+
+        nint dwmOutput = nint.Zero;
+        Dwmapi.DwmGetWindowAttribute(hWnd, (uint)DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, dwmOutput, sizeof(uint));
+        if (dwmOutput != 0) return false;
+        // ---------------------------------------------------------------
+
+        // https://devblogs.microsoft.com/oldnewthing/20071008-00/?p=24863 
+        const int GA_ROOTOWNER = 3;
+        // start at the owner window
+        nint hWndWalk = User32.GetAncestor(hWnd, GA_ROOTOWNER);
+
+		nint hWndTry;
+		// a window in taskbar / alt-tab is its own last popup window, so loop until hWnd walk becomes a popup window
+		while ((hWndTry = User32.GetLastActivePopup(hWndWalk)) != hWndWalk)
+		{
+			if (IsWindowVisible(hWndTry)) break;
+			hWndWalk = hWndTry;
+		}
+		// once the walk is finished hWndWalk "is" the taskbarwindow in that owner chain, now check if the window you supplied is that window
+		return hWnd == hWndWalk;
+    }
+
+    public static List<nint> GetAllTaskbarWindows()
+    {
+        List<nint> topWindows = new();
+        EnumWindowProc enumWnd = (nint hWnd, nint lParam) =>
+        {
+            topWindows.Add(hWnd);
+            return true;
+        };
+        User32.EnumWindows(enumWnd, nint.Zero);
+        var taskbarWindows = topWindows.Where(hWnd => IsWindowInTaskBar(hWnd)).ToList();
+        taskbarWindows.ForEach(hWnd => Debug.WriteLine($"TASKBAR WINDOWS, hWnd: {hWnd}, class: {GetClassNameFromHWND(hWnd)}, exe: {GetExePathFromHWND(hWnd)}"));
+        return taskbarWindows;
+    }
 }
 
 public class _Window

@@ -62,7 +62,7 @@ public partial class Sambar : Window
 		this.Background = Utils.BrushFromHex(config.backgroundColor);
 		if(this.Background.Equals(Colors.Transparent)) { barTransparent = true; }
 
-		uint exStyles = User32.GetWindowLong(hWnd, -20);
+		uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
         User32.SetWindowLong(hWnd, -20, (int)(exStyles | (uint)sambar.WINDOWSTYLE.WS_EX_TOOLWINDOW));
 
 		//Win32.SetWindowPos(hWnd, IntPtr.Zero, config.marginXLeft, config.marginYTop, config.width, config.height, 0x0400);

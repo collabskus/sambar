@@ -38,7 +38,7 @@ public class Menu: Window
         this.Content = menuContent;
 
         hWnd = new WindowInteropHelper(this).EnsureHandle();
-        uint exStyles = User32.GetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE);
+        uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
         User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, (int)(exStyles | (uint)WINDOWSTYLE.WS_EX_TOOLWINDOW));
         int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
         Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));

@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace sambar;
 
-public enum WINDOWSTYLE : ulong 
+public enum WINDOWSTYLE : uint 
 {
 	WS_OVERLAPPED = 0x00000000,
 	WS_POPUP = 0x80000000,

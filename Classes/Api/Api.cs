@@ -17,8 +17,9 @@ public partial class Api {
         EventsInit();
         WindowingInit();
         SystemTrayInit();
-        TaskbarInit();
+        TaskbarInterceptorInit();
         ClockInit();
+        TaskbarAppsInit();
     }
 
     public static void Print(string text) {
