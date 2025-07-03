@@ -21,6 +21,7 @@ public class Tray : Widget
             iconBtn.FontFamily = Theme.FONT_FAMILY;
             iconBtn.Icon = trayIcon.icon;
             iconBtn.HoverEffect = false;
+            iconBtn.Margin = new(10, 10, 0, 0);
             iconBtn.MouseDown += (s, e) =>
             {
                 trayIcon.RightClick();
@@ -30,9 +31,9 @@ public class Tray : Widget
 
         RoundedButton btn = new();
         //btn.Text = "T";
-        btn.ImageSrc = "C:\\Users\\Jayakuttan\\Downloads\\arrow-204-16.ico";
-        btn.IconHeight = 13;
-        btn.IconWidth = 13;
+        btn.ImageSrc = @"C:\Users\Jayakuttan\dev\sambar\WidgetPacks\Base\assets\arrow_down.svg";
+        btn.IconHeight = 16;
+        btn.IconWidth = 16;
         btn.Height = Theme.BUTTON_HEIGHT;
         btn.Width = Theme.BUTTON_WIDTH;
         btn.Margin = Theme.BUTTON_MARGIN;
@@ -40,11 +41,11 @@ public class Tray : Widget
         btn.Background = Theme.BUTTON_BACKGROUND;
         btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
         btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
-        btn.Margin = new(50, 0, 0, 0);
+        //btn.Margin = new(50, 0, 0, 0);
         btn.HoverEffect = false;
         btn.MouseDown += (s, e) =>
         {
-            Sambar.api.CreateMenu(btn, panel, 200, 100);
+            Sambar.api.CreateMenu(btn, panel, 100, 100);
         };
 
         this.Content = btn;
@@ -53,5 +54,3 @@ public class Tray : Widget
 
     }
 }
-
-//return new Tray();

@@ -51,6 +51,7 @@ public class Workspaces: Widget
 			{
 				RoundedButton btn = new();
 				btn.Text = $"{i}";
+				btn.FontFamily = Theme.FONT_FAMILY;
 				btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
 				btn.Width = Theme.BUTTON_WIDTH;
 				btn.Height = Theme.BUTTON_HEIGHT;
@@ -59,6 +60,7 @@ public class Workspaces: Widget
 				btn.Foreground = Theme.TEXT_COLOR;
 				btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
 				btn.Background = Theme.BUTTON_BACKGROUND;
+				btn.HoverEffect = true;
 				btn.MouseDown += WorkspaceButtonClicked;
 				workspaces[i - 1].button = btn;
 				panel.Add(btn);
