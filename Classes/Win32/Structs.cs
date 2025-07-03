@@ -230,5 +230,15 @@ public struct SYSTEM_BASIC_INFORMATION
    public byte NumberOfProcessors;
 }
 
+[StructLayout(LayoutKind.Sequential)]
+public struct SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION
+{
+	public long IdleTime;
+	public long KernelTime;
+	public long UserTime;
+	public long DpcTime;
+	public long InterruptTime;
+	public uint Reserved2;
+}
 
 
