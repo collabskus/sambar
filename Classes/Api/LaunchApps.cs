@@ -25,5 +25,11 @@ public partial class Api {
         string actionCenterUri = "ms-actioncenter:controlcenter/&showFooter=true";
         LaunchUri(actionCenterUri).Wait();
     }
+
+    public void NotificationMenu()
+    {
+        string notificationsMenuUri = "ms-actioncenter:controlcenter/&showFooter=true";
+        LaunchUri(notificationsMenuUri ).Wait();
+    }
 }
 

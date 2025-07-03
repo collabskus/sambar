@@ -1,6 +1,8 @@
 // GLOBAL RESOURCES USED BY YOUR THEME
 // ALL VARIABLES MUST BE STATIC
 
+// Fluent Icons
+// https://fluenticons.co/
 public class Theme
 {
     public static Brush TEXT_COLOR = Utils.BrushFromHex("#EBDBB2");
