@@ -11,6 +11,7 @@
         btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
         btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
         btn.FontFamily = Theme.FONT_FAMILY;
+        btn.HoverEffect = true;
         btn.MouseDown += ButtonMouseDown;
         this.Content = btn;
     }

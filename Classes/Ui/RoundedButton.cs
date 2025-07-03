@@ -185,18 +185,33 @@ public class RoundedButton : UserControl
 		get { return this.RoundedButtonBorder.BorderThickness; }
 		set { this.RoundedButtonBorder.BorderThickness = value; }
 	}
-	
 	public Brush HoverColor = new SolidColorBrush(Colors.Black);
+	public bool _HoverEffect = true;
+	public bool HoverEffect
+	{
+		get { return this._HoverEffect; }
+		set 
+		{ 
+			_HoverEffect = value; 
+			if(_HoverEffect)
+			{
+                this.MouseEnter += MouseHoverHandler;
+                this.MouseLeave += MouseHoverHandler;
+			}
+			else
+			{
+                this.MouseEnter -= MouseHoverHandler;
+                this.MouseLeave -= MouseHoverHandler;
+			}
+		}
+	}
 
-	public RoundedButton()
+    public RoundedButton()
 	{
         this.Content = RoundedButtonBorder;
-		this.MouseEnter += MouseHoverHandler;
-		this.MouseLeave += MouseHoverHandler;
-
+		
 		RoundedButtonTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
 		RoundedButtonTextBlock.VerticalAlignment = VerticalAlignment.Center;
-
 	}
 
 	public void MouseHoverHandler(object sender, MouseEventArgs e) {

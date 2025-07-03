@@ -20,6 +20,7 @@ public class Tray : Widget
             iconBtn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
             iconBtn.FontFamily = Theme.FONT_FAMILY;
             iconBtn.Icon = trayIcon.icon;
+            iconBtn.HoverEffect = false;
             iconBtn.MouseDown += (s, e) =>
             {
                 trayIcon.RightClick();
@@ -40,6 +41,7 @@ public class Tray : Widget
         btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
         btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
         btn.Margin = new(50, 0, 0, 0);
+        btn.HoverEffect = false;
         btn.MouseDown += (s, e) =>
         {
             Sambar.api.CreateMenu(btn, panel, 200, 100);

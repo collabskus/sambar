@@ -235,7 +235,6 @@ public class TrayIcon
     public string? className;
     public string? exePath;
     public uint old_uVersion;
-    //public BitmapImage icon = new();
     public BitmapSource icon;
 
     public TrayIcon(NOTIFYICONDATA nid)
