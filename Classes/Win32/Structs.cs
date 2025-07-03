@@ -210,5 +210,25 @@ public struct SYSTEM_PROCESS_ID_INFORMATION
 	public UNICODE_STRING ImageName;
 }
 
+/// <summary>
+/// NtQuerySystemInformation() can use it for basic querrying
+/// </summary>
+
+[StructLayout(LayoutKind.Sequential)]
+public struct SYSTEM_BASIC_INFORMATION
+{
+   public uint Reserved;
+   public uint TimerResolution;
+   public uint PageSize;
+   public uint NumberOfPhysicalPages;
+   public uint LowestPhysicalPageNumber;
+   public uint HighestPhysicalPageNumber;
+   public uint AllocationGranularity;
+   public UIntPtr MinimumUserModeAddress;
+   public UIntPtr MaximumUserModeAddress;
+   public UIntPtr ActiveProcessorsAffinityMask;
+   public byte NumberOfProcessors;
+}
+
 
 

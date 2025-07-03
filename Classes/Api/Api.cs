@@ -19,6 +19,7 @@ public partial class Api {
         SystemTrayInit();
         TaskbarInterceptorInit();
         ClockInit();
+        CountersInit();
     }
 
     public static void Print(string text) {

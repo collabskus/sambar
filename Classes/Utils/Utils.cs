@@ -164,9 +164,8 @@ public partial class Utils
         /// NtQuerySystemInformation() := undocumented internal API
         /// https://stackoverflow.com/a/75084784/14588925
         /// </summary>
-		const uint SystemProcessIdInformation = 0x58;
         SYSTEM_PROCESS_ID_INFORMATION info = new() { ProcessId = (nint)processId, ImageName = new() { Length = 0, MaximumLength = 256, Buffer = Marshal.AllocHGlobal(512) } };
-        int result = Ntdll.NtQuerySystemInformation(SystemProcessIdInformation, ref info, (uint)Marshal.SizeOf<SYSTEM_PROCESS_ID_INFORMATION>(), out uint returnLength);
+        int result = Ntdll.NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS.SystemProcessIdInformation, ref info, (uint)Marshal.SizeOf<SYSTEM_PROCESS_ID_INFORMATION>(), out uint returnLength);
         string exePath = Marshal.PtrToStringUni(info.ImageName.Buffer);
 		Marshal.FreeHGlobal(info.ImageName.Buffer);
 

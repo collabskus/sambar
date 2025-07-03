@@ -220,7 +220,15 @@ public class Psapi
 public class Ntdll
 {
     [DllImport("ntdll.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-    public static extern int NtQuerySystemInformation(uint infoType, ref SYSTEM_PROCESS_ID_INFORMATION info, uint infoLength, out uint returnLength);
+    public static extern int NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS infoType, ref SYSTEM_PROCESS_ID_INFORMATION info, uint infoLength, out uint returnLength);
+
+    [DllImport("ntdll.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern int NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS infoType, ref SYSTEM_BASIC_INFORMATION info, uint infoLength, out uint returnLength);
+
+}
+
+public class Pdh
+{
 
 }
 
