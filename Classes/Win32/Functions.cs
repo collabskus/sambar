@@ -158,6 +158,9 @@ public class User32
 
     [DllImport("user32.dll", SetLastError = true)]
     public extern static bool IsWindowVisible(nint hWnd);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public extern static int AnimateWindow(nint hWnd, uint dwTime, ANIMATEWINDOW dwFlags);
 }
 
 public class Shell32

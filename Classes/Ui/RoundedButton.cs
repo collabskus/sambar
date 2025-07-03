@@ -76,6 +76,19 @@ public class RoundedButton : UserControl
 		}
 	}
 
+	BitmapSource bitmapSource;
+	public BitmapSource Icon
+	{
+		get { return bitmapSource; }
+		set
+		{
+            bitmapSource = value;
+            RoundedButtonImage = new();
+			RoundedButtonImage.Source = bitmapSource;
+			RoundedButtonBorder.Child = RoundedButtonImage;
+		}
+	}
+
 	public int IconWidth
 	{
 		get { 

@@ -184,7 +184,8 @@ public partial class Utils
         }).ToList();	
 
         //
-        string exePathDeviceName = driveDevicePaths.Where(path => exePath.Contains(path)).FirstOrDefault();
+        string? exePathDeviceName = driveDevicePaths.Where(path => exePath.Contains(path)).FirstOrDefault();
+        if (exePathDeviceName == null) return null;
         string exePathDriveName = devicePathToDrivePath[exePathDeviceName];
 
         string exeNtPath = Path.Join(exePathDriveName, exePath.Replace(exePathDeviceName, ""));

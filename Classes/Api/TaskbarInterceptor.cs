@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Drawing;
 using System.Windows.Media.Imaging;
+using System.Windows.Interop;
+using System.Windows;
 
 namespace sambar;
 
@@ -191,7 +193,7 @@ public class TaskbarInterceptor
                         User32.GetCursorPos(out POINT cursorPos);
                         switch(iconIdentifier.msg)
                         {
-                            // request for left, top positions of the icon rect
+                            // request for left, top positions of the icon rect, case 1
                             case 1:
                                 return Utils.MAKELPARAM((short)cursorPos.X, (short)cursorPos.Y);
                             // request for the right, bottom of the icon rect
@@ -233,17 +235,17 @@ public class TrayIcon
     public string? className;
     public string? exePath;
     public uint old_uVersion;
-    public BitmapImage icon = new();
-    
+    //public BitmapImage icon = new();
+    public BitmapSource icon;
+
     public TrayIcon(NOTIFYICONDATA nid)
     {
         this.nid = nid;
         this.className = Utils.GetClassNameFromHWND((nint)nid.hWnd);
         this.exePath = Utils.GetExePathFromHWND((nint)nid.hWnd);
 
-        var bmp = Bitmap.FromHicon((nint)nid.hIcon);
-        this.icon = icon.FromBitmap(bmp);
-        Debug.WriteLine($"ICON: {this.icon.Width}x{this.icon.Height}");
+        this.icon = Imaging.CreateBitmapSourceFromHIcon((nint)nid.hIcon, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+        this.icon.Freeze();
     }
 
     public void RightClick()

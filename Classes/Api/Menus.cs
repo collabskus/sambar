@@ -34,6 +34,7 @@ public class Menu: Window
         this.Width = width;
         this.Height = height;
         this.Left = callingElement.PointToScreen(new Point(callingElement.Width/2, callingElement.Height/2)).X - (width/2);
+        this.Left = this.Left < Sambar.api.config.marginXLeft ? Sambar.api.config.marginXLeft : this.Left;
         this.Top = Sambar.api.config.marginYTop + Sambar.api.config.height + 5;
         this.Content = menuContent;
 

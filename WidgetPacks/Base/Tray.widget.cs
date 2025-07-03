@@ -6,7 +6,7 @@ public class Tray : Widget
         trayIcons = Sambar.api.GetTrayIcons();
         WrapPanel panel = new();
         panel.Orientation = Orientation.Horizontal;
-        panel.Width = 100;
+        //panel.Width = 100;
         foreach (var trayIcon in trayIcons)
         {
             RoundedButton iconBtn = new();
@@ -19,7 +19,7 @@ public class Tray : Widget
             iconBtn.HoverColor = Theme.BUTTON_HOVER_COLOR;
             iconBtn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
             iconBtn.FontFamily = Theme.FONT_FAMILY;
-            iconBtn.BitmapIcon = trayIcon.icon;
+            iconBtn.Icon = trayIcon.icon;
             iconBtn.MouseDown += (s, e) =>
             {
                 trayIcon.RightClick();
@@ -42,7 +42,7 @@ public class Tray : Widget
         btn.Margin = new(50, 0, 0, 0);
         btn.MouseDown += (s, e) =>
         {
-            Sambar.api.CreateMenu(btn, panel);
+            Sambar.api.CreateMenu(btn, panel, 200, 100);
         };
 
         this.Content = btn;

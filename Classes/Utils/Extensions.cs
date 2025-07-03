@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
+using System.Diagnostics;
 
 namespace sambar;
 
@@ -30,6 +31,8 @@ public static class Extensions
             self.EndInit();
             self.Freeze();
 
+            Debug.WriteLine($"ICON_B: {bitmap.Width}x{bitmap.Height}");
+            Debug.WriteLine($"ICON_BP: {self.Width}x{self.Height}");
             return self;
         }
     }
