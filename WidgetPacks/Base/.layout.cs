@@ -52,11 +52,14 @@ class BaseLayout : Layout
         StackPanel col2 = new();
         StackPanel col3 = new();
         col1.Orientation = Orientation.Horizontal;
-        col2.Orientation = Orientation.Horizontal;
-        col3.Orientation = Orientation.Horizontal;
         col1.VerticalAlignment = VerticalAlignment.Center;
+        col2.Orientation = Orientation.Horizontal;
+        col2.HorizontalAlignment = HorizontalAlignment.Center;
         col2.VerticalAlignment = VerticalAlignment.Center;
+        col3.Orientation = Orientation.Horizontal;
         col3.VerticalAlignment = VerticalAlignment.Center;
+        col3.FlowDirection = FlowDirection.RightToLeft;
+        col3.Margin = new(0, 0, 6, 0);
 
         Grid.SetColumn(col1, 0);
         Grid.SetColumn(col2, 1);
@@ -67,11 +70,17 @@ class BaseLayout : Layout
         // col2
         col2.Children.Add(Clock);
         // col3
-        col3.Children.Add(Tray);
-        col3.Children.Add(NetworkManager);
-        col3.Children.Add(HideTaskbar);
-        col3.Children.Add(ScribblePad);
-        col3.Children.Add(StartButton);
+        List<Border> systemTray = new();
+        systemTray.Add(StartButton);
+        systemTray.Add(NetworkManager);
+        systemTray.Add(Tray);
+        systemTray.Add(HideTaskbar);
+        systemTray.Add(ScribblePad);
+        systemTray.ForEach(border => 
+        {
+            border.Margin = new(0, 0, 5, 0);
+            col3.Children.Add(border);
+        });
 
         /// <summary>
         /// Add all borders to the layout type [Grid || StackPanel]
