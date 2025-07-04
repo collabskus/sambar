@@ -201,6 +201,7 @@ public struct UNICODE_STRING
 /// <summary>
 /// Used by NtQuerySystemInformation in ntdll to query process module paths without 
 /// elevated priveleges. Part of the undocumented windows api
+/// SYSTEM_INFORMATION_CLASS.SystemProcessIdInformation
 /// </summary>
 
 [StructLayout(LayoutKind.Sequential)]
@@ -212,6 +213,7 @@ public struct SYSTEM_PROCESS_ID_INFORMATION
 
 /// <summary>
 /// NtQuerySystemInformation() can use it for basic querrying
+/// used with SYSTEM_INFORMATION_CLASS.SystemBasicInformation
 /// </summary>
 
 [StructLayout(LayoutKind.Sequential)]
@@ -229,6 +231,10 @@ public struct SYSTEM_BASIC_INFORMATION
    public UIntPtr ActiveProcessorsAffinityMask;
    public byte NumberOfProcessors;
 }
+
+/// <summary>
+/// Used by SYSTEM_INFORMATION_CLASS.SystemProcessorPerformanceInformation
+/// </summary>
 
 [StructLayout(LayoutKind.Sequential)]
 public struct SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION
@@ -256,6 +262,21 @@ public struct _NL_BANDWIDTH_INFORMATION {
 public struct _MIB_IP_NETWORK_CONNECTION_BANDWIDTH_ESTIMATES {
   public _NL_BANDWIDTH_INFORMATION InboundBandwidthInformation;
   public _NL_BANDWIDTH_INFORMATION OutboundBandwidthInformation;
+}
+
+/// <summary>
+/// used by SYSTEM_INFORMATION_CLASS.SystemMemoryUsageInformation
+/// https://ntdoc.m417z.com/system_memory_usage_information
+/// </summary>
+[StructLayout(LayoutKind.Sequential)]
+public struct _SYSTEM_MEMORY_USAGE_INFORMATION { 
+    public ulong TotalPhysicalBytes;
+    public ulong AvailableBytes;
+    public long ResidentAvailableBytes;
+    public ulong CommittedBytes;
+    public long SharedCommittedBytes;
+    public long CommitLimitBytes;
+    public long PeakCommitmentBytes; 
 }
 
 

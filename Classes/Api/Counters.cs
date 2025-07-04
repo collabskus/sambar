@@ -13,6 +13,7 @@ public partial class Api
         cpuCores = GetCpuCount();
         StartCpuMonitor();
         StartNetworkMonitor();
+        StartMemoryMonitor();
     }
 
     public int GetCpuCount()
@@ -129,6 +130,36 @@ public partial class Api
                 NETWORK_SPEED_NOTIFIED([speedDown, speedUp]);
                 Debug.WriteLine($"DOWN: {speedDown} Kb/s, UP: {speedUp} Kb/s");
                 await Task.Delay(DELTA);
+            }
+        }, cts.Token);
+    }
+
+    public delegate void MemoryUsageEventHandler();
+    public event MemoryUsageEventHandler MEMORY_USAGE_NOTIFIED = () => { }; 
+    /// <summary>
+    /// Memory usage monirtor
+    /// </summary>
+    public void StartMemoryMonitor()
+    {
+        CancellationTokenSource cts = new();
+        Task.Run(async () => 
+        {
+            int infoSize = Marshal.SizeOf<_SYSTEM_MEMORY_USAGE_INFORMATION>();
+            while (true)
+            {
+                nint infoPtr = Marshal.AllocHGlobal(infoSize);
+                Ntdll.NtQuerySystemInformation(
+                    SYSTEM_INFORMATION_CLASS.SystemMemoryUsageInformation,
+                    infoPtr,
+                    (uint)infoSize,
+                    out uint returnLength
+                );
+
+                var info = Marshal.PtrToStructure<_SYSTEM_MEMORY_USAGE_INFORMATION>(infoPtr);
+                Debug.WriteLine($"[ MEMORY ], Used: {info.CommittedBytes * 8 / 1024 / 1024 / 1024} Gb");
+                Marshal.FreeHGlobal(infoPtr);
+                MEMORY_USAGE_NOTIFIED();
+                await Task.Delay(1000);
             }
         }, cts.Token);
     }

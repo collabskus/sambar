@@ -217,6 +217,9 @@ public class Psapi
 	public static extern uint GetModuleFileNameEx(nint hProcess, nint hModule, out StringBuilder moduleFileName, uint nSize);
 }
 
+/// <summary>
+/// Query kernel objects
+/// </summary>
 public class Ntdll
 {
     [DllImport("ntdll.dll", SetLastError = true, CharSet = CharSet.Unicode)]
