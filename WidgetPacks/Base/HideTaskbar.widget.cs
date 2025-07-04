@@ -17,6 +17,6 @@ public class HideTaskbar : Widget
         this.Content = btn;
     }
     public void ButtonMouseDown(object? sender, MouseEventArgs e) {
-        Sambar.api.HideTaskbar();    
+        Sambar.api.ToggleTaskbar();    
     }
 }

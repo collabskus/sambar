@@ -1,7 +1,8 @@
 ﻿public class Counters: Widget
 {
     TextBlock textBlock = new();
-    long cpuUsage = 0, downSpeed = 0, upSpeed = 0;
+    long cpuUsage = 0;
+    float downSpeed = 0f, upSpeed = 0f;
     float memUsage = 0;
     public Counters()
     {
@@ -15,16 +16,44 @@
 
         this.Content = textBlock; 
     }
+    
     public void UpdateText()
     {
         Task.Run(async () =>
         {
             while (true)
             {
-                string text = $"N: {downSpeed} Kb/s {upSpeed} Kb/s, MEM: {memUsage:0.00} Gb, CPU: {cpuUsage}%";
+                //float _down = downSpeed;
+                //string _down_flag = "Kb/s";
+                //if (_down > 100) _down_flag = "Mb/s";
+                //if (_down > 100000) _down_flag = "Gb/s";
+                //while (_down.ToString().Split(".")[0].Count() > 2) { _down /= 1024; }
+
+                //float _up = upSpeed;
+                //string _up_flag = "Kb/s";
+                //if (_up > 100) _up_flag = "Mb/s";
+                //if (_up > 100000) _up_flag = "Gb/s";
+                //while (_up.ToString().Split(".")[0].Count() > 2) { _up /= 1024; }
+
+                (float _down, string _down_flag) = NormalizeSpeed(downSpeed);
+                (float _up, string _up_flag) = NormalizeSpeed(upSpeed);
+
+                string text = @$"N: {_down:00.0} {_down_flag} {_up:00.0} {_up_flag}, MEM: {memUsage:00.00} Gb, CPU: {cpuUsage:00}%";
                 this.Thread.Invoke(() => { textBlock.Text = text; });
                 await Task.Delay(1000);
             }
         });
+    }
+    
+    /// <summary>
+    /// Normalize speed in Kbps to 00.0 format with appropriate flags
+    /// </summary>
+    public (float, string) NormalizeSpeed(float speed)
+    {
+        string unit = "Kb/s";
+        if (speed > 100) unit = "Mb/s";
+        if (speed > 100000) unit = "Gb/s";
+        while (speed.ToString().Split(".")[0].Count() > 2) { speed /= 1024; }
+        return (speed, unit);
     }
 }

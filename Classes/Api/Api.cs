@@ -15,6 +15,7 @@ public partial class Api {
     public Api()
     {
         EventsInit();
+        ToggleTaskbarInit();
         WindowingInit();
         SystemTrayInit();
         TaskbarInterceptorInit();
@@ -22,7 +23,7 @@ public partial class Api {
         CountersInit();
     }
 
-    public static void Print(string text) {
+    public void Print(string text) {
         Debug.WriteLine(text); 
     }
     

@@ -99,7 +99,7 @@ public partial class Api
     }
 
 
-    public delegate void NetworkSpeedEventHandler(long[] speeds);
+    public delegate void NetworkSpeedEventHandler(float[] speeds);
     public event NetworkSpeedEventHandler NETWORK_SPEED_NOTIFIED = (speeds) => { };
     /// <summary>
     /// Network monitor
@@ -125,8 +125,8 @@ public partial class Api
                 _delta_upBytes = upBytes - _upBytes;
                 
                 // speeds are in Kb/s
-                long speedDown = (_delta_downBytes * 8)/ (DELTA / 1000) / 1024;
-                long speedUp = (_delta_upBytes *8)/ (DELTA / 1000)/ 1024;
+                float speedDown = ((float)_delta_downBytes * 8)/ (DELTA / 1000) / 1024;
+                float speedUp = ((float)_delta_upBytes *8)/ (DELTA / 1000)/ 1024;
                 NETWORK_SPEED_NOTIFIED([speedDown, speedUp]);
                 Debug.WriteLine($"DOWN: {speedDown} Kb/s, UP: {speedUp} Kb/s");
                 await Task.Delay(DELTA);

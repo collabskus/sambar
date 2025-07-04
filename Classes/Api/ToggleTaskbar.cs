@@ -7,32 +7,41 @@ namespace sambar;
 public partial class Api {
 
     // Constructor
-    bool _isToggleTaskbarInitRun = false;
-    private void ToggleTaskbarInit()
+    public void ToggleTaskbarInit()
     {
         taskbar_hWnd = User32.FindWindow("Shell_TrayWnd", null);
         WINDOWPLACEMENT lpwndpl = new();
         User32.GetWindowPlacement(taskbar_hWnd, ref lpwndpl);
         Debug.WriteLine($"ToggleTaskBarInit: {lpwndpl.showCmd}");
-        bool _isToggleTaskbarInitRun = true;
     }
 
-    IntPtr taskbar_hWnd;
-    bool shown = true;
-    private void ToggleTaskbar()
+    nint taskbar_hWnd;
+    public bool taskbarVisible = true;
+    public void ToggleTaskbar()
     {
-        if (taskbar_hWnd == null) return;
-        if (shown) {
-            SetTaskbarState(APPBARSTATE.AutoHide);
-            User32.ShowWindow(taskbar_hWnd, SHOWWINDOW.SW_HIDE);
-            shown = false; 
+        if (taskbar_hWnd == 0) return;
+        if (taskbarVisible) {
+            HideTaskbar();     
         }
-        else { 
-            SetTaskbarState(APPBARSTATE.AlwaysOnTop);
-            User32.ShowWindow(taskbar_hWnd, SHOWWINDOW.SW_SHOW);
-            shown = true;
+        else 
+        {
+            ShowTaskbar(); 
         }
     } 
+
+    public void HideTaskbar()
+    {
+        SetTaskbarState(APPBARSTATE.AutoHide);
+        User32.ShowWindow(taskbar_hWnd, SHOWWINDOW.SW_HIDE);
+        taskbarVisible = false;
+    }
+
+    public void ShowTaskbar()
+    {
+        SetTaskbarState(APPBARSTATE.AlwaysOnTop);
+        User32.ShowWindow(taskbar_hWnd, SHOWWINDOW.SW_SHOW);
+        taskbarVisible = true;
+    }
 
     private void SetTaskbarState(APPBARSTATE state) {
         APPBARDATA msgData = new();
@@ -40,13 +49,6 @@ public partial class Api {
         msgData.hWnd = taskbar_hWnd;
         msgData.lParam = (uint)state;
         Shell32.SHAppBarMessage((uint)APPBARMESSAGE.SetState, ref msgData);
-    }
-
-    // API Endpoint
-    public void HideTaskbar()
-    {
-        if(!_isToggleTaskbarInitRun) ToggleTaskbarInit();
-        ToggleTaskbar();
     }
 }
 

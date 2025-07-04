@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
 using System.Drawing;
+using System.ComponentModel;
 
 namespace sambar;
 
@@ -38,7 +39,6 @@ public partial class Sambar : Window
 			WindowInit();
             AddWidgets();
 		};
-
 	}
 	
     bool barTransparent = false;
