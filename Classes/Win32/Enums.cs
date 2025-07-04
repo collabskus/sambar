@@ -687,6 +687,12 @@ public enum SYSTEM_INFORMATION_CLASS: uint
     MaxSystemInfoClass = 0xD6
 }
 
+public enum ADRESS_FAMILY: uint
+{
+	AF_INET = 2,
+	AF_INET6 = 23
+}
+
 
 
 

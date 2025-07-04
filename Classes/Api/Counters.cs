@@ -1,25 +1,18 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Net.NetworkInformation;
 
 namespace sambar;
 
 public partial class Api
 {
-    /// <summary>
-    /// PerfCounters or performance counters allow us 
-    /// to query performance metrics [CPU, GC Collections, Memory etc]
-    /// We use native win32 apis instead of .NET's perfcounter class
-    /// 
-    /// https://learn.microsoft.com/en-us/windows/win32/perfctrs/specifying-a-counter-path 
-    /// Counter PATH:
-    /// "\\Computer\PerfObject(ParentInstance/ObjectInstance#InstanceIndex)\Counter"
-    /// "\\computer\object(parent/instance#index)\counter"
-    /// </summary>
+    
     int cpuCores = 0;
     public void CountersInit()
     {
         cpuCores = GetCpuCount();
-        GetCoreUsages();
+        StartCpuMonitor();
+        StartNetworkMonitor();
     }
 
     public int GetCpuCount()
@@ -42,7 +35,7 @@ public partial class Api
     /// Get CPU Usages
     /// https://www.codeproject.com/Articles/9113/Get-CPU-Usage-with-GetSystemTimes
     /// </summary>
-    public void GetCoreUsages()
+    public void StartCpuMonitor()
     {
         if (cpuCores == 0) return;
 
@@ -61,22 +54,22 @@ public partial class Api
             long[] _delta_usr = new long[cpuCores];
             long[] _delta_kernel = new long[cpuCores];
             long[] _delta_idle = new long[cpuCores];
-            
-            while(true)
+
+            while (true)
             {
                 int size = Marshal.SizeOf<SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION>();
-                nint bufferPtr = Marshal.AllocHGlobal(size*cpuCores);
+                nint bufferPtr = Marshal.AllocHGlobal(size * cpuCores);
                 Ntdll.NtQuerySystemInformation(
                     SYSTEM_INFORMATION_CLASS.SystemProcessorPerformanceInformation,
                     bufferPtr,
-                    (uint)(size*cpuCores),
+                    (uint)(size * cpuCores),
                     out uint returnLength
                 );
 
                 for (int i = 0; i < cpuCores; i++)
                 {
-                    SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION proc = 
-                        Marshal.PtrToStructure<SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION>(bufferPtr + size*i);
+                    SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION proc =
+                        Marshal.PtrToStructure<SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION>(bufferPtr + size * i);
 
                     _usr[i] = usr[i];
                     _kernel[i] = kernel[i];
@@ -98,8 +91,44 @@ public partial class Api
                 CPU_PERFORMANCE_NOTIFIED(cpuStats);
                 long cpuTotalUsage = 0;
                 cpuStats.ToList().ForEach(x => cpuTotalUsage += x);
-                Debug.WriteLine($"CPU TOTAL: {cpuTotalUsage/cpuCores}%");
+                //Debug.WriteLine($"CPU TOTAL: {cpuTotalUsage / cpuCores}%");
                 await Task.Delay(1000);
+            }
+        }, cts.Token);
+    }
+
+
+    public delegate void NetworkSpeedEventHandler(long[] speeds);
+    public event NetworkSpeedEventHandler NETWORK_SPEED_NOTIFIED = (speeds) => { };
+    /// <summary>
+    /// Network monitor
+    /// </summary>
+    public void StartNetworkMonitor()
+    {
+        CancellationTokenSource cts = new();
+        Task.Run(async () =>
+        {
+            Debug.WriteLine($"STARTING NETWORK MONITOR");
+            var primaryInterface = Utils.GetPrimaryNetworkInterface();
+            long downBytes = 0, _downBytes = 0, upBytes = 0, _upBytes = 0, _delta_downBytes = 0, _delta_upBytes = 0;
+            int DELTA = 1000; // milliseconds
+            while(true)
+            {
+                _downBytes = downBytes;
+                _upBytes = upBytes;
+
+                downBytes = primaryInterface.GetIPv4Statistics().BytesReceived;
+                upBytes = primaryInterface.GetIPv4Statistics().BytesSent;
+
+                _delta_downBytes = downBytes - _downBytes;
+                _delta_upBytes = upBytes - _upBytes;
+                
+                // speeds are in Kb/s
+                long speedDown = (_delta_downBytes * 8)/ (DELTA / 1000) / 1024;
+                long speedUp = (_delta_upBytes *8)/ (DELTA / 1000)/ 1024;
+                NETWORK_SPEED_NOTIFIED([speedDown, speedUp]);
+                Debug.WriteLine($"DOWN: {speedDown} Kb/s, UP: {speedUp} Kb/s");
+                await Task.Delay(DELTA);
             }
         }, cts.Token);
     }

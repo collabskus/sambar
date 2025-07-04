@@ -241,4 +241,21 @@ public struct SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION
 	public uint Reserved2;
 }
 
+[StructLayout(LayoutKind.Sequential)]
+public struct _NL_BANDWIDTH_INFORMATION {
+  public ulong Bandwidth;
+  public ulong Instability;
+  public byte BandwidthPeaked;
+}
+
+/// <summary>
+/// https://learn.microsoft.com/en-us/windows/win32/api/netioapi/ns-netioapi-mib_ip_network_connection_bandwidth_estimates
+/// </summary>
+
+[StructLayout(LayoutKind.Sequential)]
+public struct _MIB_IP_NETWORK_CONNECTION_BANDWIDTH_ESTIMATES {
+  public _NL_BANDWIDTH_INFORMATION InboundBandwidthInformation;
+  public _NL_BANDWIDTH_INFORMATION OutboundBandwidthInformation;
+}
+
 

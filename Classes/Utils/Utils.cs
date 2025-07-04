@@ -11,6 +11,9 @@ using System.Management;
 using System.IO;
 using System.Windows.Navigation;
 using System.Windows;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Net;
 
 namespace sambar;
 
@@ -252,6 +255,43 @@ public partial class Utils
         var taskbarWindows = topWindows.Where(hWnd => IsWindowInTaskBar(hWnd)).ToList();
         taskbarWindows.ForEach(hWnd => Debug.WriteLine($"TASKBAR WINDOWS, hWnd: {hWnd}, class: {GetClassNameFromHWND(hWnd)}, exe: {GetExePathFromHWND(hWnd)}"));
         return taskbarWindows;
+    }
+
+    /// <summary>
+    /// Retreives the local lan ip assigned to your pc in your LAN network
+    /// usually in the form 192.168.XX.XX
+    /// </summary>
+    /// <returns></returns>
+    public static IPAddress GetLANIP()
+    {
+        return NetworkInterface.GetAllNetworkInterfaces()
+            .ToList()
+            .Select(iface => iface.GetIPProperties().UnicastAddresses
+                .Where(addr => addr.Address.AddressFamily == AddressFamily.InterNetwork && addr.PrefixOrigin == PrefixOrigin.Dhcp)
+            )
+            .Where(list => list.Count() != 0)
+            .ToList()[0]
+            .ToList()[0]
+            .Address;
+    }
+    
+    /// <summary>
+    /// Retrieves the primary network interface in your pc that you 
+    /// use for internet, required for monitoring network bandwidths
+    /// and speeds. The idea is that the interface that is used for internet
+    /// has the local lan ip
+    /// </summary>
+    /// <returns></returns>
+    public static NetworkInterface GetPrimaryNetworkInterface()
+    {
+        IPAddress addr = GetLANIP();
+        var interfaces = NetworkInterface.GetAllNetworkInterfaces().ToList();
+        return interfaces.First(iface => iface.GetIPProperties().UnicastAddresses.Select(ucast => ucast.Address).Contains(addr));
+    }
+
+    public static int GetInterfaceIndex(NetworkInterface iface)
+    {
+        return iface.GetIPProperties().GetIPv4Properties().Index;
     }
 }
 
