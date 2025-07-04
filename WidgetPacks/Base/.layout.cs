@@ -34,7 +34,8 @@ class BaseLayout : Layout
         Border Clock = new();
         Border ScribblePad = new();
         Border StartButton = new();
-        
+        Border Counters = new();
+
         /// <summary>
         /// Build the layout after choosing a layout type
         /// <summary>
@@ -51,12 +52,23 @@ class BaseLayout : Layout
         StackPanel col1 = new();
         StackPanel col2 = new();
         StackPanel col3 = new();
+        
+            /// <summary>
+            /// In WPF VerticalAlignment and HorizontalAlignment are
+            /// properties of an objects that specifies how it aligns
+            /// itself in its parent container. It is NOT about specifying
+            /// to a container element how to align its children
+            /// </summary>
+
         col1.Orientation = Orientation.Horizontal;
         col1.VerticalAlignment = VerticalAlignment.Center;
+
         col2.Orientation = Orientation.Horizontal;
         col2.HorizontalAlignment = HorizontalAlignment.Center;
         col2.VerticalAlignment = VerticalAlignment.Center;
+
         col3.Orientation = Orientation.Horizontal;
+        col3.HorizontalAlignment = HorizontalAlignment.Right;
         col3.VerticalAlignment = VerticalAlignment.Center;
         col3.FlowDirection = FlowDirection.RightToLeft;
         col3.Margin = new(0, 0, 6, 0);
@@ -76,9 +88,11 @@ class BaseLayout : Layout
         systemTray.Add(Tray);
         systemTray.Add(HideTaskbar);
         systemTray.Add(ScribblePad);
+        systemTray.Add(Counters);
         systemTray.ForEach(border => 
         {
             border.Margin = new(0, 0, 5, 0);
+            border.VerticalAlignment = VerticalAlignment.Center;
             col3.Children.Add(border);
         });
 
@@ -103,5 +117,6 @@ class BaseLayout : Layout
         this.WidgetToContainerMap["Clock"] = Clock;
         this.WidgetToContainerMap["ScribblePad"] = ScribblePad;
         this.WidgetToContainerMap["StartButton"] = StartButton;
+        this.WidgetToContainerMap["Counters"] = Counters;
     }
 }

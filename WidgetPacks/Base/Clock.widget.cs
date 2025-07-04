@@ -7,9 +7,10 @@ public class Clock: Widget
     {
         textBlock.Foreground = Theme.TEXT_COLOR;
         textBlock.FontFamily = Theme.FONT_FAMILY;
+        Sambar.api.CLOCK_TICKED += ClockTickedEventHandler;
+
         this.Content = textBlock;
 
-        Sambar.api.CLOCK_TICKED += ClockTickedEventHandler;
     }
 
     public void ClockTickedEventHandler(Time time)
