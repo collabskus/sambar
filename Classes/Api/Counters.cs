@@ -158,9 +158,9 @@ public partial class Api
                 var info = Marshal.PtrToStructure<_SYSTEM_MEMORY_USAGE_INFORMATION>(infoPtr);
                 
                 
-                float commited = info.CommittedBytes / 1024 / 1024 / 1024; // in GB
-                float available = info.AvailableBytes / 1024 / 1024 / 1024;
-                float totalPhysical  = info.TotalPhysicalBytes / 1024 / 1024 / 1024; 
+                float commited = (float)info.CommittedBytes / 1024 / 1024 / 1024; // in GB
+                float available = (float)info.AvailableBytes / 1024 / 1024 / 1024;
+                float totalPhysical  = (float)info.TotalPhysicalBytes / 1024 / 1024 / 1024; 
                 Debug.WriteLine($"[ MEMORY ], commited: {commited} Gb, available: {available} Gb, totalPhysical: {totalPhysical} Gb ");
                 Marshal.FreeHGlobal(infoPtr);
                 MEMORY_USAGE_NOTIFIED([available, totalPhysical]);
