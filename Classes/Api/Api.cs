@@ -21,6 +21,7 @@ public partial class Api {
         TaskbarInterceptorInit();
         ClockInit();
         CountersInit();
+        Task.Run(GlazeInit);
     }
 
     public void Print(string text) {
