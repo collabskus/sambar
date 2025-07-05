@@ -1,7 +1,9 @@
 class BaseLayout : Layout
 {
     /// <summary>
-    /// Create placeholder borders for each widget 
+    /// Create placeholder borders for each widget. These borders must be
+    /// declared as fields of the Layout class and their names must match
+    /// the name of their respective widget class
     /// </summary>
      
     Border Workspaces = new();
