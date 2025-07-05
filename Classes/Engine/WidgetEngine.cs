@@ -120,11 +120,11 @@ public class WidgetLoader
 		Layout layout = (Layout)Activator.CreateInstance(layoutType);
 		
 		// IMPORTANT
-		window.Content = layout.Container;
+		window.Content = layout?.Container;
 
         widgetFilesToCompile
 			.ForEach(
-				async file =>
+				file =>
 				{
 					Debug.WriteLine($"Compiling {file.Name}");
 					string fileContent = File.ReadAllText(file.FullName);

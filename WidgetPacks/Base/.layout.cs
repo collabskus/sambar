@@ -1,41 +1,20 @@
 class BaseLayout : Layout
 {
+    /// <summary>
+    /// Create placeholder borders for each widget 
+    /// </summary>
+     
+    Border Workspaces = new();
+    Border Tray = new();
+    Border NetworkManager = new();
+    Border HideTaskbar = new();
+    Border Clock = new();
+    Border ScribblePad = new();
+    Border StartButton = new();
+    Border Counters = new();
+
     public BaseLayout()
     {
-        /// <summary>
-        /// Build the layout using borders
-        /// </summary>
-        //StackPanel panel = new();
-        //panel.Orientation = Orientation.Horizontal;
-        //Border border1 = new();
-        //Border border2 = new();
-        //Border border3 = new();
-        //Border border4 = new();
-        //Border border5 = new();
-        //Border border6 = new();
-        //Border border7 = new();
-        //border1.VerticalAlignment = VerticalAlignment.Center;
-        //border5.VerticalAlignment = VerticalAlignment.Center;
-        //panel.Children.Add(border1);
-        //panel.Children.Add(border2);
-        //panel.Children.Add(border3);
-        //panel.Children.Add(border4);
-        //panel.Children.Add(border5);
-        //panel.Children.Add(border6);
-        //panel.Children.Add(border7);
-
-        /// <summary>
-        /// Create borders for each widget 
-        /// </summary>
-        Border Workspaces = new();
-        Border Tray = new();
-        Border NetworkManager = new();
-        Border HideTaskbar = new();
-        Border Clock = new();
-        Border ScribblePad = new();
-        Border StartButton = new();
-        Border Counters = new();
-
         /// <summary>
         /// Build the layout after choosing a layout type
         /// <summary>
@@ -43,7 +22,7 @@ class BaseLayout : Layout
 
         ColumnDefinition _col1 = new() { Width = new GridLength(1, GridUnitType.Star)};
         ColumnDefinition _col2 = new() { Width = new GridLength(1, GridUnitType.Star)};
-        ColumnDefinition _col3 = new() { Width = new GridLength(1, GridUnitType.Star)};
+        ColumnDefinition _col3 = new() { Width = new GridLength(1, GridUnitType.Auto)};
 
         grid.ColumnDefinitions.Add(_col1);
         grid.ColumnDefinitions.Add(_col2);
@@ -53,12 +32,12 @@ class BaseLayout : Layout
         StackPanel col2 = new();
         StackPanel col3 = new();
         
-            /// <summary>
-            /// In WPF VerticalAlignment and HorizontalAlignment are
-            /// properties of an objects that specifies how it aligns
-            /// itself in its parent container. It is NOT about specifying
-            /// to a container element how to align its children
-            /// </summary>
+        /// <summary>
+        /// In WPF VerticalAlignment and HorizontalAlignment are
+        /// properties of an objects that specifies how it aligns
+        /// itself in its parent container. It is NOT about specifying
+        /// to a container element how to align its children
+        /// </summary>
 
         col1.Orientation = Orientation.Horizontal;
         col1.VerticalAlignment = VerticalAlignment.Center;
@@ -80,6 +59,7 @@ class BaseLayout : Layout
         // col1
         col1.Children.Add(Workspaces);
         // col2
+        Clock.HorizontalAlignment = HorizontalAlignment.Center;
         col2.Children.Add(Clock);
         // col3
         List<Border> systemTray = new();
@@ -107,16 +87,5 @@ class BaseLayout : Layout
         /// <summary>
         //this.Container = panel;
         this.Container = grid;
-        /// <summary>
-        /// Mark the borders to widgets since each widget has a parent border
-        /// </summary>
-        this.WidgetToContainerMap["Workspaces"] = Workspaces;
-        this.WidgetToContainerMap["Tray"] = Tray;
-        this.WidgetToContainerMap["NetworkManager"] = NetworkManager;
-        this.WidgetToContainerMap["HideTaskbar"] = HideTaskbar;
-        this.WidgetToContainerMap["Clock"] = Clock;
-        this.WidgetToContainerMap["ScribblePad"] = ScribblePad;
-        this.WidgetToContainerMap["StartButton"] = StartButton;
-        this.WidgetToContainerMap["Counters"] = Counters;
     }
 }
