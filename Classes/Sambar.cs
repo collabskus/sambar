@@ -31,7 +31,11 @@ public partial class Sambar : Window
 	BarConfig config = new();
 	public Sambar()
 	{
-        InitializeComponent();
+		this.Title = "Bar";
+		this.WindowStyle = WindowStyle.None;
+		this.AllowsTransparency = true;
+
+        //InitializeComponent();
 		api.barWindow = this;
 		SourceInitialized += (s, e) =>
 		{
