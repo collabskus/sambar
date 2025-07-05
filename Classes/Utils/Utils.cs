@@ -14,6 +14,7 @@ using System.Windows;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Net;
+using System.ComponentModel;
 
 namespace sambar;
 
@@ -292,6 +293,13 @@ public partial class Utils
     public static int GetInterfaceIndex(NetworkInterface iface)
     {
         return iface.GetIPProperties().GetIPv4Properties().Index;
+    }
+
+    public static string GetWindowTitleFromHWND(nint hWnd)
+    {
+        StringBuilder str = new(256);
+        User32.GetWindowText(hWnd, str, str.Capacity);
+        return str.ToString();
     }
 }
 

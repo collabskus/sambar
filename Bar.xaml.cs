@@ -25,7 +25,7 @@ namespace sambar;
 /// </summary>
 public partial class Sambar : Window
 {
-	private IntPtr hWnd;
+	private nint hWnd;
     public static Api api = new();
 	string configFile = "C:\\Users\\Jayakuttan\\dev\\sambar\\sambar.json";
 	BarConfig config = new();
@@ -63,7 +63,7 @@ public partial class Sambar : Window
 		if(this.Background.Equals(Colors.Transparent)) { barTransparent = true; }
 
 		uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
-        User32.SetWindowLong(hWnd, -20, (int)(exStyles | (uint)sambar.WINDOWSTYLE.WS_EX_TOOLWINDOW));
+        User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE , (int)(exStyles | (uint)sambar.WINDOWSTYLE.WS_EX_TOOLWINDOW));
 
 		//Win32.SetWindowPos(hWnd, IntPtr.Zero, config.marginXLeft, config.marginYTop, config.width, config.height, 0x0400);
 		this.Width = config.width;

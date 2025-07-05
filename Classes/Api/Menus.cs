@@ -3,6 +3,7 @@ using System.Windows.Interop;
 using System.Windows.Controls;
 using System.Diagnostics;
 using System.Windows.Threading;
+using Windows.ApplicationModel.VoiceCommands;
 
 namespace sambar;
 public partial class Api
@@ -13,19 +14,16 @@ public partial class Api
     }
     public async void CreateMenu(UserControl callingElement, UIElement menuContent, int width = 100, int height = 100)
     {
-        Menu menu = new(Sambar.api, callingElement, menuContent, width, height);
+        Menu menu = new(callingElement, menuContent, width, height);
     }
 }
 
 public class Menu: Window
 {
-    Api api;
     nint hWnd;
     int _left, _top, _right, _bottom;
-    public Menu(Api api, UserControl callingElement, UIElement menuContent, int width, int height)
+    public Menu(UserControl callingElement, UIElement menuContent, int width, int height)
     {
-        this.api = api;
-
         this.Title = "sambarContextMenu";
         this.WindowStyle = WindowStyle.None;
         this.Topmost = true;
@@ -59,6 +57,7 @@ public class Menu: Window
     private async void MenuFocusChangedHandler(FocusChangedMessage msg)
     {
         Debug.WriteLine($"MenuFocusChanged, name: {msg.name}, class: {msg.className}, controlType: {msg.controlType}");
+        if (msg.name == "Desktop") Sambar.api.barWindow.Dispatcher.Invoke(() => AnimatedClose());
         // if cursor inside menu
         User32.GetCursorPos(out POINT cursorPos);
         if (cursorPos.X > _left && cursorPos.X < _right)
@@ -79,13 +78,23 @@ public class Menu: Window
         //if (msg.hWnd == 0) return;
         // wait for trayIconMenuChildren to get filled if icon children havent been retrieved
         // and also wait so that focus changed event is not consumed when menu it is opening
-        await Task.Delay(api.WINDOW_CAPTURE_DURATION);
-        if (!api.capturedWindows.Select(_msg => _msg.className).Contains(msg.className))
+        await Task.Delay(Sambar.api.WINDOW_CAPTURE_DURATION);
+        if (!Sambar.api.capturedWindows.Select(_msg => _msg.className).Contains(msg.className))
         {
            Debug.WriteLine($"Closing menu by losing focus to non-menu item: {msg.name}, {msg.className}");
-           api.barWindow.Dispatcher.Invoke(() => { this.Close(); });
+            Sambar.api.barWindow.Dispatcher.Invoke(() =>  AnimatedClose());
         }
     }
+    
+    public void AminatedShow()
+    {
+        this.Show();
+    }
+    public void AnimatedClose()
+    {
+        this.Close();
+    }
+
 }
 
 

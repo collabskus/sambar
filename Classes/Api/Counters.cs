@@ -92,6 +92,7 @@ public partial class Api
                 CPU_PERFORMANCE_NOTIFIED(cpuStats);
                 long cpuTotalUsage = 0;
                 cpuStats.ToList().ForEach(x => cpuTotalUsage += x);
+                Marshal.FreeHGlobal(bufferPtr);
                 //Debug.WriteLine($"CPU TOTAL: {cpuTotalUsage / cpuCores}%");
                 await Task.Delay(1000);
             }
