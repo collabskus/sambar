@@ -29,7 +29,7 @@ public partial class Api {
     }
     
     // so that widgets and scripts can use it
-    public BarConfig config;
+    public Config config;
     
     // instance of mainWindow
     public Window barWindow; 

@@ -301,6 +301,14 @@ public partial class Utils
         User32.GetWindowText(hWnd, str, str.Capacity);
         return str.ToString();
     }
+
+    public static void CompileToDll(string fileName, string dllName)
+    {
+        string classCode = File.ReadAllText(fileName);
+        Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName));
+        thread.Start();
+        thread.Join();
+    }
 }
 
 public class _Window

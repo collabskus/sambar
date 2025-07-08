@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace sambar;
 
-public class BarConfig
+public class Config
 {
 	public int height = 40;
 	public int width = 0;
@@ -20,7 +20,7 @@ public class BarConfig
 	public string widgetPack = "Base";
 
 	[JsonConstructor]
-	public BarConfig(
+	public Config(
 		int? height,
 		int? width,
 		int? marginXLeft,
@@ -52,11 +52,11 @@ public class BarConfig
 		this.widgetPack = widgetPack ?? "Base";
 	}
 
-	public BarConfig(int screenWidth) {
+	public Config(int screenWidth) {
 		width = screenWidth - (marginXLeft + marginXRight);	
 	}
 
-	public BarConfig() { }
+	public Config() { }
 }
 
 

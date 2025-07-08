@@ -40,7 +40,7 @@ public class Widget : Border
 		get { return this.Dispatcher; }
 	}
 
-	BarConfig config;	
+	Config config;	
 	public Widget() {
 		this.HorizontalAlignment = HorizontalAlignment.Left;
 		config = Sambar.api.config;
@@ -160,7 +160,7 @@ public class WidgetLoader
 		GC.Collect();
 	}
 
-	public void CompileToDll(string classCode, string dllName)
+	public static void CompileToDll(string classCode, string dllName)
 	{
 		MetadataReference[] references =
 		[

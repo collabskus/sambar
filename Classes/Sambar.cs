@@ -28,12 +28,16 @@ public partial class Sambar : Window
 	private nint hWnd;
     public static Api api = new();
 	string configFile = "C:\\Users\\Jayakuttan\\dev\\sambar\\sambar.json";
-	BarConfig config = new();
-	public Sambar()
+	Config config = new();
+	string widgetPackName;
+	public Sambar(string widgetPackName, Config config)
 	{
 		this.Title = "Bar";
 		this.WindowStyle = WindowStyle.None;
 		this.AllowsTransparency = true;
+		this.Topmost = true;
+		this.widgetPackName = widgetPackName;
+		this.config = config;
 
         //InitializeComponent();
 		api.barWindow = this;
@@ -48,17 +52,10 @@ public partial class Sambar : Window
     bool barTransparent = false;
     public void WindowInit()
 	{
-		this.Topmost = true;
-
         int screenWidth = User32.GetSystemMetrics(0);
 		int screentHeight = User32.GetSystemMetrics(1);
 
-		config = new(screenWidth);
-
-		if (File.Exists(configFile)) {
-			config = JsonConvert.DeserializeObject<BarConfig>(File.ReadAllText(configFile));
-			if(config.width == 0) { config.width = screenWidth - (config.marginXLeft + config.marginXRight);  }
-        }
+		if(config.width == 0) { config.width = screenWidth - (config.marginXLeft + config.marginXRight);  }
 		
 		// setting a copy of the config to the API
 		api.config = config;
@@ -81,7 +78,7 @@ public partial class Sambar : Window
 
 	public void AddWidgets()
 	{
-		WidgetLoader widgetLoader = new(config.widgetPack, this);
+		WidgetLoader widgetLoader = new(widgetPackName, this);
 		//widgetLoader.widgets.ForEach(widget => WidgetStackPanel.Children.Add(widget));
 		//this.Content = widgetLoader.layout.Structure;
 	}
