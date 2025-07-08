@@ -27,7 +27,6 @@ public partial class Sambar : Window
 {
 	private nint hWnd;
     public static Api api = new();
-	string configFile = "C:\\Users\\Jayakuttan\\dev\\sambar\\sambar.json";
 	Config config = new();
 	string widgetPackName;
 	public Sambar(string widgetPackName, Config config)
@@ -38,8 +37,9 @@ public partial class Sambar : Window
 		this.Topmost = true;
 		this.widgetPackName = widgetPackName;
 		this.config = config;
+        // setting a copy of the config to the API
+		api.config = config;
 
-        //InitializeComponent();
 		api.barWindow = this;
 		SourceInitialized += (s, e) =>
 		{
@@ -56,9 +56,6 @@ public partial class Sambar : Window
 		int screentHeight = User32.GetSystemMetrics(1);
 
 		if(config.width == 0) { config.width = screenWidth - (config.marginXLeft + config.marginXRight);  }
-		
-		// setting a copy of the config to the API
-		api.config = config;
 
 		this.Background = Utils.BrushFromHex(config.backgroundColor);
 		if(this.Background.Equals(Colors.Transparent)) { barTransparent = true; }
@@ -71,10 +68,10 @@ public partial class Sambar : Window
 		this.Height = config.height;
 		this.Left = config.marginXLeft;
 		this.Top = config.marginYTop;
-
-		int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
-		if (!barTransparent) Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
-	}
+		
+        int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
+        if (!barTransparent) Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
+    }
 
 	public void AddWidgets()
 	{

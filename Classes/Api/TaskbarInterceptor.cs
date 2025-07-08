@@ -71,7 +71,7 @@ public partial class Api
 public class TaskbarInterceptor
 {
     nint hWnd;
-    nint originalTray_hWnd;
+    public nint originalTray_hWnd;
     CancellationTokenSource cts;
     public TaskbarInterceptor() 
     {

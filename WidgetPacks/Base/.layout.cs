@@ -65,12 +65,12 @@ class BaseLayout : Layout
         col2.Children.Add(Clock);
         // col3
         List<Border> systemTray = new();
+        systemTray.Add(Counters);
         systemTray.Add(StartButton);
         systemTray.Add(NetworkManager);
         systemTray.Add(Tray);
         systemTray.Add(HideTaskbar);
         systemTray.Add(ScribblePad);
-        systemTray.Add(Counters);
         systemTray.ForEach(border => 
         {
             border.Margin = new(0, 0, 5, 0);

@@ -16,8 +16,10 @@ public partial class Api {
 
     public void StartMenu()
     {
-        nint hWnd = User32.FindWindow("Shell_TrayWnd", null);
-        User32.SendMessage(hWnd, (uint)WINDOWMESSAGE.WM_SYSCOMMAND, (nint)SYSCOMMAND.SC_TASKLIST, 0);
+        // nint hWnd = User32.FindWindow("Shell_TrayWnd", null);
+        // dont send message to our interceptor, but the real taskbar 
+        // because both have the same class
+        User32.SendMessage(interceptor.originalTray_hWnd, (uint)WINDOWMESSAGE.WM_SYSCOMMAND, (nint)SYSCOMMAND.SC_TASKLIST, 0);
     }
 
     public void ActionCenter()
