@@ -37,18 +37,20 @@ public partial class Sambar : Window
 		this.Topmost = true;
 		this.widgetPackName = widgetPackName;
 		this.config = config;
-        // setting a copy of the config to the API
-		api.config = config;
 
-		api.barWindow = this;
+		// setting a copy of the config to the API
+		api.config = config; 
+
 		SourceInitialized += (s, e) =>
-		{
-			hWnd = new WindowInteropHelper(this).Handle;
-			WindowInit();
+        {
+            hWnd = new WindowInteropHelper(this).Handle;
+            WindowInit();
             AddWidgets();
-		};
-	}
-	
+        };
+
+        api.barWindow = this;
+    }
+
     bool barTransparent = false;
     public void WindowInit()
 	{
@@ -56,6 +58,8 @@ public partial class Sambar : Window
 		int screentHeight = User32.GetSystemMetrics(1);
 
 		if(config.width == 0) { config.width = screenWidth - (config.marginXLeft + config.marginXRight);  }
+
+        
 
 		this.Background = Utils.BrushFromHex(config.backgroundColor);
 		if(this.Background.Equals(Colors.Transparent)) { barTransparent = true; }

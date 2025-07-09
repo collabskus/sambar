@@ -12,9 +12,10 @@ public partial class Api
     {
 
     }
-    public async void CreateMenu(UserControl callingElement, UIElement menuContent, int width = 100, int height = 100)
+    public Menu CreateMenu(UserControl callingElement, int width = 100, int height = 100)
     {
-        Menu menu = new(callingElement, menuContent, width, height);
+        Menu menu = new(callingElement, width, height);
+        return menu;
     }
 }
 
@@ -22,7 +23,7 @@ public class Menu: Window
 {
     nint hWnd;
     int _left, _top, _right, _bottom;
-    public Menu(UserControl callingElement, UIElement menuContent, int width, int height)
+    public Menu(UserControl callingElement, int width, int height)
     {
         this.Title = "sambarContextMenu";
         this.WindowStyle = WindowStyle.None;
@@ -34,7 +35,6 @@ public class Menu: Window
         this.Left = callingElement.PointToScreen(new Point(callingElement.Width/2, callingElement.Height/2)).X - (width/2);
         this.Left = this.Left < Sambar.api.config.marginXLeft ? Sambar.api.config.marginXLeft : this.Left;
         this.Top = Sambar.api.config.marginYTop + Sambar.api.config.height + 5;
-        this.Content = menuContent;
 
         hWnd = new WindowInteropHelper(this).EnsureHandle();
         uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);

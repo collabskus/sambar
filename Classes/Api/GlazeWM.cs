@@ -7,9 +7,11 @@ namespace sambar;
 
 public partial class Api
 {
-    GlazeClient client = new();
+	// dont initialize in fields
+	GlazeClient client;
     public async void GlazeInit()
     {
+		client = new();
         await SubscribeToGlazeWMEvents();
 		client.REPLY_RECIEVED += GlazeEventHandler;
 		await GetAllWorkspaces();

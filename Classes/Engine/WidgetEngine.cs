@@ -205,12 +205,15 @@ using Newtonsoft.Json;
 """;
 
         string code = usingsPrefix + classCode;
-        SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code);
+		CSharpParseOptions parseOptions = new(LanguageVersion.Preview);
+        SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code, parseOptions);
+		CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
+
         CSharpCompilation compilation = CSharpCompilation.Create(
             $"{dllName}.dll",
             [syntaxTree],
             references,
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+			compilationOptions	
         );
 
         using var ms = new MemoryStream();

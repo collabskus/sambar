@@ -21,7 +21,7 @@ public partial class Api {
         TaskbarInterceptorInit();
         ClockInit();
         CountersInit();
-        Task.Run(GlazeInit);
+        //Task.Run(GlazeInit);
     }
 
     public void Print(string text) {
@@ -32,7 +32,7 @@ public partial class Api {
     public Config config;
     
     // instance of mainWindow
-    public Window barWindow; 
+    public Sambar barWindow; 
 
     // IUIAutomation
     CUIAutomation ui = new();

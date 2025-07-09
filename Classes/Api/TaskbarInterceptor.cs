@@ -58,7 +58,9 @@ public partial class Api
     }
     public List<TrayIcon> GetTrayIcons()
     {
-        return interceptor.overflowIcons;
+        var icons = interceptor.GetTrayIcons();
+        Debug.WriteLine($"GetTrayIcons(): {icons.Count()}");
+        return icons;
     }
 
 }
@@ -115,11 +117,14 @@ public class TaskbarInterceptor
                 nint.Zero,
                 nint.Zero
             );
-
+            
+            // Set window as topmost first and set a timer that keeps on doing just that
             if (User32.SetWindowPos(hWnd, (nint)(-1), 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE) == 0)
             {
                 Debug.WriteLine($"SetWindowPos() failed: {Marshal.GetLastWin32Error()}");
             }
+
+            User32.SetTimer(hWnd, 1, 100, null);
 
             RefreshTaskbar();
             
@@ -131,8 +136,8 @@ public class TaskbarInterceptor
         }, cts.Token);
     }
 
-    TrayIconsManager trayIconsManager = new();
-    public List<TrayIcon> overflowIcons = new();
+    public TrayIconsManager trayIconsManager = new();
+    //public List<TrayIcon> overflowIcons = new();
     List<string> NON_OVERFLOW_CLASSES = 
     [
         "ATL:00007FFE3066B050", // SPEAKER
@@ -157,6 +162,9 @@ public class TaskbarInterceptor
             case WINDOWMESSAGE.WM_DESTROY:
                 User32.PostQuitMessage(0);
                 break;
+            case WINDOWMESSAGE.WM_TIMER:
+                User32.SetWindowPos(hWnd, (nint)(-1), 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE);
+                break;
             case WINDOWMESSAGE.WM_COPYDATA:
                 COPYDATASTRUCT copydata = Marshal.PtrToStructure<COPYDATASTRUCT>(lParam);
                 if (copydata.cbData == 0) return 0;
@@ -177,7 +185,7 @@ public class TaskbarInterceptor
                                 break;
                         }
                         // Filter out non overflow icons to build the overflow icons collection
-                        overflowIcons = trayIconsManager.icons.Where(icon => !NON_OVERFLOW_CLASSES.Contains(icon.className)).ToList();
+                        //overflowIcons = trayIconsManager.icons.Where(icon => !NON_OVERFLOW_CLASSES.Contains(icon.className)).ToList();
                         Debug.WriteLine($"ICONUPDATEACTION: {(ICONUPDATEACTION)(iconData.dwMessage)}, uid: {nid.uID}, hWnd: {nid.hWnd}, nids: {trayIconsManager.icons.Count}, class: {Utils.GetClassNameFromHWND((nint)nid.hWnd)}, version: {nid.uTimeoutOrVersion.uVersion}, callback: {nid.uCallbackMessage}, hIcon: {nid.hIcon}");
                         //notifiedIcons.ForEach(icon => Debug.WriteLine($"class: {Utils.GetClassNameFromHWND((nint)icon.hWnd)}, exe: {Utils.GetExePathFromHWND((nint)icon.hWnd)}"));
                         //overflowIcons.ForEach(icon => Debug.WriteLine($"class: {icon.className}, exe: {icon.exePath}"));
@@ -217,6 +225,11 @@ public class TaskbarInterceptor
         User32.SendNotifyMessage((nint)0xffff, taskbarCreatedMsg, 0, 0);
     }
 
+    public List<TrayIcon> GetTrayIcons()
+    {
+        return trayIconsManager.icons.Where(icon => !NON_OVERFLOW_CLASSES.Contains(icon.className)).ToList();
+    }
+
 
     public void Destroy()
     {
@@ -242,7 +255,8 @@ public class TrayIcon
         this.nid = nid;
         this.className = Utils.GetClassNameFromHWND((nint)nid.hWnd);
         this.exePath = Utils.GetExePathFromHWND((nint)nid.hWnd);
-
+        
+        // get actual icon from hIcon
         this.icon = Imaging.CreateBitmapSourceFromHIcon((nint)nid.hIcon, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
         this.icon.Freeze();
     }
@@ -306,7 +320,7 @@ public class TrayIconsManager
             icons.Add(new(nid));
             return;
         }
-        Debug.WriteLine($"icon already exists, use Upate() to modify");
+        Debug.WriteLine($"icon already exists, use Update() to modify");
     }
     public void Update(NOTIFYICONDATA nid)
     {
