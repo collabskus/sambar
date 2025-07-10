@@ -53,6 +53,19 @@ public partial class Api
 		}
 	}
 
+	CancellationTokenSource _mta_cts = new();
+	public void MonitorTaskbarApps()
+	{
+		Task.Run(async () =>
+		{
+			while (true)
+			{
+				RefreshRunningApps();
+				await Task.Delay(100);
+			}
+		}, _mta_cts.Token);
+	}
+
 	public List<RunningApp> GetTaskbarApps()
 	{
 		RefreshRunningApps();

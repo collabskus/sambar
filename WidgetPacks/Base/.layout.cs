@@ -61,6 +61,7 @@ class BaseLayout : Layout
 
 		// col1
 		col1.Children.Add(Workspaces);
+		TaskbarApps.Margin = new(5, 0, 0, 0);
 		col1.Children.Add(TaskbarApps);
 		// col2
 		Clock.HorizontalAlignment = HorizontalAlignment.Center;

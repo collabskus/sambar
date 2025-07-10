@@ -1,22 +1,39 @@
 public class TaskbarApps : Widget
 {
+	StackPanel panel = new();
 	public TaskbarApps()
 	{
-		var apps = Sambar.api.GetTaskbarApps();
-		Sambar.api.Print($"TASKBARAPPS: {apps.Count()}");
-		StackPanel panel = new();
 		panel.Orientation = Orientation.Horizontal;
-		foreach (var app in apps)
-		{
-			RoundedButton btn = new();
-			btn.Icon = app.icon;
-			btn.Height = Theme.BUTTON_HEIGHT;
-			btn.Width = Theme.BUTTON_WIDTH;
-			btn.Margin = Theme.BUTTON_MARGIN;
-			btn.HoverEffect = false;
+		panel.VerticalAlignment = VerticalAlignment.Center;
 
-			panel.Children.Add(btn);
-		}
+		Task.Run(async () =>
+		{
+			while (true)
+			{
+				UpdateTaskbarApps();
+				await Task.Delay(500);
+			}
+		});
 		this.Content = panel;
+	}
+
+	public void UpdateTaskbarApps()
+	{
+		var apps = Sambar.api.GetTaskbarApps();
+		this.Thread.Invoke(() =>
+		{
+			panel.Children.Clear();
+			foreach (var app in apps)
+			{
+				RoundedButton btn = new();
+				btn.Icon = app.icon;
+				btn.Height = Theme.BUTTON_HEIGHT;
+				btn.Width = Theme.BUTTON_WIDTH;
+				btn.Margin = new(0, 0, 10, 0);
+				btn.HoverEffect = false;
+
+				panel.Children.Add(btn);
+			}
+		});
 	}
 }
