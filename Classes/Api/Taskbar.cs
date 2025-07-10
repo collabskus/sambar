@@ -262,6 +262,7 @@ public class TrayIcon
     public string? className;
     public string? exePath;
     public uint old_uVersion;
+    public uint processId;
     public BitmapSource icon;
 
     public TrayIcon(NOTIFYICONDATA nid)
@@ -269,6 +270,7 @@ public class TrayIcon
         this.nid = nid;
         this.className = Utils.GetClassNameFromHWND((nint)nid.hWnd);
         this.exePath = Utils.GetExePathFromHWND((nint)nid.hWnd);
+        User32.GetWindowThreadProcessId((nint)nid.hWnd, out processId);
         
         // get actual icon from hIcon
         this.icon = Imaging.CreateBitmapSourceFromHIcon((nint)nid.hIcon, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
@@ -323,6 +325,7 @@ public class TrayIconsManager
     public List<TrayIcon> icons = new();
     public TrayIconsManager()
     {
+        MonitorTrayApps();
     }
 
     public void Add(NOTIFYICONDATA nid)
@@ -375,6 +378,34 @@ public class TrayIconsManager
     public List<TrayIcon> GetTrayIcons()
     {
         return icons.Where(icon => !NON_OVERFLOW_CLASSES.Contains(icon.className)).ToList();
+    }
+
+    CancellationTokenSource cts = new();
+    /// <summary>
+    /// Because some tray apps simply dont emit NIM_DELETE
+    /// when terminated
+    /// </summary>
+    public void MonitorTrayApps()
+    {
+        Task.Run(async () =>
+        {
+            while(true)
+            {
+                var icons = GetTrayIcons();
+                foreach(var icon in icons)
+                {
+                    // check if trayicon app is running (has pid != 0 and matches the icon's pid)
+                    User32.GetWindowThreadProcessId((nint)icon.nid.hWnd, out uint _pid);
+                    if (icon.processId != _pid) Delete(icon.nid);
+                }
+                await Task.Delay(500);
+            }
+        }, cts.Token);
+    }
+
+    ~TrayIconsManager()
+    {
+        cts.Cancel();
     }
 }
 

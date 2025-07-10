@@ -104,7 +104,12 @@ public partial class Utils
 		int Height = rect.Bottom - rect.Top;
 		return (Width, Height);
 	}
-
+    
+    /// <summary>
+    /// Get the top level window matching the given pid
+    /// </summary>
+    /// <param name="processId"></param>
+    /// <returns></returns>
     public static nint GetHWNDFromPID(int processId)
     {
         nint found_hWnd = new();
@@ -119,7 +124,11 @@ public partial class Utils
         User32.EnumWindows(enumWindowProc, (nint)processId);
         return found_hWnd;
     }
-
+    
+    /// <summary>
+    /// Enumerate ALL windows (including children)
+    /// </summary>
+    /// <returns></returns>
     public static List<GUIProcess> EnumWindowProcesses()
     {
         List<GUIProcess> guiProcesses = new();
@@ -243,7 +252,11 @@ public partial class Utils
 		// once the walk is finished hWndWalk "is" the taskbarwindow in that owner chain, now check if the window you supplied is that window
 		return hWnd == hWndWalk;
     }
-
+    
+    /// <summary>
+    /// All normal applications with a taskbar icon
+    /// </summary>
+    /// <returns></returns>
     public static List<nint> GetAllTaskbarWindows()
     {
         List<nint> topWindows = new();
