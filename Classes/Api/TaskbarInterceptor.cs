@@ -153,7 +153,7 @@ public class TaskbarInterceptor
     /// </returns>
     nint WndProc(nint hWnd, WINDOWMESSAGE uMsg, nint wParam, nint lParam)
     {
-        Debug.WriteLine($"Message: {uMsg}");
+        //Debug.WriteLine($"Message: {uMsg}");
         switch (uMsg)
         {
             case WINDOWMESSAGE.WM_CLOSE:
@@ -182,6 +182,9 @@ public class TaskbarInterceptor
                             case ICONUPDATEACTION.NIM_SETVERSION:
                                 //AddNidSafely(nid); 
                                 trayIconsManager.Update(nid);
+                                break;
+                            case ICONUPDATEACTION.NIM_DELETE:
+                                trayIconsManager.Delete(nid);
                                 break;
                         }
                         // Filter out non overflow icons to build the overflow icons collection
@@ -345,9 +348,13 @@ public class TrayIconsManager
         Debug.WriteLine($"icon does not exist, use Add() instead");
 
     }
-    public void Delete()
+    public void Delete(NOTIFYICONDATA nid)
     {
-
+        var indexedIcons = icons.Index().ToList();
+        var foundIcons = indexedIcons.Where(icon => icon.Item.nid.hWnd == nid.hWnd).ToList();
+        if (foundIcons.Count() == 0) return;
+        var foundIcon = foundIcons.First();
+        icons.RemoveAt(foundIcon.Index);
     }
 }
 
