@@ -11,6 +11,7 @@ namespace sambar;
 public partial class Api
 {
     TaskbarInterceptor interceptor;
+
     public void TaskbarInterceptorInit()
     {
         interceptor = new();
@@ -24,6 +25,19 @@ public partial class Api
         { ICONACTION.RIGHT_CLICK, [ WINDOWMESSAGE.WM_CONTEXTMENU ] },
 
     };
+
+    /// <summary>
+    /// tray icons are registered on the taskbar by their respective windows inorder for them
+    /// to be shown in the taskbar, upon being registered each icon has a callback message which the 
+    /// taskbar uses to communicate events back to the icon's hidden backing window. These
+    /// events include things like requesting the context menu when right clicked, or opening the 
+    /// main ui of the tray app when clicked so on and so forth all of which has to be supplied by
+    /// the icon's backing (message processing) window. Therefore interacting with the icon is 
+    /// equivalent to sending/impersonating this callback communication from the taskbar to the 
+    /// backing window.
+    /// </summary>
+    /// <param name="nid"></param>
+    /// <param name="msg"></param>
     public void ImpersonateTrayEvent(NOTIFYICONDATA nid, ICONACTION msg)
     {
         User32.GetWindowThreadProcessId((nint)nid.hWnd, out uint processId);
@@ -40,7 +54,6 @@ public partial class Api
                     Utils.MAKELPARAM((short)winmsg, 0)
                 );
             }
-            
         } 
         else
         {
@@ -58,11 +71,17 @@ public partial class Api
     }
     public List<TrayIcon> GetTrayIcons()
     {
-        var icons = interceptor.GetTrayIcons();
+        var icons = interceptor.trayIconsManager.GetTrayIcons();
         Debug.WriteLine($"GetTrayIcons(): {icons.Count()}");
         return icons;
     }
 
+    public delegate void TaskbarChangedEventHandler();
+    public event TaskbarChangedEventHandler TASKBAR_CHANGED = () => { };
+    public static void TaskbarChanged()
+    {
+        Sambar.api.TASKBAR_CHANGED();
+    }
 }
 /// <summary>
 /// An invisible window to intercept(or listen to) taskbar messages.
@@ -138,12 +157,8 @@ public class TaskbarInterceptor
 
     public TrayIconsManager trayIconsManager = new();
     //public List<TrayIcon> overflowIcons = new();
-    List<string> NON_OVERFLOW_CLASSES = 
-    [
-        "ATL:00007FFE3066B050", // SPEAKER
-        "BluetoothNotificationAreaIconWindowClass",
-        "ASYNCUI_NOTIFYICON_WINDOW_CLASS"
-    ];
+    
+
     /// <summary>
     /// WndProc for our taskbar interceptor
     /// </summary>
@@ -180,18 +195,15 @@ public class TaskbarInterceptor
                                 break;
                             case ICONUPDATEACTION.NIM_MODIFY:
                             case ICONUPDATEACTION.NIM_SETVERSION:
-                                //AddNidSafely(nid); 
                                 trayIconsManager.Update(nid);
                                 break;
                             case ICONUPDATEACTION.NIM_DELETE:
                                 trayIconsManager.Delete(nid);
                                 break;
                         }
-                        // Filter out non overflow icons to build the overflow icons collection
-                        //overflowIcons = trayIconsManager.icons.Where(icon => !NON_OVERFLOW_CLASSES.Contains(icon.className)).ToList();
+                        // for api.TASKBAR_CHANGED event
+                        Api.TaskbarChanged();
                         Debug.WriteLine($"ICONUPDATEACTION: {(ICONUPDATEACTION)(iconData.dwMessage)}, uid: {nid.uID}, hWnd: {nid.hWnd}, nids: {trayIconsManager.icons.Count}, class: {Utils.GetClassNameFromHWND((nint)nid.hWnd)}, version: {nid.uTimeoutOrVersion.uVersion}, callback: {nid.uCallbackMessage}, hIcon: {nid.hIcon}");
-                        //notifiedIcons.ForEach(icon => Debug.WriteLine($"class: {Utils.GetClassNameFromHWND((nint)icon.hWnd)}, exe: {Utils.GetExePathFromHWND((nint)icon.hWnd)}"));
-                        //overflowIcons.ForEach(icon => Debug.WriteLine($"class: {icon.className}, exe: {icon.exePath}"));
                         break;
 
                     // a tray icon's process is querying icon position using Shell_NotifyIconGetRect()
@@ -220,19 +232,18 @@ public class TaskbarInterceptor
         }
         return 0;
     }
-
+    
+    /// <summary>
+    /// Send taskbar created notification so that apps that are already on the taskbar
+    /// can tell us who they are and their icon infos. This is essential to enumerate
+    /// taskbar icons.
+    /// </summary>
     public void RefreshTaskbar()
     {
         uint taskbarCreatedMsg = User32.RegisterWindowMessage("TaskbarCreated");
-        // 0xffff := HWND_BROADCAST
-        User32.SendNotifyMessage((nint)0xffff, taskbarCreatedMsg, 0, 0);
+        const nint HWND_BROADCAST = 0xffff;
+        User32.SendNotifyMessage(HWND_BROADCAST, taskbarCreatedMsg, 0, 0);
     }
-
-    public List<TrayIcon> GetTrayIcons()
-    {
-        return trayIconsManager.icons.Where(icon => !NON_OVERFLOW_CLASSES.Contains(icon.className)).ToList();
-    }
-
 
     public void Destroy()
     {
@@ -277,7 +288,7 @@ public class TrayIcon
         }
 
         // check if uCallbackMessage is still invalid, for most user applications it wont be, but
-        // for certain system tray apps it still could, if so use uid as callback message
+        // for certain system tray apps it could, if so use uid as callback message
         // eg. SystemTray_Main
         if(
             validatedNid.uCallbackMessage == 0 && 
@@ -346,7 +357,6 @@ public class TrayIconsManager
             return;
         }
         Debug.WriteLine($"icon does not exist, use Add() instead");
-
     }
     public void Delete(NOTIFYICONDATA nid)
     {
@@ -355,6 +365,16 @@ public class TrayIconsManager
         if (foundIcons.Count() == 0) return;
         var foundIcon = foundIcons.First();
         icons.RemoveAt(foundIcon.Index);
+    }
+    List<string> NON_OVERFLOW_CLASSES = 
+    [
+        "ATL:00007FFE3066B050", // SPEAKER
+        "BluetoothNotificationAreaIconWindowClass",
+        "ASYNCUI_NOTIFYICON_WINDOW_CLASS"
+    ];
+    public List<TrayIcon> GetTrayIcons()
+    {
+        return icons.Where(icon => !NON_OVERFLOW_CLASSES.Contains(icon.className)).ToList();
     }
 }
 

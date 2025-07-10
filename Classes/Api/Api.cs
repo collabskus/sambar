@@ -12,6 +12,11 @@ namespace sambar;
 /// </summary>
 public partial class Api {
 
+    /// <summary>
+    /// PS: DO NOT initialize fields in here or in the other partial definitions of this 
+    /// class elsewhere. Always initialize them in the constructor.
+    /// </summary>
+
     public Api()
     {
         EventsInit();
@@ -36,11 +41,5 @@ public partial class Api {
 
     // IUIAutomation
     CUIAutomation ui = new();
-    
-    // Get Api object
-    public static Api GetInstance()
-    {
-        return Sambar.api;
-    }
 }
 

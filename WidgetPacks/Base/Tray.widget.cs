@@ -22,22 +22,24 @@ public class Tray : Widget
         btn.MouseDown += (s, e) =>
         {
             menu = Sambar.api.CreateMenu(btn, 100, 100);
+            UpdateTrayPanel();
         };
 
         this.Content = btn;
         this.Background = Theme.WIDGET_BACKGROUND;
         this.CornerRadius = Theme.WIDGET_CORNER_RADIUS;
 
-        Task.Run(async() =>
-        {
-            Sambar.api.Print("STARTING TRAY LOOP");
-            while(true)
-            {
-                UpdateTrayPanel();
-                Sambar.api.Print("TRAY UPDATED");
-                await Task.Delay(1000);
-            }
-        });
+        //Task.Run(async() =>
+        //{
+        //    Sambar.api.Print("STARTING TRAY LOOP");
+        //    while(true)
+        //    {
+        //        UpdateTrayPanel();
+        //        Sambar.api.Print("TRAY UPDATED");
+        //        await Task.Delay(1000);
+        //    }
+        //});
+        Sambar.api.TASKBAR_CHANGED += () => UpdateTrayPanel();
     }
 
     public void UpdateTrayPanel()
