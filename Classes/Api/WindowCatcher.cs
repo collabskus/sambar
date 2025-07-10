@@ -27,5 +27,4 @@ public partial class Api
             capturedWindows.Add(msg);
         }
     }
-
 }

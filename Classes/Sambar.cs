@@ -26,11 +26,14 @@ namespace sambar;
 public partial class Sambar : Window
 {
 	private nint hWnd;
-    public static Api api = new();
-	Config config = new();
+	public static Api api;
+	Config config;
 	string widgetPackName;
 	public Sambar(string widgetPackName, Config config)
 	{
+		// Initialize the api
+		api = new();
+
 		this.Title = "Bar";
 		this.WindowStyle = WindowStyle.None;
 		this.AllowsTransparency = true;
@@ -39,43 +42,43 @@ public partial class Sambar : Window
 		this.config = config;
 
 		// setting a copy of the config to the API
-		api.config = config; 
+		api.config = config;
 
 		SourceInitialized += (s, e) =>
-        {
-            hWnd = new WindowInteropHelper(this).Handle;
-            WindowInit();
-            AddWidgets();
-        };
+		{
+			hWnd = new WindowInteropHelper(this).Handle;
+			WindowInit();
+			AddWidgets();
+		};
 
-        api.barWindow = this;
-    }
+		api.barWindow = this;
+	}
 
-    bool barTransparent = false;
-    public void WindowInit()
+	bool barTransparent = false;
+	public void WindowInit()
 	{
-        int screenWidth = User32.GetSystemMetrics(0);
+		int screenWidth = User32.GetSystemMetrics(0);
 		int screentHeight = User32.GetSystemMetrics(1);
 
-		if(config.width == 0) { config.width = screenWidth - (config.marginXLeft + config.marginXRight);  }
+		if (config.width == 0) { config.width = screenWidth - (config.marginXLeft + config.marginXRight); }
 
-        
+
 
 		this.Background = Utils.BrushFromHex(config.backgroundColor);
-		if(this.Background.Equals(Colors.Transparent)) { barTransparent = true; }
+		if (this.Background.Equals(Colors.Transparent)) { barTransparent = true; }
 
 		uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
-        User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE , (int)(exStyles | (uint)sambar.WINDOWSTYLE.WS_EX_TOOLWINDOW));
+		User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, (int)(exStyles | (uint)sambar.WINDOWSTYLE.WS_EX_TOOLWINDOW));
 
 		//Win32.SetWindowPos(hWnd, IntPtr.Zero, config.marginXLeft, config.marginYTop, config.width, config.height, 0x0400);
 		this.Width = config.width;
 		this.Height = config.height;
 		this.Left = config.marginXLeft;
 		this.Top = config.marginYTop;
-		
-        int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
-        if (!barTransparent) Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
-    }
+
+		int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
+		if (!barTransparent) Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
+	}
 
 	public void AddWidgets()
 	{
