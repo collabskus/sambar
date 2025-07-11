@@ -25,7 +25,7 @@ class BaseLayout : Layout
 
 		ColumnDefinition _col1 = new() { Width = new GridLength(1, GridUnitType.Star) };
 		ColumnDefinition _col2 = new() { Width = new GridLength(1, GridUnitType.Star) };
-		ColumnDefinition _col3 = new() { Width = new GridLength(1, GridUnitType.Auto) };
+		ColumnDefinition _col3 = new() { Width = new GridLength(1, GridUnitType.Star) };
 
 		grid.ColumnDefinitions.Add(_col1);
 		grid.ColumnDefinitions.Add(_col2);
@@ -68,12 +68,12 @@ class BaseLayout : Layout
 		col2.Children.Add(Clock);
 		// col3
 		List<Border> systemTray = new();
+		//systemTray.Add(StartButton);
 		systemTray.Add(Counters);
-		systemTray.Add(StartButton);
-		systemTray.Add(NetworkManager);
-		systemTray.Add(Tray);
-		systemTray.Add(HideTaskbar);
-		systemTray.Add(ScribblePad);
+		//systemTray.Add(NetworkManager);
+		//systemTray.Add(Tray);
+		//systemTray.Add(HideTaskbar);
+		//systemTray.Add(ScribblePad);
 		systemTray.ForEach(border =>
 		{
 			border.Margin = new(0, 0, 5, 0);
