@@ -60,8 +60,8 @@ public partial class Api
 		}
 	}
 
-	public delegate void TaskbarAppsEventHandler(TaskbarAppsMessage msg);
-	public event TaskbarAppsEventHandler TASKBAR_APPS_EVENT = (msg) => { };
+	public delegate void TaskbarAppsEventHandler(List<RunningApp> apps);
+	public event TaskbarAppsEventHandler TASKBAR_APPS_EVENT = (apps) => { };
 	CancellationTokenSource _mta_cts = new();
 	/// <summary>
 	/// Live task for constantly monitoring current taskbar apps
@@ -73,16 +73,9 @@ public partial class Api
 			while (true)
 			{
 				RefreshRunningApps();
-				if (runningApps == null) continue;
-				TASKBAR_APPS_EVENT(
-					new()
-					{
-						runningApps = runningApps,
-						focusedAppIndex = 0
-					}
-				);
+				if (runningApps != null) TASKBAR_APPS_EVENT(runningApps);
 				await Task.Delay(100);
-				Debug.WriteLine("MONITORING TASKBAR APPS");
+				Debug.WriteLine($"MONITORING TASKBAR APPS");
 			}
 		}, _mta_cts.Token);
 	}
@@ -115,8 +108,3 @@ public class RunningApp
 	}
 }
 
-public class TaskbarAppsMessage
-{
-	public List<RunningApp>? runningApps;
-	public int focusedAppIndex;
-}

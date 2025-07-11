@@ -223,6 +223,7 @@ public partial class Utils
 	/// <summary>
 	/// Determines if a window is visible and running in the Taskbar/Alt-Tab
 	/// not the pinned icons in the taskbar, source:
+	/// https://stackoverflow.com/questions/210504/enumerate-windows-like-alt-tab-does
 	/// </summary>
 	/// <param name="hWnd"></param>
 	/// <returns></returns>

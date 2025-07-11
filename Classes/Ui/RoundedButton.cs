@@ -14,6 +14,7 @@ namespace sambar;
 
 public class RoundedButton : UserControl
 {
+	public string Id;
 	Border RoundedButtonBorder = new();
 	TextBlock RoundedButtonTextBlock = new();
 	Image RoundedButtonImage = new();
@@ -22,8 +23,8 @@ public class RoundedButton : UserControl
 	public string Text
 	{
 		get { return this.RoundedButtonTextBlock.Text; }
-		set 
-		{ 
+		set
+		{
 			this.RoundedButtonTextBlock.Text = value;
 			this.RoundedButtonBorder.Child = RoundedButtonTextBlock;
 		}
@@ -35,10 +36,10 @@ public class RoundedButton : UserControl
 		get { return bi.UriSource.AbsoluteUri; }
 		set
 		{
-			if 
+			if
 			(
-				value.EndsWith(".jpg") || 
-				value.EndsWith(".png") || 
+				value.EndsWith(".jpg") ||
+				value.EndsWith(".png") ||
 				value.EndsWith(".ico"))
 			{
 				ImageType = new string(value.TakeLast(4).ToArray());
@@ -52,7 +53,7 @@ public class RoundedButton : UserControl
 				RoundedButtonImage.Source = bi;
 				this.RoundedButtonBorder.Child = RoundedButtonImage;
 			}
-			else if(value.EndsWith(".svg"))
+			else if (value.EndsWith(".svg"))
 			{
 				ImageType = ".svg";
 				RoundedButtonSvgImage = new();
@@ -82,8 +83,8 @@ public class RoundedButton : UserControl
 		get { return bitmapSource; }
 		set
 		{
-            bitmapSource = value;
-            RoundedButtonImage = new();
+			bitmapSource = value;
+			RoundedButtonImage = new();
 			RoundedButtonImage.Source = bitmapSource;
 			RoundedButtonBorder.Child = RoundedButtonImage;
 		}
@@ -91,74 +92,76 @@ public class RoundedButton : UserControl
 
 	public int IconWidth
 	{
-		get { 
-			if(
+		get
+		{
+			if (
 				ImageType == ".jpg" ||
 				ImageType == ".png" ||
 				ImageType == ".ico"
 			)
 			{
-                return (int)this.RoundedButtonImage.Width; 
+				return (int)this.RoundedButtonImage.Width;
 			}
-			else if(ImageType == ".svg") {
+			else if (ImageType == ".svg")
+			{
 				return (int)this.RoundedButtonSvgImage.Width;
 			}
 			return 0;
 		}
 		set
 		{
-			if(
+			if (
 				ImageType == ".jpg" ||
 				ImageType == ".png" ||
-				ImageType == ".ico" 
+				ImageType == ".ico"
 			)
 			{
-                this.RoundedButtonImage.Width = value;
+				this.RoundedButtonImage.Width = value;
 			}
-			else if(ImageType == ".svg")
+			else if (ImageType == ".svg")
 			{
 				this.RoundedButtonSvgImage.Width = value;
 			}
 		}
 	}
 
-    public int IconHeight
-    {
-        get
-        {
-            if (
-                ImageType == ".jpg" ||
-                ImageType == ".png" ||
-                ImageType == ".ico"
-            )
-            {
-                return (int)this.RoundedButtonImage.Height;
-            }
-            else if (ImageType == ".svg")
-            {
-                return (int)this.RoundedButtonSvgImage.Height;
-            }
-            return 0;
-        }
-        set
-        {
-            if (
-                ImageType == ".jpg" ||
-                ImageType == ".png" ||
-                ImageType == ".ico"
-            )
-            {
-                this.RoundedButtonImage.Height= value;
-            }
-            else if (ImageType == ".svg")
-            {
-                this.RoundedButtonSvgImage.Height = value;
-            }
-        }
-    }
+	public int IconHeight
+	{
+		get
+		{
+			if (
+				ImageType == ".jpg" ||
+				ImageType == ".png" ||
+				ImageType == ".ico"
+			)
+			{
+				return (int)this.RoundedButtonImage.Height;
+			}
+			else if (ImageType == ".svg")
+			{
+				return (int)this.RoundedButtonSvgImage.Height;
+			}
+			return 0;
+		}
+		set
+		{
+			if (
+				ImageType == ".jpg" ||
+				ImageType == ".png" ||
+				ImageType == ".ico"
+			)
+			{
+				this.RoundedButtonImage.Height = value;
+			}
+			else if (ImageType == ".svg")
+			{
+				this.RoundedButtonSvgImage.Height = value;
+			}
+		}
+	}
 
 
-    public CornerRadius CornerRadius
+	public CornerRadius CornerRadius
 	{
 		get { return this.RoundedButtonBorder.CornerRadius; }
 		set { this.RoundedButtonBorder.CornerRadius = value; }
@@ -170,13 +173,15 @@ public class RoundedButton : UserControl
 		set { this.RoundedButtonBorder.Background = value; }
 	}
 
-	public Brush Foreground {
+	public Brush Foreground
+	{
 		get { return this.RoundedButtonTextBlock.Foreground; }
-		set { this.RoundedButtonTextBlock.Foreground = value;  }
+		set { this.RoundedButtonTextBlock.Foreground = value; }
 	}
 
-	public Brush BorderBrush {
-		get { return this.RoundedButtonBorder.BorderBrush; }	
+	public Brush BorderBrush
+	{
+		get { return this.RoundedButtonBorder.BorderBrush; }
 		set { this.RoundedButtonBorder.BorderBrush = value; }
 	}
 
@@ -190,31 +195,32 @@ public class RoundedButton : UserControl
 	public bool HoverEffect
 	{
 		get { return this._HoverEffect; }
-		set 
-		{ 
-			_HoverEffect = value; 
-			if(_HoverEffect)
+		set
+		{
+			_HoverEffect = value;
+			if (_HoverEffect)
 			{
-                this.MouseEnter += MouseHoverHandler;
-                this.MouseLeave += MouseHoverHandler;
+				this.MouseEnter += MouseHoverHandler;
+				this.MouseLeave += MouseHoverHandler;
 			}
 			else
 			{
-                this.MouseEnter -= MouseHoverHandler;
-                this.MouseLeave -= MouseHoverHandler;
+				this.MouseEnter -= MouseHoverHandler;
+				this.MouseLeave -= MouseHoverHandler;
 			}
 		}
 	}
 
-    public RoundedButton()
+	public RoundedButton()
 	{
-        this.Content = RoundedButtonBorder;
-		
+		this.Content = RoundedButtonBorder;
+
 		RoundedButtonTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
 		RoundedButtonTextBlock.VerticalAlignment = VerticalAlignment.Center;
 	}
 
-	public void MouseHoverHandler(object sender, MouseEventArgs e) {
+	public void MouseHoverHandler(object sender, MouseEventArgs e)
+	{
 		Brush buffer = HoverColor;
 		HoverColor = Background;
 		Background = buffer;

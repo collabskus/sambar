@@ -1,22 +1,23 @@
 public class TaskbarApps : Widget
 {
 	StackPanel panel = new();
+	RunningApp focusedApp;
 	public TaskbarApps()
 	{
 		panel.Orientation = Orientation.Horizontal;
 		panel.VerticalAlignment = VerticalAlignment.Center;
 
-		Sambar.api.TASKBAR_APPS_EVENT += (msg) => UpdateTaskbarApps(msg);
+		Sambar.api.TASKBAR_APPS_EVENT += (apps) => UpdateTaskbarApps(apps);
+		Sambar.api.ACTIVE_WINDOW_CHANGED_EVENT += (app) => { focusedApp = app; };
 		this.Content = panel;
 	}
 
-	public void UpdateTaskbarApps(TaskbarAppsMessage msg)
+	public void UpdateTaskbarApps(List<RunningApp> apps)
 	{
 		this.Thread.Invoke(() =>
 		{
 			panel.Children.Clear();
-			Sambar.api.Print($"[ WIDGET ] {msg.runningApps.Count()}");
-			foreach (var app in msg.runningApps)
+			foreach (var app in apps)
 			{
 				RoundedButton btn = new();
 				btn.Icon = app.icon;
@@ -24,9 +25,14 @@ public class TaskbarApps : Widget
 				btn.Width = Theme.BUTTON_WIDTH;
 				btn.Margin = new(0, 0, 10, 0);
 				btn.HoverEffect = false;
+				if (focusedApp?.hWnd == app.hWnd)
+				{
+					btn.Background = Theme.BUTTON_PRESSED_BACKGROUND;
+				}
 
 				panel.Children.Add(btn);
 			}
 		});
 	}
+
 }
