@@ -6,24 +6,17 @@ public class TaskbarApps : Widget
 		panel.Orientation = Orientation.Horizontal;
 		panel.VerticalAlignment = VerticalAlignment.Center;
 
-		Task.Run(async () =>
-		{
-			while (true)
-			{
-				UpdateTaskbarApps();
-				await Task.Delay(500);
-			}
-		});
+		Sambar.api.TASKBAR_APPS_EVENT += (msg) => UpdateTaskbarApps(msg);
 		this.Content = panel;
 	}
 
-	public void UpdateTaskbarApps()
+	public void UpdateTaskbarApps(TaskbarAppsMessage msg)
 	{
-		var apps = Sambar.api.GetTaskbarApps();
 		this.Thread.Invoke(() =>
 		{
 			panel.Children.Clear();
-			foreach (var app in apps)
+			Sambar.api.Print($"[ WIDGET ] {msg.runningApps.Count()}");
+			foreach (var app in msg.runningApps)
 			{
 				RoundedButton btn = new();
 				btn.Icon = app.icon;

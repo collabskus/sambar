@@ -19,21 +19,29 @@ public partial class Api
 	/// </summary>
 	public event ActiveWindowChangedHandler ACTIVE_WINDOW_CHANGED_EVENT = (app) => { };
 
-	List<RunningApp> runningApps = new();
 	public void WindowingInit()
 	{
-		RefreshRunningApps();
 		FOCUS_CHANGED_EVENT += WindowFocusChangedHandler;
+		MonitorTaskbarApps();
 	}
 
+	List<RunningApp> runningApps = new();
 	public void RefreshRunningApps()
 	{
-		List<nint> hWndsInTaskbar = Utils.GetAllTaskbarWindows();
-		runningApps = new();
+		List<nint>? hWndsInTaskbar = Utils.GetAllTaskbarWindows();
+		// since instantiating a RunningApp loads everything including the icon
+		// and refreshing runs very fast, we only instantiate new apps
+
+		// add new (if any)
 		foreach (nint hWnd in hWndsInTaskbar)
 		{
-			runningApps.Add(new(hWnd));
+			if (!runningApps.Select(app => app.hWnd).Contains(hWnd))
+			{
+				runningApps.Add(new(hWnd));
+			}
 		}
+		// remove apps not in hWndsInTaskbar
+		runningApps = runningApps.Where(app => hWndsInTaskbar.Contains(app.hWnd)).ToList();
 	}
 
 	public void WindowFocusChangedHandler(FocusChangedMessage msg)
@@ -44,16 +52,20 @@ public partial class Api
 		Debug.WriteLine($"FOCUS CHANGED, foreground_hWnd: {foreground_hWnd}, foreground_className: {Utils.GetClassNameFromHWND(foreground_hWnd)}");
 
 		// refresh running apps every time to account for newer windows
-		RefreshRunningApps();
-		List<RunningApp> apps = new();
-		if ((apps = runningApps.Where(app => app.hWnd == foreground_hWnd).ToList()).Count() > 0)
+		List<RunningApp>? apps = new();
+		if ((apps = runningApps?.Where(app => app.hWnd == foreground_hWnd).ToList()).Count() > 0)
 		{
 			ACTIVE_WINDOW_CHANGED_EVENT(apps.First());
 			Debug.WriteLine($"ACTIVE WINDOW CHANGED: {apps.First().title}");
 		}
 	}
 
+	public delegate void TaskbarAppsEventHandler(TaskbarAppsMessage msg);
+	public event TaskbarAppsEventHandler TASKBAR_APPS_EVENT = (msg) => { };
 	CancellationTokenSource _mta_cts = new();
+	/// <summary>
+	/// Live task for constantly monitoring current taskbar apps
+	/// </summary>
 	public void MonitorTaskbarApps()
 	{
 		Task.Run(async () =>
@@ -61,15 +73,18 @@ public partial class Api
 			while (true)
 			{
 				RefreshRunningApps();
+				if (runningApps == null) continue;
+				TASKBAR_APPS_EVENT(
+					new()
+					{
+						runningApps = runningApps,
+						focusedAppIndex = 0
+					}
+				);
 				await Task.Delay(100);
+				Debug.WriteLine("MONITORING TASKBAR APPS");
 			}
 		}, _mta_cts.Token);
-	}
-
-	public List<RunningApp> GetTaskbarApps()
-	{
-		RefreshRunningApps();
-		return runningApps;
 	}
 }
 
@@ -98,4 +113,10 @@ public class RunningApp
 			icon.Freeze();
 		}
 	}
+}
+
+public class TaskbarAppsMessage
+{
+	public List<RunningApp>? runningApps;
+	public int focusedAppIndex;
 }

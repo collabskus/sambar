@@ -20,21 +20,23 @@ namespace sambar;
 
 public partial class Utils
 {
-   	public static Brush BrushFromHex(string hexColorString) {
-		if (hexColorString == "transparent") {
-			return new SolidColorBrush(Colors.Transparent);	
+	public static Brush BrushFromHex(string hexColorString)
+	{
+		if (hexColorString == "transparent")
+		{
+			return new SolidColorBrush(Colors.Transparent);
 		}
 		System.Drawing.Color color = System.Drawing.ColorTranslator.FromHtml(hexColorString);
 		return new SolidColorBrush(System.Windows.Media.Color.FromArgb(color.A, color.R, color.G, color.B));
-	} 
+	}
 
 	public static List<string> GetStyleListFromUInt(uint styleUInt)
 	{
 		WINDOWSTYLE styles = (WINDOWSTYLE)styleUInt;
 		List<string> styleList = new();
-		foreach(WINDOWSTYLE style in Enum.GetValues(typeof(WINDOWSTYLE)))
+		foreach (WINDOWSTYLE style in Enum.GetValues(typeof(WINDOWSTYLE)))
 		{
-			if(styles.HasFlag(style))
+			if (styles.HasFlag(style))
 			{
 				styleList.Add(style.ToString());
 			}
@@ -53,24 +55,24 @@ public partial class Utils
 	{
 		var styleList = Utils.GetStylesFromHwnd(hWnd);
 		//Debug.WriteLine($"IsContextMenu(): {Marshal.GetLastWin32Error()}");
-        if (styleList.Contains("WS_POPUP")) return true;
-        
-        string className = Utils.GetClassNameFromHWND(hWnd);
-        if (className == "#32768") return true;
-        if (className == "#32770") return true;
-        if (className == "SysListView32") return true;
-        if (className == "SysShadow") return true;
-        if (className == "TrayiconMessageWindow") return true;
-        if (className == "tray_icon_app") return true;
-        return false;
+		if (styleList.Contains("WS_POPUP")) return true;
+
+		string className = Utils.GetClassNameFromHWND(hWnd);
+		if (className == "#32768") return true;
+		if (className == "#32770") return true;
+		if (className == "SysListView32") return true;
+		if (className == "SysShadow") return true;
+		if (className == "TrayiconMessageWindow") return true;
+		if (className == "tray_icon_app") return true;
+		return false;
 	}
 
 	public static bool IsWindowVisible(nint hWnd)
 	{
 		var styleList = Utils.GetStylesFromHwnd(hWnd);
 		//Debug.WriteLine($"IsWindowVisible(): {Marshal.GetLastWin32Error()}");
-        if (styleList.Contains("WS_VISIBLE")) return true;
-        return false;
+		if (styleList.Contains("WS_VISIBLE")) return true;
+		return false;
 	}
 
 	public static nint GetWindowUnderCursor()
@@ -104,62 +106,65 @@ public partial class Utils
 		int Height = rect.Bottom - rect.Top;
 		return (Width, Height);
 	}
-    
-    /// <summary>
-    /// Get the top level window matching the given pid
-    /// </summary>
-    /// <param name="processId"></param>
-    /// <returns></returns>
-    public static nint GetHWNDFromPID(int processId)
-    {
-        nint found_hWnd = new();
-        EnumWindowProc enumWindowProc = (nint hWnd, nint lParam) => {
-            User32.GetWindowThreadProcessId(hWnd, out uint _processId);	
-            if(_processId == processId) {
-                found_hWnd = hWnd;	
-                return false;
-            }
-            return true;
-        };
-        User32.EnumWindows(enumWindowProc, (nint)processId);
-        return found_hWnd;
-    }
-    
-    /// <summary>
-    /// Enumerate ALL windows (including children)
-    /// </summary>
-    /// <returns></returns>
-    public static List<GUIProcess> EnumWindowProcesses()
-    {
-        List<GUIProcess> guiProcesses = new();
-        EnumWindowProc enumWindowProc = (nint hWnd, nint lParam) =>
-        {
-            User32.GetWindowThreadProcessId(hWnd, out uint processId);
-            Process process = Process.GetProcessById((int)processId);
-            GUIProcess guiProcess;
-            if((guiProcess = guiProcesses.Where(_p => _p.name == process.ProcessName).FirstOrDefault()) == null) {
-                guiProcess = new() { name = process.ProcessName };
-                guiProcesses.Add(guiProcess);
-            }
-            guiProcess.process = process;
-            _Window window = new();
-            window.hWnd = hWnd;
-            window.className = GetClassNameFromHWND(hWnd);
-            guiProcess.windows.Add(window);
-            EnumWindowProc enumChildWindowProc = (nint c_hWnd, nint lParam) =>
-            {
-                _Window c_window = new();
-                c_window.hWnd = c_hWnd;
-                c_window.className = GetClassNameFromHWND(c_hWnd);
-                guiProcess.windows.Add(c_window);
-                return true;
-            };
-            User32.EnumChildWindows(hWnd, enumChildWindowProc, nint.Zero);
-            return true;
-        };
-        User32.EnumWindows(enumWindowProc, nint.Zero);
-        return guiProcesses;
-    }	
+
+	/// <summary>
+	/// Get the top level window matching the given pid
+	/// </summary>
+	/// <param name="processId"></param>
+	/// <returns></returns>
+	public static nint GetHWNDFromPID(int processId)
+	{
+		nint found_hWnd = new();
+		EnumWindowProc enumWindowProc = (nint hWnd, nint lParam) =>
+		{
+			User32.GetWindowThreadProcessId(hWnd, out uint _processId);
+			if (_processId == processId)
+			{
+				found_hWnd = hWnd;
+				return false;
+			}
+			return true;
+		};
+		User32.EnumWindows(enumWindowProc, (nint)processId);
+		return found_hWnd;
+	}
+
+	/// <summary>
+	/// Enumerate ALL windows (including children)
+	/// </summary>
+	/// <returns></returns>
+	public static List<GUIProcess> EnumWindowProcesses()
+	{
+		List<GUIProcess> guiProcesses = new();
+		EnumWindowProc enumWindowProc = (nint hWnd, nint lParam) =>
+		{
+			User32.GetWindowThreadProcessId(hWnd, out uint processId);
+			Process process = Process.GetProcessById((int)processId);
+			GUIProcess guiProcess;
+			if ((guiProcess = guiProcesses.Where(_p => _p.name == process.ProcessName).FirstOrDefault()) == null)
+			{
+				guiProcess = new() { name = process.ProcessName };
+				guiProcesses.Add(guiProcess);
+			}
+			guiProcess.process = process;
+			_Window window = new();
+			window.hWnd = hWnd;
+			window.className = GetClassNameFromHWND(hWnd);
+			guiProcess.windows.Add(window);
+			EnumWindowProc enumChildWindowProc = (nint c_hWnd, nint lParam) =>
+			{
+				_Window c_window = new();
+				c_window.hWnd = c_hWnd;
+				c_window.className = GetClassNameFromHWND(c_hWnd);
+				guiProcess.windows.Add(c_window);
+				return true;
+			};
+			User32.EnumChildWindows(hWnd, enumChildWindowProc, nint.Zero);
+			return true;
+		};
+		User32.EnumWindows(enumWindowProc, nint.Zero);
+		return guiProcesses;
+	}
 
 	public static string? GetExePathFromHWND(nint hWnd)
 	{
@@ -171,76 +176,77 @@ public partial class Utils
 			Process? process = allWindows.Where(guiProcess => guiProcess.process.Id == processId).FirstOrDefault()?.process;
 			return process?.MainModule?.FileName;
 		}
-		
+
 		/// <summary>
-        /// Getting module filenames without elevated privileges
-        /// NtQuerySystemInformation() := undocumented internal API
-        /// https://stackoverflow.com/a/75084784/14588925
-        /// </summary>
-        SYSTEM_PROCESS_ID_INFORMATION info = new() { ProcessId = (nint)processId, ImageName = new() { Length = 0, MaximumLength = 256, Buffer = Marshal.AllocHGlobal(512) } };
-        int result = Ntdll.NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS.SystemProcessIdInformation, ref info, (uint)Marshal.SizeOf<SYSTEM_PROCESS_ID_INFORMATION>(), out uint returnLength);
-        string exePath = Marshal.PtrToStringUni(info.ImageName.Buffer);
+		/// Getting module filenames without elevated privileges
+		/// NtQuerySystemInformation() := undocumented internal API
+		/// https://stackoverflow.com/a/75084784/14588925
+		/// </summary>
+		SYSTEM_PROCESS_ID_INFORMATION info = new() { ProcessId = (nint)processId, ImageName = new() { Length = 0, MaximumLength = 256, Buffer = Marshal.AllocHGlobal(512) } };
+		int result = Ntdll.NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS.SystemProcessIdInformation, ref info, (uint)Marshal.SizeOf<SYSTEM_PROCESS_ID_INFORMATION>(), out uint returnLength);
+		string exePath = Marshal.PtrToStringUni(info.ImageName.Buffer);
 		Marshal.FreeHGlobal(info.ImageName.Buffer);
 
-        // List all device paths
-        List<string> driveDevicePaths = new();
-        List<string> driveNames = new();
-        Dictionary<string, string> devicePathToDrivePath = new();
-        driveNames = DriveInfo.GetDrives().Select(drive => drive.Name.Substring(0, 2)).ToList();
-        driveDevicePaths = driveNames.Select(drive => {
-            StringBuilder str = new(256);
-            Kernel32.QueryDosDevice(drive, str, (uint)str.Capacity);
-            string devicePath = str.ToString();
-            devicePathToDrivePath[devicePath] = drive;
-            return devicePath;
-        }).ToList();	
+		// List all device paths
+		List<string> driveDevicePaths = new();
+		List<string> driveNames = new();
+		Dictionary<string, string> devicePathToDrivePath = new();
+		driveNames = DriveInfo.GetDrives().Select(drive => drive.Name.Substring(0, 2)).ToList();
+		driveDevicePaths = driveNames.Select(drive =>
+		{
+			StringBuilder str = new(256);
+			Kernel32.QueryDosDevice(drive, str, (uint)str.Capacity);
+			string devicePath = str.ToString();
+			devicePathToDrivePath[devicePath] = drive;
+			return devicePath;
+		}).ToList();
 
-        //
-        string? exePathDeviceName = driveDevicePaths.Where(path => exePath.Contains(path)).FirstOrDefault();
-        if (exePathDeviceName == null) return null;
-        string exePathDriveName = devicePathToDrivePath[exePathDeviceName];
+		//
+		string? exePathDeviceName = driveDevicePaths.Where(path => exePath.Contains(path)).FirstOrDefault();
+		if (exePathDeviceName == null) return null;
+		string exePathDriveName = devicePathToDrivePath[exePathDeviceName];
 
-        string exeNtPath = Path.Join(exePathDriveName, exePath.Replace(exePathDeviceName, ""));
-        return exeNtPath;
-    }
+		string exeNtPath = Path.Join(exePathDriveName, exePath.Replace(exePathDeviceName, ""));
+		return exeNtPath;
+	}
 
-    public static int MAKEWPARAM(short L, short H)
-    {
-        return (int)H << 16 | (int)L; 
-    }
+	public static int MAKEWPARAM(short L, short H)
+	{
+		return (int)H << 16 | (int)L;
+	}
 
-    public static int MAKELPARAM(short L, short H)
-    {
-        return (int)H << 16 | (int)L; 
-    }
+	public static int MAKELPARAM(short L, short H)
+	{
+		return (int)H << 16 | (int)L;
+	}
 
-    /// <summary>
-    /// Determines if a window is visible and running in the Taskbar/Alt-Tab
-    /// not the pinned icons in the taskbar, source:
-    /// </summary>
-    /// <param name="hWnd"></param>
-    /// <returns></returns>
-    public static bool IsWindowInTaskBar(nint hWnd)
-    {
-        // filter out the obvious -------------------------
-        if (!User32.IsWindowVisible(hWnd)) return false;
+	/// <summary>
+	/// Determines if a window is visible and running in the Taskbar/Alt-Tab
+	/// not the pinned icons in the taskbar, source:
+	/// </summary>
+	/// <param name="hWnd"></param>
+	/// <returns></returns>
+	public static bool IsWindowInTaskBar(nint hWnd)
+	{
+		// filter out the obvious -------------------------
+		if (!User32.IsWindowVisible(hWnd)) return false;
 
-        uint exStyle = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
-        nint dwmOutput = nint.Zero;
-        Dwmapi.DwmGetWindowAttribute(hWnd, (uint)DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, dwmOutput, sizeof(uint));
-        string className = GetClassNameFromHWND(hWnd);
+		uint exStyle = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
+		nint dwmOutput = nint.Zero;
+		Dwmapi.DwmGetWindowAttribute(hWnd, (uint)DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, dwmOutput, sizeof(uint));
+		string className = GetClassNameFromHWND(hWnd);
 
-        if (exStyle.ContainsFlag((uint)WINDOWSTYLE.WS_EX_TOOLWINDOW)) return false;
-        //if (exStyle.ContainsFlag((uint)WINDOWSTYLE.WS_EX_APPWINDOW)) return false;
+		if (exStyle.ContainsFlag((uint)WINDOWSTYLE.WS_EX_TOOLWINDOW)) return false;
+		//if (exStyle.ContainsFlag((uint)WINDOWSTYLE.WS_EX_APPWINDOW)) return false;
 
-        if (className == "Windows.UI.Core.CoreWindow") return false;
-        if(className == "ApplicationFrameWindow" && dwmOutput != 0) return false;
-        // ---------------------------------------------------------------
+		if (className == "Windows.UI.Core.CoreWindow") return false;
+		if (className == "ApplicationFrameWindow" && dwmOutput != 0) return false;
+		// ---------------------------------------------------------------
 
-        // https://devblogs.microsoft.com/oldnewthing/20071008-00/?p=24863 
-        const int GA_ROOTOWNER = 3;
-        // start at the owner window
-        nint hWndWalk = User32.GetAncestor(hWnd, GA_ROOTOWNER);
+		// https://devblogs.microsoft.com/oldnewthing/20071008-00/?p=24863 
+		const int GA_ROOTOWNER = 3;
+		// start at the owner window
+		nint hWndWalk = User32.GetAncestor(hWnd, GA_ROOTOWNER);
 
 		nint hWndTry;
 		// a window in taskbar / alt-tab is its own last popup window, so loop until hWnd walk becomes a popup window
@@ -251,77 +257,77 @@ public partial class Utils
 		}
 		// once the walk is finished hWndWalk "is" the taskbarwindow in that owner chain, now check if the window you supplied is that window
 		return hWnd == hWndWalk;
-    }
-    
-    /// <summary>
-    /// All normal applications with a taskbar icon
-    /// </summary>
-    /// <returns></returns>
-    public static List<nint> GetAllTaskbarWindows()
-    {
-        List<nint> topWindows = new();
-        EnumWindowProc enumWnd = (nint hWnd, nint lParam) =>
-        {
-            topWindows.Add(hWnd);
-            return true;
-        };
-        User32.EnumWindows(enumWnd, nint.Zero);
-        var taskbarWindows = topWindows.Where(hWnd => IsWindowInTaskBar(hWnd)).ToList();
-        taskbarWindows.ForEach(hWnd => Debug.WriteLine($"TASKBAR WINDOWS, hWnd: {hWnd}, class: {GetClassNameFromHWND(hWnd)}, exe: {GetExePathFromHWND(hWnd)}"));
-        return taskbarWindows;
-    }
+	}
 
-    /// <summary>
-    /// Retreives the local lan ip assigned to your pc in your LAN network
-    /// usually in the form 192.168.XX.XX
-    /// </summary>
-    /// <returns></returns>
-    public static IPAddress GetLANIP()
-    {
-        return NetworkInterface.GetAllNetworkInterfaces()
-            .ToList()
-            .Select(iface => iface.GetIPProperties().UnicastAddresses
-                .Where(addr => addr.Address.AddressFamily == AddressFamily.InterNetwork && addr.PrefixOrigin == PrefixOrigin.Dhcp)
-            )
-            .Where(list => list.Count() != 0)
-            .ToList()[0]
-            .ToList()[0]
-            .Address;
-    }
-    
-    /// <summary>
-    /// Retrieves the primary network interface in your pc that you 
-    /// use for internet, required for monitoring network bandwidths
-    /// and speeds. The idea is that the interface that is used for internet
-    /// has the local lan ip
-    /// </summary>
-    /// <returns></returns>
-    public static NetworkInterface GetPrimaryNetworkInterface()
-    {
-        IPAddress addr = GetLANIP();
-        var interfaces = NetworkInterface.GetAllNetworkInterfaces().ToList();
-        return interfaces.First(iface => iface.GetIPProperties().UnicastAddresses.Select(ucast => ucast.Address).Contains(addr));
-    }
+	/// <summary>
+	/// All normal applications with a taskbar icon
+	/// </summary>
+	/// <returns></returns>
+	public static List<nint>? GetAllTaskbarWindows()
+	{
+		List<nint>? topWindows = new();
+		EnumWindowProc enumWnd = (nint hWnd, nint lParam) =>
+		{
+			topWindows.Add(hWnd);
+			return true;
+		};
+		User32.EnumWindows(enumWnd, nint.Zero);
+		var taskbarWindows = topWindows.Where(hWnd => IsWindowInTaskBar(hWnd)).ToList();
+		taskbarWindows.ForEach(hWnd => Debug.WriteLine($"TASKBAR WINDOWS, hWnd: {hWnd}, class: {GetClassNameFromHWND(hWnd)}, exe: {GetExePathFromHWND(hWnd)}"));
+		return taskbarWindows;
+	}
 
-    public static int GetInterfaceIndex(NetworkInterface iface)
-    {
-        return iface.GetIPProperties().GetIPv4Properties().Index;
-    }
+	/// <summary>
+	/// Retreives the local lan ip assigned to your pc in your LAN network
+	/// usually in the form 192.168.XX.XX
+	/// </summary>
+	/// <returns></returns>
+	public static IPAddress GetLANIP()
+	{
+		return NetworkInterface.GetAllNetworkInterfaces()
+			.ToList()
+			.Select(iface => iface.GetIPProperties().UnicastAddresses
+				.Where(addr => addr.Address.AddressFamily == AddressFamily.InterNetwork && addr.PrefixOrigin == PrefixOrigin.Dhcp)
+			)
+			.Where(list => list.Count() != 0)
+			.ToList()[0]
+			.ToList()[0]
+			.Address;
+	}
 
-    public static string GetWindowTitleFromHWND(nint hWnd)
-    {
-        StringBuilder str = new(256);
-        User32.GetWindowText(hWnd, str, str.Capacity);
-        return str.ToString();
-    }
+	/// <summary>
+	/// Retrieves the primary network interface in your pc that you 
+	/// use for internet, required for monitoring network bandwidths
+	/// and speeds. The idea is that the interface that is used for internet
+	/// has the local lan ip
+	/// </summary>
+	/// <returns></returns>
+	public static NetworkInterface GetPrimaryNetworkInterface()
+	{
+		IPAddress addr = GetLANIP();
+		var interfaces = NetworkInterface.GetAllNetworkInterfaces().ToList();
+		return interfaces.First(iface => iface.GetIPProperties().UnicastAddresses.Select(ucast => ucast.Address).Contains(addr));
+	}
 
-    public static void CompileToDll(string fileName, string dllName)
-    {
-        string classCode = File.ReadAllText(fileName);
-        Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName));
-        thread.Start();
-        thread.Join();
-    }
+	public static int GetInterfaceIndex(NetworkInterface iface)
+	{
+		return iface.GetIPProperties().GetIPv4Properties().Index;
+	}
+
+	public static string GetWindowTitleFromHWND(nint hWnd)
+	{
+		StringBuilder str = new(256);
+		User32.GetWindowText(hWnd, str, str.Capacity);
+		return str.ToString();
+	}
+
+	public static void CompileToDll(string fileName, string dllName)
+	{
+		string classCode = File.ReadAllText(fileName);
+		Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName));
+		thread.Start();
+		thread.Join();
+	}
 }
 
 public class _Window

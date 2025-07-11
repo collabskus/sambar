@@ -239,7 +239,6 @@ using Newtonsoft.Json;
 		return Convert.ToHexStringLower(md5.ComputeHash(bytes));
 	}
 
-
     Dictionary<string, string> widgetToHash = new();
 	public void BuildWidgetHistory(List<FileInfo> widgetFiles)
 	{
