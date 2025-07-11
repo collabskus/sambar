@@ -232,8 +232,10 @@ public partial class Utils
 		if (!User32.IsWindowVisible(hWnd)) return false;
 
 		uint exStyle = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
-		nint dwmOutput = nint.Zero;
-		Dwmapi.DwmGetWindowAttribute(hWnd, (uint)DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, dwmOutput, sizeof(uint));
+		nint dwmOutPtr = Marshal.AllocHGlobal(sizeof(int));
+		Dwmapi.DwmGetWindowAttribute(hWnd, (uint)DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, dwmOutPtr, sizeof(int));
+		int dwmOutput = Marshal.ReadInt32(dwmOutPtr);
+		Marshal.FreeHGlobal(dwmOutPtr);
 		string className = GetClassNameFromHWND(hWnd);
 
 		if (exStyle.ContainsFlag((uint)WINDOWSTYLE.WS_EX_TOOLWINDOW)) return false;
