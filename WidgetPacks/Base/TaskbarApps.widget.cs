@@ -30,6 +30,8 @@ public class TaskbarApps : Widget
 				if (focusedApp?.hWnd == app.hWnd)
 				{
 					btn.Background = Theme.BUTTON_PRESSED_BACKGROUND;
+					btn.BorderBrush = Utils.BrushFromHex("#22F803");
+					btn.BorderThickness = new(0, 5, 0, 0);
 				}
 
 				panel.Children.Add(btn);
