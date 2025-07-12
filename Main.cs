@@ -12,13 +12,14 @@ public class Program
 	[STAThread]
 	static void Main(string[] args)
 	{
+
 		// evaluate the .init.cs to get the widget pack name
-		if (!File.Exists(@"C:\Users\Jayakuttan\dev\sambar\WidgetPacks\.init.cs"))
+		if (!File.Exists(Paths.initCsFile))
 		{
 			Debug.WriteLine(".init.cs does not exist, exiting...");
 			return;
 		}
-		string _initcs = File.ReadAllText(@"C:\Users\Jayakuttan\dev\sambar\WidgetPacks\.init.cs");
+		string _initcs = File.ReadAllText(Paths.initCsFile);
 		string? widgetPackName = null;
 		Thread _t = new(async () =>
 		{
@@ -38,8 +39,14 @@ public class Program
 		if (widgetPackName == null) return;
 
 		Debug.WriteLine($"Compiling config");
-		Utils.CompileToDll($@"C:\Users\Jayakuttan\dev\sambar\WidgetPacks\{widgetPackName}\.config.cs", ".config");
-		Assembly configAssembly = Assembly.LoadFile(@"C:\Users\Jayakuttan\dev\sambar\_.dll\.config.dll");
+		string configFile = Path.Join(Paths.widgetPacksFolder, widgetPackName, ".config.cs");
+		if (!File.Exists(configFile))
+		{
+			Debug.WriteLine("widget pack does not contain .config.cs file");
+			return;
+		}
+		Utils.CompileToDll(configFile, ".config");
+		Assembly configAssembly = Assembly.LoadFile(Paths.configDll);
 		Type configType = configAssembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Config))).First();
 		Config config = (Config)Activator.CreateInstance(configType);
 

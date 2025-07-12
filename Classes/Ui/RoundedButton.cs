@@ -165,7 +165,6 @@ public class RoundedButton : UserControl
 		}
 	}
 
-
 	public CornerRadius CornerRadius
 	{
 		get { return this.RoundedButtonBorder.CornerRadius; }

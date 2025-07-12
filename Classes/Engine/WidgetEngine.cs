@@ -25,7 +25,7 @@ public enum WidgetVerticalPosition
 	TOP, CENTER, BOTTOM
 }
 
-public class Widget : Border 
+public class Widget : Border
 {
 	public int index;
 
@@ -40,8 +40,9 @@ public class Widget : Border
 		get { return this.Dispatcher; }
 	}
 
-	Config config;	
-	public Widget() {
+	Config config;
+	public Widget()
+	{
 		this.HorizontalAlignment = HorizontalAlignment.Left;
 		config = Sambar.api.config;
 	}
@@ -53,35 +54,28 @@ public class WidgetLoader
 
 	Dictionary<string, string> widgetToDllMap = new();
 
-	string widgetsFolder = "C:\\Users\\Jayakuttan\\dev\\sambar\\WidgetPacks";
-
-	string dllFolder = "C:\\Users\\Jayakuttan\\dev\\sambar\\_.dll";
-
-	string hashesFile;
-
-	public WidgetLoader(string widgetPack, Window window)
+	public WidgetLoader(string widgetPackName, Window window)
 	{
-		hashesFile = Path.Join(dllFolder, "hashes.json");
-
-        var files = new DirectoryInfo(Path.Join(widgetsFolder, "Base")).GetFiles();
+		var files = new DirectoryInfo(Path.Join(Paths.widgetPacksFolder, widgetPackName)).GetFiles();
 		var widgetFiles = files.Where(file => file.Name.EndsWith(".widget.cs")).ToList();
-		var cachedDlls = new DirectoryInfo(dllFolder).GetFiles();
+		var cachedDlls = new DirectoryInfo(Paths.dllFolder).GetFiles();
 
 		// verify hashes and figure out which widgets to compile		
 		List<FileInfo> widgetFilesToCompile = new();
-		if(!File.Exists(hashesFile))
+		if (!File.Exists(Paths.hashesFile))
 		{
 			BuildWidgetHistory(widgetFiles);
 			widgetFilesToCompile = widgetFiles;
 		}
 		else
 		{
-			widgetToHash = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(hashesFile));
-			foreach(var file in widgetFiles) {
+			widgetToHash = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(Paths.hashesFile));
+			foreach (var file in widgetFiles)
+			{
 				string hash = ComputeWidgetSriptHash(File.ReadAllText(file.FullName));
 
 				// new script added
-				if(!widgetToHash.ContainsKey(file.Name))
+				if (!widgetToHash.ContainsKey(file.Name))
 				{
 					widgetFilesToCompile.Add(file);
 				}
@@ -91,38 +85,39 @@ public class WidgetLoader
 				}
 			}
 		}
-		
+
 		// add script to compile list if dll is missing
-        widgetFiles.ForEach(file => {
+		widgetFiles.ForEach(file =>
+		{
 			string widgetName = file.Name.Replace(".widget.cs", "");
-			widgetToDllMap[widgetName] = Path.Join(dllFolder, widgetName + ".widget.dll");
-			if(!cachedDlls.Select(dll => dll.Name).ToList().Contains(file.Name.Replace(".cs", ".dll")))
+			widgetToDllMap[widgetName] = Path.Join(Paths.dllFolder, widgetName + ".widget.dll");
+			if (!cachedDlls.Select(dll => dll.Name).ToList().Contains(file.Name.Replace(".cs", ".dll")))
 			{
 				widgetFilesToCompile.Add(file);
 			}
-        });
+		});
 
 		Debug.WriteLine($"To compile: {widgetFilesToCompile.Count()}");
 		widgetFilesToCompile.ForEach(file => Debug.WriteLine($"name: {file.Name}"));
 
-        var themesFile = files.Where(file => file.Name == ".theme.cs").First();
+		var themesFile = files.Where(file => file.Name == ".theme.cs").First();
 		string widgetsPrefix = File.ReadAllText(themesFile.FullName);
 
-        var layoutFile = files.Where(file => file.Name == ".layout.cs").First();
-        string layoutFileContent = File.ReadAllText(layoutFile.FullName);
+		var layoutFile = files.Where(file => file.Name == ".layout.cs").First();
+		string layoutFileContent = File.ReadAllText(layoutFile.FullName);
 
 		Thread thread = new(() => { CompileToDll(layoutFileContent, ".layout"); });
 		thread.Start();
 		thread.Join();
 
-		var layoutAssembly = Assembly.LoadFile(Path.Join(dllFolder, ".layout.dll"));
+		var layoutAssembly = Assembly.LoadFile(Path.Join(Paths.dllFolder, ".layout.dll"));
 		Type layoutType = layoutAssembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Layout))).First();
 		Layout layout = (Layout)Activator.CreateInstance(layoutType);
-		
+
 		// IMPORTANT
 		window.Content = layout?.Container;
 
-        widgetFilesToCompile
+		widgetFilesToCompile
 			.ForEach(
 				file =>
 				{
@@ -133,7 +128,7 @@ public class WidgetLoader
 					Thread thread = new(() => { CompileToDll(finalScript, $"{dllName}"); });
 					thread.Start();
 					thread.Join();
-					widgetToDllMap[file.Name.Replace(".widget.cs", "")] = Path.Join(dllFolder, dllName + ".dll");
+					widgetToDllMap[file.Name.Replace(".widget.cs", "")] = Path.Join(Paths.dllFolder, dllName + ".dll");
 				}
 			);
 
@@ -141,17 +136,17 @@ public class WidgetLoader
 		BuildWidgetHistory(widgetFiles);
 
 		Debug.WriteLine("Loading compiled dlls...");
-		foreach(var widgetName in widgetToDllMap)
+		foreach (var widgetName in widgetToDllMap)
 		{
 			var assembly = Assembly.LoadFile(widgetName.Value);
 			Type[] typesInAssembly = assembly.GetTypes();
 			Type widgetType = typesInAssembly.Where(type => type.IsSubclassOf(typeof(Widget))).First();
 			Widget widget = (Widget)Activator.CreateInstance(widgetType);
-			if(widget != null) { widgets.Add(widget); }
+			if (widget != null) { widgets.Add(widget); }
 		}
 
 		widgets.ForEach(
-			widget => 
+			widget =>
 			{
 				layout.WidgetToContainerMap[widget.GetType().Name].Child = widget;
 			}
@@ -186,7 +181,7 @@ public class WidgetLoader
 			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 		];
 
-		string usingsPrefix = 
+		string usingsPrefix =
 """
 using sambar;
 using System;
@@ -204,53 +199,54 @@ using System.Windows.Ink;
 using Newtonsoft.Json;
 """;
 
-        string code = usingsPrefix + classCode;
+		string code = usingsPrefix + classCode;
 		CSharpParseOptions parseOptions = new(LanguageVersion.Preview);
-        SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code, parseOptions);
+		SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code, parseOptions);
 		CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
 
-        CSharpCompilation compilation = CSharpCompilation.Create(
-            $"{dllName}.dll",
-            [syntaxTree],
-            references,
-			compilationOptions	
-        );
+		CSharpCompilation compilation = CSharpCompilation.Create(
+			$"{dllName}.dll",
+			[syntaxTree],
+			references,
+			compilationOptions
+		);
 
-        using var ms = new MemoryStream();
-        var result = compilation.Emit(ms);
+		using var ms = new MemoryStream();
+		var result = compilation.Emit(ms);
 
-        if(!result.Success)
-        {
-            Debug.WriteLine("COMPILATION FAILED");
-            foreach(Diagnostic err in result.Diagnostics)
-            {
-                Debug.WriteLine(err);
-            }
-        }
-        ms.Seek(0, SeekOrigin.Begin);
+		if (!result.Success)
+		{
+			Debug.WriteLine("COMPILATION FAILED");
+			foreach (Diagnostic err in result.Diagnostics)
+			{
+				Debug.WriteLine(err);
+			}
+		}
+		ms.Seek(0, SeekOrigin.Begin);
 		var assembly = Assembly.Load(ms.ToArray());
-		File.WriteAllBytes($"C:\\Users\\Jayakuttan\\dev\\sambar\\_.dll\\{dllName}.dll", ms.ToArray());
-        Debug.WriteLine("Types found: " + assembly.GetTypes().First().Name);
+		File.WriteAllBytes(Path.Join(Paths.dllFolder, $"{dllName}.dll"), ms.ToArray());
+		Debug.WriteLine("Types found: " + assembly.GetTypes().First().Name);
 	}
 
-	public string ComputeWidgetSriptHash(string widgetCode) {
+	public string ComputeWidgetSriptHash(string widgetCode)
+	{
 		byte[] bytes = Encoding.UTF8.GetBytes(widgetCode);
 		MD5 md5 = MD5.Create();
 		return Convert.ToHexStringLower(md5.ComputeHash(bytes));
 	}
 
-    Dictionary<string, string> widgetToHash = new();
+	Dictionary<string, string> widgetToHash = new();
 	public void BuildWidgetHistory(List<FileInfo> widgetFiles)
 	{
-		if(File.Exists(hashesFile)) { File.Delete(hashesFile); }
-		foreach(var file in widgetFiles)
+		if (File.Exists(Paths.hashesFile)) { File.Delete(Paths.hashesFile); }
+		foreach (var file in widgetFiles)
 		{
 			string content = File.ReadAllText(file.FullName);
 			string hash = ComputeWidgetSriptHash(content);
 			widgetToHash[file.Name] = hash;
 		}
 		string historyFile = System.Text.Json.JsonSerializer.Serialize(widgetToHash);
-		File.WriteAllTextAsync(hashesFile, historyFile);
+		File.WriteAllTextAsync(Paths.hashesFile, historyFile);
 	}
 
 }
