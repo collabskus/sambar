@@ -10,36 +10,34 @@ namespace sambar;
 /// The entire Api class provides core functionalities that a widget developer
 /// can use in their plugins so that they dont have to reinvent the wheel.
 /// </summary>
-public partial class Api {
+public partial class Api
+{
 
-    /// <summary>
-    /// PS: DO NOT initialize fields in here or in the other partial definitions of this 
-    /// class elsewhere. Always initialize them in the constructor.
-    /// </summary>
+	public List<Task> initTasks = new();
+	public Api()
+	{
+		EventsInit();
+		ToggleTaskbarInit();
+		WindowingInit();
+		SystemTrayInit();
+		TaskbarInterceptorInit();
+		ClockInit();
+		CountersInit();
+		initTasks.Add(Task.Run(GlazeInit));
+	}
 
-    public Api()
-    {
-        EventsInit();
-        ToggleTaskbarInit();
-        WindowingInit();
-        SystemTrayInit();
-        TaskbarInterceptorInit();
-        ClockInit();
-        CountersInit();
-        //Task.Run(GlazeInit);
-    }
+	public void Print(string text)
+	{
+		Debug.WriteLine(text);
+	}
 
-    public void Print(string text) {
-        Debug.WriteLine(text); 
-    }
-    
-    // so that widgets and scripts can use it
-    public Config config;
-    
-    // instance of mainWindow
-    public Sambar barWindow; 
+	// so that widgets and scripts can use it
+	public Config config;
 
-    // IUIAutomation
-    CUIAutomation ui = new();
+	// instance of mainWindow
+	public Sambar barWindow;
+
+	// IUIAutomation
+	CUIAutomation ui = new();
 }
 

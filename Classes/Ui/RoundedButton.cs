@@ -87,6 +87,7 @@ public class RoundedButton : UserControl
 			RoundedButtonImage = new();
 			RoundedButtonImage.Source = bitmapSource;
 			RoundedButtonBorder.Child = RoundedButtonImage;
+			ImageType = "BitmapSource";
 		}
 	}
 
@@ -97,7 +98,8 @@ public class RoundedButton : UserControl
 			if (
 				ImageType == ".jpg" ||
 				ImageType == ".png" ||
-				ImageType == ".ico"
+				ImageType == ".ico" ||
+				ImageType == "BitmapSource"
 			)
 			{
 				return (int)this.RoundedButtonImage.Width;
@@ -113,7 +115,8 @@ public class RoundedButton : UserControl
 			if (
 				ImageType == ".jpg" ||
 				ImageType == ".png" ||
-				ImageType == ".ico"
+				ImageType == ".ico" ||
+				ImageType == "BitmapSource"
 			)
 			{
 				this.RoundedButtonImage.Width = value;
@@ -132,7 +135,8 @@ public class RoundedButton : UserControl
 			if (
 				ImageType == ".jpg" ||
 				ImageType == ".png" ||
-				ImageType == ".ico"
+				ImageType == ".ico" ||
+				ImageType == "BitmapSource"
 			)
 			{
 				return (int)this.RoundedButtonImage.Height;
@@ -148,7 +152,8 @@ public class RoundedButton : UserControl
 			if (
 				ImageType == ".jpg" ||
 				ImageType == ".png" ||
-				ImageType == ".ico"
+				ImageType == ".ico" ||
+				ImageType == "BitmapSource"
 			)
 			{
 				this.RoundedButtonImage.Height = value;

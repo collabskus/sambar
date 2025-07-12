@@ -7,21 +7,24 @@ namespace sambar;
 
 public partial class Api
 {
-	// dont initialize in fields
+	// dont initialize in fields anything that would block/hang the api instance
+	// initialization, GlazeClient waits on reply, so init in separate thread or async 
+	// function
 	GlazeClient client;
-    public async void GlazeInit()
-    {
+	public async void GlazeInit()
+	{
 		client = new();
-        await SubscribeToGlazeWMEvents();
+		await SubscribeToGlazeWMEvents();
 		client.REPLY_RECIEVED += GlazeEventHandler;
 		await GetAllWorkspaces();
-    }
+		Debug.WriteLine($"GlazeInit() => Workspaces: {workspaces.Count}");
+	}
 
-    public delegate void GlazeWorkspaceChangedHandler(Workspace workspace);
-    public event GlazeWorkspaceChangedHandler GLAZE_WORKSPACE_CHANGED = (workspace) => { };
+	public delegate void GlazeWorkspaceChangedHandler(Workspace workspace);
+	public event GlazeWorkspaceChangedHandler GLAZE_WORKSPACE_CHANGED = (workspace) => { };
 
 	public Workspace currentWorkspace = new();
-    public List<Workspace> workspaces = new();
+	public List<Workspace> workspaces = new();
 
 	public async Task GetAllWorkspaces()
 	{
@@ -61,8 +64,9 @@ public partial class Api
 				{
 					focusedWorkspaceId = msg.data.focusedContainer.parentId;
 				}
-				else if (msg.data.focusedContainer.type == "workspace") {
-					focusedWorkspaceId = msg.data.focusedContainer.id;	
+				else if (msg.data.focusedContainer.type == "workspace")
+				{
+					focusedWorkspaceId = msg.data.focusedContainer.id;
 				}
 				currentWorkspace = workspaces.Where(wksp => wksp.id == focusedWorkspaceId).First();
 				GLAZE_WORKSPACE_CHANGED(currentWorkspace);

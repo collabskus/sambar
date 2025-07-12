@@ -21,9 +21,11 @@ public class TaskbarApps : Widget
 			{
 				RoundedButton btn = new();
 				btn.Icon = app.icon;
-				btn.Height = Theme.BUTTON_HEIGHT;
-				btn.Width = Theme.BUTTON_WIDTH;
-				btn.Margin = new(0, 0, 10, 0);
+				btn.Height = Sambar.api.config.height;
+				btn.Width = Sambar.api.config.height;
+				btn.IconHeight = Theme.BUTTON_HEIGHT;
+				btn.IconWidth = Theme.BUTTON_WIDTH;
+				btn.Margin = new(0, 0, 5, 0);
 				btn.HoverEffect = false;
 				if (focusedApp?.hWnd == app.hWnd)
 				{

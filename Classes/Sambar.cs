@@ -62,8 +62,6 @@ public partial class Sambar : Window
 
 		if (config.width == 0) { config.width = screenWidth - (config.marginXLeft + config.marginXRight); }
 
-
-
 		this.Background = Utils.BrushFromHex(config.backgroundColor);
 		if (this.Background.Equals(Colors.Transparent)) { barTransparent = true; }
 
@@ -80,10 +78,10 @@ public partial class Sambar : Window
 		if (!barTransparent) Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
 	}
 
-	public void AddWidgets()
+	public async void AddWidgets()
 	{
+		// the api has some blocking init tasks (looking at you glazewm) in the constructor that widgets might request, so only load the widgets once they are finished
+		await Task.WhenAll(api.initTasks);
 		WidgetLoader widgetLoader = new(widgetPackName, this);
-		//widgetLoader.widgets.ForEach(widget => WidgetStackPanel.Children.Add(widget));
-		//this.Content = widgetLoader.layout.Structure;
 	}
 }
