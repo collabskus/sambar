@@ -13,10 +13,14 @@ public partial class Api
 	GlazeClient client;
 	public async void GlazeInit()
 	{
+		// The order is important, when sending subscription notification to glaze the event 
+		// handler must already be attached inorder to capture the response. We are processing 
+		// this response  in GlazeEventHandler but we need all the active glaze workspaces 
+		// to do so, therfore before sending the subscription run GetAllWorkspaces()
 		client = new();
-		await SubscribeToGlazeWMEvents();
 		client.REPLY_RECIEVED += GlazeEventHandler;
 		await GetAllWorkspaces();
+		await SubscribeToGlazeWMEvents();
 		Debug.WriteLine($"GlazeInit() => Workspaces: {workspaces.Count}");
 	}
 
