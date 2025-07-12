@@ -24,7 +24,7 @@ class BaseLayout : Layout
 		Grid grid = new();
 
 		ColumnDefinition _col1 = new() { Width = new GridLength(1, GridUnitType.Star) };
-		ColumnDefinition _col2 = new() { Width = new GridLength(1, GridUnitType.Star) };
+		ColumnDefinition _col2 = new() { Width = new GridLength(1, GridUnitType.Auto) };
 		ColumnDefinition _col3 = new() { Width = new GridLength(1, GridUnitType.Star) };
 
 		grid.ColumnDefinitions.Add(_col1);
@@ -68,10 +68,10 @@ class BaseLayout : Layout
 		col2.Children.Add(Clock);
 		// col3
 		List<Border> systemTray = new();
-		//systemTray.Add(StartButton);
+		systemTray.Add(StartButton);
 		systemTray.Add(Counters);
-		//systemTray.Add(NetworkManager);
-		//systemTray.Add(Tray);
+		systemTray.Add(NetworkManager);
+		systemTray.Add(Tray);
 		//systemTray.Add(HideTaskbar);
 		//systemTray.Add(ScribblePad);
 		systemTray.ForEach(border =>
@@ -80,6 +80,7 @@ class BaseLayout : Layout
 			border.VerticalAlignment = VerticalAlignment.Center;
 			col3.Children.Add(border);
 		});
+		Counters.Margin = new(10, 0, 10, 0);
 
 		/// <summary>
 		/// Add all borders to the layout type [Grid || StackPanel]
