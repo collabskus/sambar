@@ -331,6 +331,13 @@ public partial class Utils
 		thread.Start();
 		thread.Join();
 	}
+
+	public static double GetDisplayScaling()
+	{
+		nint hMon = User32.MonitorFromPoint(new POINT() { X = 0, Y = 0 }, 0x01);
+		Shcore.GetDpiForMonitor(hMon, MONITOR_DPI_TYPE.MDT_EFFECTIVE_DPI, out uint dpiX, out uint dpiY);
+		return dpiX / 96.0f;
+	}
 }
 
 public class _Window

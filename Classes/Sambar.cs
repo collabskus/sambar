@@ -58,7 +58,13 @@ public partial class Sambar : Window
 	public void WindowInit()
 	{
 		int screenWidth = User32.GetSystemMetrics(0);
-		int screentHeight = User32.GetSystemMetrics(1);
+		int screenHeight = User32.GetSystemMetrics(1);
+
+		// get the scalefactor of the primary monitor
+		double scale = Utils.GetDisplayScaling();
+		Logger.Log($"Scale factor: {scale}");
+		screenWidth = (int)(screenWidth / scale);
+		screenHeight = (int)(screenHeight / scale);
 
 		if (config.width == 0) { config.width = screenWidth - (config.marginXLeft + config.marginXRight); }
 
@@ -73,6 +79,8 @@ public partial class Sambar : Window
 		this.Height = config.height;
 		this.Left = config.marginXLeft;
 		this.Top = config.marginYTop;
+
+		Logger.Log($"this.Width: {config.width}");
 
 		int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
 		if (!barTransparent) Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));

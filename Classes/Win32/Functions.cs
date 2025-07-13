@@ -162,6 +162,13 @@ public class User32
 	[DllImport("user32.dll", SetLastError = true)]
 	public extern static int AnimateWindow(nint hWnd, uint dwTime, ANIMATEWINDOW dwFlags);
 
+	// return hMonitor or the monitor handle
+
+	[DllImport("user32.dll", SetLastError = true)]
+	public extern static nint MonitorFromPoint(POINT pt, uint dwFlags);
+
+	[DllImport("user32.dll", SetLastError = true)]
+	public extern static nint MonitorFromWindow(nint hWnd, uint dwFlags);
 }
 
 public class Shell32
@@ -237,8 +244,23 @@ public class Ntdll
 
 }
 
-public class Pdh
+public class Shcore
 {
+	// retrieves monitor scaling info
+	// MONITOR_DEFAULTTONULL
+	// 0x00000000
+	// Returns NULL.
+	// MONITOR_DEFAULTTOPRIMARY
+	// 0x00000001
+	// Returns a handle to the primary display monitor.
+	// MONITOR_DEFAULTTONEAREST
+	// 0x00000002
+	// Returns a handle to the display monitor that is nearest to the point.
+	[DllImport("shcore.dll", SetLastError = true)]
+	public static extern int GetScaleFactorForMonitor(nint hMon, out DEVICE_SCALE_FACTOR scaleFactor);
+
+	[DllImport("shcore.dll", SetLastError = true)]
+	public static extern int GetDpiForMonitor(nint hMon, MONITOR_DPI_TYPE dpiType, out uint dpiX, out uint dpiY);
 
 }
 
