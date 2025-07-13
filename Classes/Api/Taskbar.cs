@@ -47,12 +47,16 @@ public partial class Api
 		{
 			foreach (var winmsg in ICONACTION_MAP_V0_3[msg])
 			{
-				User32.SendMessage(
+				// For some reason this SendMessage call can hang for certain applications
+				// such as Taskmgr (hWnd), therefore run it in a separate thread to prevent
+				// the mainwindow from crashing 
+				Action _send = () => User32.SendMessage(
 					(nint)nid.hWnd,
 					nid.uCallbackMessage,
 					(nint)nid.uID,
 					Utils.MAKELPARAM((short)winmsg, 0)
 				);
+				Task.Run(_send);
 			}
 		}
 		else
@@ -60,12 +64,13 @@ public partial class Api
 			foreach (var winmsg in ICONACTION_MAP_V3[msg])
 			{
 				User32.GetCursorPos(out POINT cursorPos);
-				User32.SendMessage(
+				Action _send = () => User32.SendMessage(
 					(nint)nid.hWnd,
 					nid.uCallbackMessage,
 					Utils.MAKEWPARAM((short)cursorPos.X, (short)cursorPos.Y),
 					Utils.MAKELPARAM((short)winmsg, (short)nid.uID)
 				);
+				Task.Run(_send);
 			}
 		}
 	}
