@@ -24,7 +24,7 @@ public partial class Api {
         trayIconsRegistryKeyRoot = Registry.CurrentUser.OpenSubKey("Control Panel").OpenSubKey("NotifyIconSettings");
         byte[] raw_UIOrderList = (byte[])trayIconsRegistryKeyRoot.GetValue("UIOrderList");
         string fullHex = Convert.ToHexStringLower(raw_UIOrderList);
-        Debug.WriteLine($"UIOrderList: {fullHex}");
+        Logger.Log($"UIOrderList: {fullHex}");
         fullHex.Chunk(16).ToList().ForEach(chunk => {
             string hex = new(chunk);
             char[][] chunks = hex.Chunk(2).ToArray();
@@ -32,7 +32,7 @@ public partial class Api {
             string reverse = "";
             chunks.ToList().ForEach(_c => reverse += new string(_c));
             ulong num = (ulong)Int64.Parse(reverse, System.Globalization.NumberStyles.HexNumber);
-            //Debug.WriteLine($"chunk: {hex}, reverse: {reverse}, decimal: {num}");
+            //Logger.Log($"chunk: {hex}, reverse: {reverse}, decimal: {num}");
             TrayIconRegKey key = new();
             key.parentKey = $"{num}";
             key.ExecutablePath = (string)trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("ExecutablePath");
@@ -40,11 +40,11 @@ public partial class Api {
             key.IconSnapshot = (byte[])trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("IconSnapshot");
             key.UID = unchecked((uint?)(int?)trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("UID"));
             UIOrderListRegKeys.Add(key);
-            Debug.WriteLine($"{num}, {key.ExecutablePath}");
+            Logger.Log($"{num}, {key.ExecutablePath}");
         });
 
         Process[] runningProcesses = Process.GetProcesses();
-        runningProcesses.ToList().ForEach(p => Debug.WriteLine("executable path: " + p.ProcessName));
+        runningProcesses.ToList().ForEach(p => Logger.Log("executable path: " + p.ProcessName));
         List<string> trayProcesses = new();
         // filter out the non running ones
         UIOrderListRegKeys = UIOrderListRegKeys
@@ -60,7 +60,7 @@ public partial class Api {
             .ToList();
 
 
-        //trayIconRegKeys.ForEach(item => Debug.WriteLine($"running: {item.ExecutablePath}"));
+        //trayIconRegKeys.ForEach(item => Logger.Log($"running: {item.ExecutablePath}"));
 
         // from these use either IconGuid or hWnd + UID to figure out which is in overflow
         // tray by Shell_NotifyIconGetRect()
@@ -75,11 +75,11 @@ public partial class Api {
             // IconGuid exists
             if(key.IconGuid != null)
             {
-                Debug.WriteLine($"{key.ExecutablePath}, IconGuid, parent: {key.parentKey}");
+                Logger.Log($"{key.ExecutablePath}, IconGuid, parent: {key.parentKey}");
                 identifier.guidItem = new(key.IconGuid);
                 if((result = Shell32.Shell_NotifyIconGetRect(ref identifier, out RECT iconLocation)) != 0) 
                 {
-                    Debug.WriteLine($"failed: {result}");
+                    Logger.Log($"failed: {result}");
                 }
                 if (
                     iconLocation.Left != 0 ||
@@ -102,7 +102,7 @@ public partial class Api {
                     identifier.hWnd = window.hWnd;
                     if((result = Shell32.Shell_NotifyIconGetRect(ref identifier, out RECT iconLocation)) != 0) 
                     {
-                        Debug.WriteLine($"failed: {result}");
+                        Logger.Log($"failed: {result}");
                     }
                     if (
                         iconLocation.Left != 0 ||
@@ -116,15 +116,15 @@ public partial class Api {
                     }
                 }
                 //nint hWnd = Utils.GetHWNDFromPID(process.Id);
-                Debug.WriteLine($"{key.ExecutablePath}, UID: {key.UID}, handle: {identifier.hWnd}, parent: {key.parentKey}");
+                Logger.Log($"{key.ExecutablePath}, UID: {key.UID}, handle: {identifier.hWnd}, parent: {key.parentKey}");
             }
             else
             {
-                Debug.WriteLine($"BOTH NULL, path: {key.ExecutablePath}, UID: {key.UID}, parent: {key.parentKey}");
+                Logger.Log($"BOTH NULL, path: {key.ExecutablePath}, UID: {key.UID}, parent: {key.parentKey}");
             }
         }
 
-        actuallyInTrayRegKeys.ForEach(key => Debug.WriteLine("regInTrayFound: " + key.ExecutablePath));
+        actuallyInTrayRegKeys.ForEach(key => Logger.Log("regInTrayFound: " + key.ExecutablePath));
         */
         // Enumerate TrayOverflowMenu
         //IntPtr hWnd_Overflow = User32.FindWindow("TopLevelWindowForOverflowXamlIsland", null);
@@ -140,7 +140,7 @@ public partial class Api {
         //    trayIcons.Add(trayIcon);
         //}
 
-        //trayIcons.ForEach(icon => Debug.WriteLine($"trayIcon, {icon.element.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition()).GetElement(0).CurrentClassName}") );
+        //trayIcons.ForEach(icon => Logger.Log($"trayIcon, {icon.element.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition()).GetElement(0).CurrentClassName}") );
         
         
         // icons obtained through registry enumeration must be same as that obtained

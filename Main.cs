@@ -12,11 +12,15 @@ public class Program
 	[STAThread]
 	static void Main(string[] args)
 	{
+		// for logger
+		Kernel32.AttachConsole(-1);
+
+		Paths.CreateIfAbsent();
 
 		// evaluate the .init.cs to get the widget pack name
 		if (!File.Exists(Paths.initCsFile))
 		{
-			Debug.WriteLine(".init.cs does not exist, exiting...");
+			Logger.Log(".init.cs does not exist, exiting...");
 			return;
 		}
 		string _initcs = File.ReadAllText(Paths.initCsFile);
@@ -29,20 +33,20 @@ public class Program
 			}
 			catch (Exception ex)
 			{
-				Debug.WriteLine($"unable to compile .init.cs");
-				Debug.WriteLine(ex.Message);
+				Logger.Log($"unable to compile .init.cs");
+				Logger.Log(ex.Message);
 			}
 		});
 		_t.Start();
 		_t.Join();
-		Debug.WriteLine($"widgetPackName: {widgetPackName}");
+		Logger.Log($"widgetPackName: {widgetPackName}");
 		if (widgetPackName == null) return;
 
-		Debug.WriteLine($"Compiling config");
+		Logger.Log($"Compiling config");
 		string configFile = Path.Join(Paths.widgetPacksFolder, widgetPackName, ".config.cs");
 		if (!File.Exists(configFile))
 		{
-			Debug.WriteLine("widget pack does not contain .config.cs file");
+			Logger.Log("widget pack does not contain .config.cs file");
 			return;
 		}
 		Utils.CompileToDll(configFile, ".config");

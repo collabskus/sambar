@@ -21,7 +21,7 @@ public partial class Api
 		client.REPLY_RECIEVED += GlazeEventHandler;
 		await GetAllWorkspaces();
 		await SubscribeToGlazeWMEvents();
-		Debug.WriteLine($"GlazeInit() => Workspaces: {workspaces.Count}");
+		Logger.Log($"GlazeInit() => Workspaces: {workspaces.Count}");
 	}
 
 	public delegate void GlazeWorkspaceChangedHandler(Workspace workspace);
@@ -33,9 +33,9 @@ public partial class Api
 	public async Task GetAllWorkspaces()
 	{
 		string message = "query workspaces";
-		Debug.WriteLine("querying all workspaces");
+		Logger.Log("querying all workspaces");
 		string reply = await client.SendCommand(message);
-		Debug.WriteLine($"SendCommand: {reply}");
+		Logger.Log($"SendCommand: {reply}");
 		Message msg = JsonConvert.DeserializeObject<Message>(reply);
 		if (msg.clientMessage == message)
 		{
@@ -58,7 +58,7 @@ public partial class Api
 
 	public void GlazeEventHandler(string message)
 	{
-		Debug.WriteLine("glaze_event: " + message);
+		Logger.Log("glaze_event: " + message);
 		Message msg = JsonConvert.DeserializeObject<Message>(message);
 		switch (msg.messageType)
 		{
@@ -82,9 +82,9 @@ public partial class Api
 	{
 		string command = $"sub --events focus_changed";
 		string reply = await client.SendCommand(command);
-		Debug.WriteLine($"subscribe reply: {reply}");
+		Logger.Log($"subscribe reply: {reply}");
 		Message replyMessage = JsonConvert.DeserializeObject<Message>(reply);
-		Debug.WriteLine($"subscriptionId: {replyMessage.data.subscriptionId}");
+		Logger.Log($"subscriptionId: {replyMessage.data.subscriptionId}");
 	}
 
 	public async Task ChangeWorkspace(Workspace newWorkspace)
@@ -148,7 +148,7 @@ public class GlazeClient
 		await client.SendAsync(Encoding.UTF8.GetBytes(command), WebSocketMessageType.Text, true, cts.Token);
 		while (!commandReplyRecieved)
 		{
-			Debug.WriteLine("reached");
+			Logger.Log("reached");
 			await Task.Delay(500);
 		}
 		commandMode = false;

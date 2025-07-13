@@ -42,7 +42,7 @@ public partial class Api
 	{
 		User32.GetWindowThreadProcessId((nint)nid.hWnd, out uint processId);
 		int result = User32.AllowSetForegroundWindow(processId);
-		Debug.WriteLine($"ImpersonateTrayEvent(): {processId}, result: {result}, win32: {Marshal.GetLastWin32Error()}");
+		Logger.Log($"ImpersonateTrayEvent(): {processId}, result: {result}, win32: {Marshal.GetLastWin32Error()}");
 		if (nid.uTimeoutOrVersion.uVersion <= 3)
 		{
 			foreach (var winmsg in ICONACTION_MAP_V0_3[msg])
@@ -72,7 +72,7 @@ public partial class Api
 	public List<TrayIcon> GetTrayIcons()
 	{
 		var icons = interceptor.trayIconsManager.GetTrayIcons();
-		Debug.WriteLine($"GetTrayIcons(): {icons.Count()}");
+		Logger.Log($"GetTrayIcons(): {icons.Count()}");
 		return icons;
 	}
 
@@ -115,11 +115,11 @@ public class TaskbarInterceptor
 			ushort result = User32.RegisterClassEx(ref wc);
 			if (result == 0)
 			{
-				Debug.WriteLine($"RegisterClassEx() failed: {Marshal.GetLastWin32Error()}");
+				Logger.Log($"RegisterClassEx() failed: {Marshal.GetLastWin32Error()}");
 			}
 			else
 			{
-				Debug.WriteLine($"RegisterClassEx() success !");
+				Logger.Log($"RegisterClassEx() success !");
 			}
 
 			hWnd = User32.CreateWindowEx(
@@ -140,7 +140,7 @@ public class TaskbarInterceptor
 			// Set window as topmost first and set a timer that keeps on doing just that
 			if (User32.SetWindowPos(hWnd, (nint)(-1), 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE) == 0)
 			{
-				Debug.WriteLine($"SetWindowPos() failed: {Marshal.GetLastWin32Error()}");
+				Logger.Log($"SetWindowPos() failed: {Marshal.GetLastWin32Error()}");
 			}
 
 			User32.SetTimer(hWnd, 1, 100, null);
@@ -168,7 +168,7 @@ public class TaskbarInterceptor
 	/// </returns>
 	nint WndProc(nint hWnd, WINDOWMESSAGE uMsg, nint wParam, nint lParam)
 	{
-		//Debug.WriteLine($"Message: {uMsg}");
+		//Logger.Log($"Message: {uMsg}");
 		switch (uMsg)
 		{
 			case WINDOWMESSAGE.WM_CLOSE:
@@ -203,7 +203,7 @@ public class TaskbarInterceptor
 						}
 						// for api.TASKBAR_CHANGED event
 						// Api.TaskbarChanged();
-						Debug.WriteLine($"ICONUPDATEACTION: {(ICONUPDATEACTION)(iconData.dwMessage)}, uid: {nid.uID}, hWnd: {nid.hWnd}, nids: {trayIconsManager.icons.Count}, class: {Utils.GetClassNameFromHWND((nint)nid.hWnd)}, version: {nid.uTimeoutOrVersion.uVersion}, callback: {nid.uCallbackMessage}, hIcon: {nid.hIcon}");
+						Logger.Log($"ICONUPDATEACTION: {(ICONUPDATEACTION)(iconData.dwMessage)}, uid: {nid.uID}, hWnd: {nid.hWnd}, nids: {trayIconsManager.icons.Count}, class: {Utils.GetClassNameFromHWND((nint)nid.hWnd)}, version: {nid.uTimeoutOrVersion.uVersion}, callback: {nid.uCallbackMessage}, hIcon: {nid.hIcon}");
 						break;
 
 					// a tray icon's process is querying icon position using Shell_NotifyIconGetRect()
@@ -308,7 +308,7 @@ public class TrayIcon
 		}
 
 		//RightClick, class: tray_icon_app, exe: C:\Program Files\glzr.io\GlazeWM\glazewm.exe, hWnd: 3802056, uVersion: 0, callback: 6002 
-		Debug.WriteLine($"RightClick, class: {className}, exe: {exePath}, hWnd: {validatedNid.hWnd}, uid: {validatedNid.uID}, uVersion: {validatedNid.uTimeoutOrVersion.uVersion}, callback: {validatedNid.uCallbackMessage}, callbackValid: {(validatedNid.uFlags & 0x00000001) != 0},  old_uid: {old_uVersion}");
+		Logger.Log($"RightClick, class: {className}, exe: {exePath}, hWnd: {validatedNid.hWnd}, uid: {validatedNid.uID}, uVersion: {validatedNid.uTimeoutOrVersion.uVersion}, callback: {validatedNid.uCallbackMessage}, callbackValid: {(validatedNid.uFlags & 0x00000001) != 0},  old_uid: {old_uVersion}");
 		Sambar.api.ImpersonateTrayEvent(validatedNid, ICONACTION.RIGHT_CLICK);
 	}
 }
@@ -338,7 +338,7 @@ public class TrayIconsManager
 			Api.TaskbarChanged();
 			return;
 		}
-		Debug.WriteLine($"icon already exists, use Update() to modify");
+		Logger.Log($"icon already exists, use Update() to modify");
 	}
 	public void Update(NOTIFYICONDATA nid)
 	{
@@ -361,7 +361,7 @@ public class TrayIconsManager
 			Api.TaskbarChanged();
 			return;
 		}
-		Debug.WriteLine($"icon does not exist, use Add() instead");
+		Logger.Log($"icon does not exist, use Add() instead");
 	}
 	public void Delete(NOTIFYICONDATA nid)
 	{

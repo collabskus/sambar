@@ -47,14 +47,14 @@ public partial class Utils
 	public static List<string> GetStylesFromHwnd(nint hWnd)
 	{
 		uint stylesUInt = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_STYLE);
-		//Debug.WriteLine($"GetStylesFromHwnd(): {Marshal.GetLastWin32Error()}");
+		//Logger.Log($"GetStylesFromHwnd(): {Marshal.GetLastWin32Error()}");
 		return GetStyleListFromUInt(stylesUInt);
 	}
 
 	public static bool IsContextMenu(nint hWnd)
 	{
 		var styleList = Utils.GetStylesFromHwnd(hWnd);
-		//Debug.WriteLine($"IsContextMenu(): {Marshal.GetLastWin32Error()}");
+		//Logger.Log($"IsContextMenu(): {Marshal.GetLastWin32Error()}");
 		if (styleList.Contains("WS_POPUP")) return true;
 
 		string className = Utils.GetClassNameFromHWND(hWnd);
@@ -70,7 +70,7 @@ public partial class Utils
 	public static bool IsWindowVisible(nint hWnd)
 	{
 		var styleList = Utils.GetStylesFromHwnd(hWnd);
-		//Debug.WriteLine($"IsWindowVisible(): {Marshal.GetLastWin32Error()}");
+		//Logger.Log($"IsWindowVisible(): {Marshal.GetLastWin32Error()}");
 		if (styleList.Contains("WS_VISIBLE")) return true;
 		return false;
 	}
@@ -276,7 +276,7 @@ public partial class Utils
 		};
 		User32.EnumWindows(enumWnd, nint.Zero);
 		var taskbarWindows = topWindows.Where(hWnd => IsWindowInTaskBar(hWnd)).ToList();
-		taskbarWindows.ForEach(hWnd => Debug.WriteLine($"TASKBAR WINDOWS, hWnd: {hWnd}, class: {GetClassNameFromHWND(hWnd)}, exe: {GetExePathFromHWND(hWnd)}"));
+		taskbarWindows.ForEach(hWnd => Logger.Log($"TASKBAR WINDOWS, hWnd: {hWnd}, class: {GetClassNameFromHWND(hWnd)}, exe: {GetExePathFromHWND(hWnd)}"));
 		return taskbarWindows;
 	}
 

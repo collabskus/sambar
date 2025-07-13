@@ -28,7 +28,7 @@ public class StackPanelWithGaps: StackPanel
 
     int currentElement = 0;
     public void Add(UserControl control) {
-        Debug.WriteLine($"currentElement: {currentElement}, capacity: {capacity}");
+        Logger.Log($"currentElement: {currentElement}, capacity: {capacity}");
         if(currentElement < capacity - 1)
         {
             if(this.Orientation == Orientation.Horizontal)
@@ -44,7 +44,7 @@ public class StackPanelWithGaps: StackPanel
         {
             if(this.Orientation == Orientation.Horizontal)
             {
-                Debug.WriteLine("LAST ELEMENT");
+                Logger.Log("LAST ELEMENT");
                 control.Margin = new(gap, 0, gap, 0);
             }
             else

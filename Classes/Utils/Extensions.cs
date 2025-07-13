@@ -31,8 +31,8 @@ public static class Extensions
             self.EndInit();
             self.Freeze();
 
-            Debug.WriteLine($"ICON_B: {bitmap.Width}x{bitmap.Height}");
-            Debug.WriteLine($"ICON_BP: {self.Width}x{self.Height}");
+            Logger.Log($"ICON_B: {bitmap.Width}x{bitmap.Height}");
+            Logger.Log($"ICON_BP: {self.Width}x{self.Height}");
             return self;
         }
     }

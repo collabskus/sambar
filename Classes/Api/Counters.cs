@@ -26,7 +26,7 @@ public partial class Api
             out uint returnLength
         );
         int coreCount = sbi.NumberOfProcessors;
-        Debug.WriteLine($"CORECOUNT: {coreCount}");
+        Logger.Log($"CORECOUNT: {coreCount}");
         return coreCount;
     }
 
@@ -93,7 +93,7 @@ public partial class Api
                 long cpuTotalUsage = 0;
                 cpuStats.ToList().ForEach(x => cpuTotalUsage += x);
                 Marshal.FreeHGlobal(bufferPtr);
-                //Debug.WriteLine($"CPU TOTAL: {cpuTotalUsage / cpuCores}%");
+                //Logger.Log($"CPU TOTAL: {cpuTotalUsage / cpuCores}%");
                 await Task.Delay(1000);
             }
         }, cts.Token);
@@ -110,7 +110,7 @@ public partial class Api
         CancellationTokenSource cts = new();
         Task.Run(async () =>
         {
-            Debug.WriteLine($"STARTING NETWORK MONITOR");
+            Logger.Log($"STARTING NETWORK MONITOR");
             var primaryInterface = Utils.GetPrimaryNetworkInterface();
             long downBytes = 0, _downBytes = 0, upBytes = 0, _upBytes = 0, _delta_downBytes = 0, _delta_upBytes = 0;
             int DELTA = 1000; // milliseconds
@@ -129,7 +129,7 @@ public partial class Api
                 float speedDown = ((float)_delta_downBytes * 8)/ (DELTA / 1000) / 1024;
                 float speedUp = ((float)_delta_upBytes *8)/ (DELTA / 1000)/ 1024;
                 NETWORK_SPEED_NOTIFIED([speedDown, speedUp]);
-                Debug.WriteLine($"DOWN: {speedDown} Kb/s, UP: {speedUp} Kb/s");
+                Logger.Log($"DOWN: {speedDown} Kb/s, UP: {speedUp} Kb/s");
                 await Task.Delay(DELTA);
             }
         }, cts.Token);
@@ -162,7 +162,7 @@ public partial class Api
                 float commited = (float)info.CommittedBytes / 1024 / 1024 / 1024; // in GB
                 float available = (float)info.AvailableBytes / 1024 / 1024 / 1024;
                 float totalPhysical  = (float)info.TotalPhysicalBytes / 1024 / 1024 / 1024; 
-                Debug.WriteLine($"[ MEMORY ], commited: {commited} Gb, available: {available} Gb, totalPhysical: {totalPhysical} Gb ");
+                Logger.Log($"[ MEMORY ], commited: {commited} Gb, available: {available} Gb, totalPhysical: {totalPhysical} Gb ");
                 Marshal.FreeHGlobal(infoPtr);
                 MEMORY_USAGE_NOTIFIED([available, totalPhysical]);
                 await Task.Delay(1000);

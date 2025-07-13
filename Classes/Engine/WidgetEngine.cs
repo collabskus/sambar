@@ -97,8 +97,8 @@ public class WidgetLoader
 			}
 		});
 
-		Debug.WriteLine($"To compile: {widgetFilesToCompile.Count()}");
-		widgetFilesToCompile.ForEach(file => Debug.WriteLine($"name: {file.Name}"));
+		Logger.Log($"To compile: {widgetFilesToCompile.Count()}");
+		widgetFilesToCompile.ForEach(file => Logger.Log($"name: {file.Name}"));
 
 		var themesFile = files.Where(file => file.Name == ".theme.cs").First();
 		string widgetsPrefix = File.ReadAllText(themesFile.FullName);
@@ -121,7 +121,7 @@ public class WidgetLoader
 			.ForEach(
 				file =>
 				{
-					Debug.WriteLine($"Compiling {file.Name}");
+					Logger.Log($"Compiling {file.Name}");
 					string fileContent = File.ReadAllText(file.FullName);
 					string finalScript = widgetsPrefix + "\n" + fileContent;
 					string dllName = file.Name.Replace(".cs", "");
@@ -135,7 +135,7 @@ public class WidgetLoader
 		// update hashes after compilation (if any)
 		BuildWidgetHistory(widgetFiles);
 
-		Debug.WriteLine("Loading compiled dlls...");
+		Logger.Log("Loading compiled dlls...");
 		foreach (var widgetName in widgetToDllMap)
 		{
 			var assembly = Assembly.LoadFile(widgetName.Value);
@@ -216,16 +216,16 @@ using Newtonsoft.Json;
 
 		if (!result.Success)
 		{
-			Debug.WriteLine("COMPILATION FAILED");
+			Logger.Log("COMPILATION FAILED");
 			foreach (Diagnostic err in result.Diagnostics)
 			{
-				Debug.WriteLine(err);
+				Logger.Log(err.GetMessage());
 			}
 		}
 		ms.Seek(0, SeekOrigin.Begin);
 		var assembly = Assembly.Load(ms.ToArray());
 		File.WriteAllBytes(Path.Join(Paths.dllFolder, $"{dllName}.dll"), ms.ToArray());
-		Debug.WriteLine("Types found: " + assembly.GetTypes().First().Name);
+		Logger.Log("Types found: " + assembly.GetTypes().First().Name);
 	}
 
 	public string ComputeWidgetSriptHash(string widgetCode)

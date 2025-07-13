@@ -49,14 +49,14 @@ public partial class Api
 		// we dont use IUIAutomation's hWnd because it returns elements inner to native windows
 		// which most often do not have a native win32 handle
 		nint foreground_hWnd = User32.GetForegroundWindow();
-		Debug.WriteLine($"FOCUS CHANGED, foreground_hWnd: {foreground_hWnd}, foreground_className: {Utils.GetClassNameFromHWND(foreground_hWnd)}");
+		Logger.Log($"FOCUS CHANGED, foreground_hWnd: {foreground_hWnd}, foreground_className: {Utils.GetClassNameFromHWND(foreground_hWnd)}");
 
 		// refresh running apps every time to account for newer windows
 		List<RunningApp>? apps = new();
 		if ((apps = runningApps?.Where(app => app.hWnd == foreground_hWnd).ToList()).Count() > 0)
 		{
 			ACTIVE_WINDOW_CHANGED_EVENT(apps.First());
-			Debug.WriteLine($"ACTIVE WINDOW CHANGED: {apps.First().title}");
+			Logger.Log($"ACTIVE WINDOW CHANGED: {apps.First().title}");
 		}
 	}
 
@@ -75,7 +75,7 @@ public partial class Api
 				RefreshRunningApps();
 				if (runningApps != null) TASKBAR_APPS_EVENT(runningApps);
 				await Task.Delay(100);
-				Debug.WriteLine($"MONITORING TASKBAR APPS");
+				Logger.Log($"MONITORING TASKBAR APPS");
 			}
 		}, _mta_cts.Token);
 	}

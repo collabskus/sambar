@@ -58,7 +58,7 @@ public class Workspaces : Widget
 		buttonRedrawing = true;
 		var btn = sender as RoundedButton;
 		string clickedBtnName = Convert.ToString(btn.Text);
-		Debug.WriteLine($"{clickedBtnName} pressed");
+		Logger.Log($"{clickedBtnName} pressed");
 		Workspace clickedWorkspace = workspaces.Where(wksp => wksp.name == clickedBtnName).First();
 		int clickedBtnIndex = clickedWorkspace.index;
 		if (clickedBtnIndex != Sambar.api.currentWorkspace.index)

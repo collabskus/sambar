@@ -1,0 +1,14 @@
+using System.Diagnostics;
+
+namespace sambar;
+
+public class Logger
+{
+	public static bool DEBUG = true;
+
+	public static void Log(string? text)
+	{
+		if (DEBUG) Debug.WriteLine(text);
+		Console.WriteLine(text);
+	}
+}

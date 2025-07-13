@@ -12,7 +12,7 @@ public partial class Api {
         taskbar_hWnd = User32.FindWindow("Shell_TrayWnd", null);
         WINDOWPLACEMENT lpwndpl = new();
         User32.GetWindowPlacement(taskbar_hWnd, ref lpwndpl);
-        Debug.WriteLine($"ToggleTaskBarInit: {lpwndpl.showCmd}");
+        Logger.Log($"ToggleTaskBarInit: {lpwndpl.showCmd}");
     }
 
     nint taskbar_hWnd;

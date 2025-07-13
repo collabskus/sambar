@@ -12,7 +12,7 @@ public partial class Api
     {
         public void HandleFocusChangedEvent(IUIAutomationElement sender)
         {
-            //Debug.WriteLine($"focusChangedEvent, name: {sender.CurrentName}, windowClass: {sender.CurrentClassName}, type: {sender.CurrentItemType}");
+            //Logger.Log($"focusChangedEvent, name: {sender.CurrentName}, windowClass: {sender.CurrentClassName}, type: {sender.CurrentItemType}");
             FocusChangedMessage msg = new();
             msg.className = sender.CurrentClassName;
             msg.type = sender.CurrentItemType;
@@ -30,7 +30,7 @@ public partial class Api
     {
         public void HandleStructureChangedEvent(IUIAutomationElement sender, StructureChangeType changeType, int[] runtimeId)
         {
-            //Debug.WriteLine($"structureChangedEvent, senderName: {sender.CurrentName}, class: {sender.CurrentClassName}, hWnd: {sender.CurrentNativeWindowHandle}, changeType: {changeType}");
+            //Logger.Log($"structureChangedEvent, senderName: {sender.CurrentName}, class: {sender.CurrentClassName}, hWnd: {sender.CurrentNativeWindowHandle}, changeType: {changeType}");
             StructureChangedMessage msg = new();
             msg.className = sender.CurrentClassName;
             msg.type = changeType;

@@ -49,14 +49,14 @@ public class Menu: Window
         _top = (int)this.Top;
         _right = _left + (int)this.Width;
         _bottom = _top + (int)this.Height;
-        Debug.WriteLine($"Menu, L: {_left}, T: {_top}, R: {_right}, B: {_bottom}");
+        Logger.Log($"Menu, L: {_left}, T: {_top}, R: {_right}, B: {_bottom}");
 
         Api.FOCUS_CHANGED_EVENT += MenuFocusChangedHandler;
     }
 
     private async void MenuFocusChangedHandler(FocusChangedMessage msg)
     {
-        Debug.WriteLine($"MenuFocusChanged, name: {msg.name}, class: {msg.className}, controlType: {msg.controlType}");
+        Logger.Log($"MenuFocusChanged, name: {msg.name}, class: {msg.className}, controlType: {msg.controlType}");
         if (msg.name == "Desktop") Sambar.api.barWindow.Dispatcher.Invoke(() => AnimatedClose());
         // if cursor inside menu
         User32.GetCursorPos(out POINT cursorPos);
@@ -81,7 +81,7 @@ public class Menu: Window
         await Task.Delay(Sambar.api.WINDOW_CAPTURE_DURATION);
         if (!Sambar.api.capturedWindows.Select(_msg => _msg.className).Contains(msg.className))
         {
-           Debug.WriteLine($"Closing menu by losing focus to non-menu item: {msg.name}, {msg.className}");
+           Logger.Log($"Closing menu by losing focus to non-menu item: {msg.name}, {msg.className}");
             Sambar.api.barWindow.Dispatcher.Invoke(() =>  AnimatedClose());
         }
     }

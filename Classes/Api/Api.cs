@@ -28,7 +28,7 @@ public partial class Api
 
 	public void Print(string text)
 	{
-		Debug.WriteLine(text);
+		Logger.Log(text);
 	}
 
 	// so that widgets and scripts can use it
