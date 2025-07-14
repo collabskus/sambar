@@ -6,7 +6,7 @@
 provide a rich set of functionalities which can be consumed through widgets. You can write your own widgets utilizing
 the api functions and events provided from the app to spare yourself from reinventing the wheel. You can even leverage 
 the C# standard library to build functionality from scratch. Everything is configurable: The layout, dimensions,
-positions and colors are fully customizable.
+positions and colors are fully customizable. [dive in ?](https://www.google.com)
 
 <ins>Sources and inspirations</ins>:
 
