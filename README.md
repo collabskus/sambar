@@ -8,7 +8,7 @@ the api functions and events provided from the app to spare yourself from reinve
 the C# standard library to build functionality from scratch. Everything is configurable: The layout, dimensions,
 positions and colors are fully customizable.
 
-Sources and inspirations:
+<ins>Sources and inspirations</ins>:
 
  - YASB
  - Seelen-UI
