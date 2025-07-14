@@ -20,34 +20,6 @@ using System.Net.Http;
 
 namespace sambar;
 
-public enum WidgetVerticalPosition
-{
-	TOP, CENTER, BOTTOM
-}
-
-public class Widget : Border
-{
-	public int index;
-
-	public UIElement Content
-	{
-		get { return this.Child; }
-		set { this.Child = value; }
-	}
-
-	public Dispatcher Thread
-	{
-		get { return this.Dispatcher; }
-	}
-
-	Config config;
-	public Widget()
-	{
-		this.HorizontalAlignment = HorizontalAlignment.Left;
-		config = Sambar.api.config;
-	}
-}
-
 public class WidgetLoader
 {
 	public List<Widget> widgets = new();
