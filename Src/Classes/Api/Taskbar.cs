@@ -282,7 +282,7 @@ public class TrayIcon
 		this.icon.Freeze();
 	}
 
-	public void RightClick()
+	public void ContextMenu()
 	{
 		NOTIFYICONDATA validatedNid = nid;
 

@@ -27,6 +27,10 @@ public class TaskbarApps : Widget
 				btn.IconWidth = Theme.BUTTON_WIDTH;
 				btn.Margin = new(0, 0, 5, 0);
 				btn.HoverEffect = false;
+				btn.MouseDown += (s, e) =>
+				{
+					app.FocusWindow();
+				};
 				if (focusedApp?.hWnd == app.hWnd)
 				{
 					btn.Background = Theme.BUTTON_PRESSED_BACKGROUND;

@@ -67,7 +67,7 @@ public class Tray : Widget
 				iconBtn.Margin = new(10, 10, 0, 0);
 				iconBtn.MouseDown += (s, e) =>
 				{
-					trayIcon.RightClick();
+					trayIcon.ContextMenu();
 				};
 				panel.Children.Add(iconBtn);
 			}

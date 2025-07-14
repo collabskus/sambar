@@ -89,6 +89,7 @@ public class RunningApp
 	public string className;
 	public uint processId;
 	public BitmapSource icon;
+
 	public RunningApp(nint hWnd)
 	{
 		this.hWnd = hWnd;
@@ -105,6 +106,12 @@ public class RunningApp
 			icon = Imaging.CreateBitmapSourceFromHIcon(largeIcon, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
 			icon.Freeze();
 		}
+	}
+
+	public void FocusWindow()
+	{
+		Logger.Log($"App requested focus");
+		User32.SetForegroundWindow(hWnd);
 	}
 }
 
