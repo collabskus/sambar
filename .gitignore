@@ -3,6 +3,7 @@
 /Src/.vs
 /Src/.idea
 *.exe
+*.pdb
 *.dll
 *.user
 *.sln
