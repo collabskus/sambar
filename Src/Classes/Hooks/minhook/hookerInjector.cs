@@ -14,19 +14,36 @@ class HookerInjector
 	static extern int CloseHandle(nint handle);
 	[DllImport("kernel32.dll", SetLastError = true)]
 	static extern int GetModuleFileNameA(nint hModule, StringBuilder str, int nSize);
-
-	static unsafe void Main()
-	{
-		Console.Write("processId: ");
-		uint processId = Convert.ToUInt32(Console.ReadLine());
-		const uint PROCESS_ALL_ACCESS = 0x1FFFFF;
-		nint hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, processId);
-		Console.WriteLine($"hProcess: {hProcess}");
-		//GetModulesInProcess(hProcess);
-		nint kernel32 = FindKernel32InProcess(hProcess);
-		Console.WriteLine($"kernel32: {kernel32}");
-		CloseHandle(hProcess);
-	}
+	[DllImport("kernel32.dll", SetLastError = true)]
+	static extern nint GetProcAddress(nint hModule, string procName);
+	[DllImport("kernel32.dll", SetLastError = true)]
+	static extern nint LoadLibrary(string moduleName);
+	[DllImport("kernel32.dll", SetLastError = true)]
+	static extern nint CreateRemoteThread(
+		nint hProcess,
+		nint securityAttributes,
+		nuint dwStackSize,
+		nint localFn,
+		nint fnArgs,
+		uint dwCreationFlags,
+		out uint threadId
+	);
+	[DllImport("kernel32.dll", SetLastError = true)]
+	static extern nint VirtualAllocEx(
+		nint hProcess,
+		nint lpAddress,
+		nuint dwSize,
+		uint allocationType,
+		uint protect
+	);
+	[DllImport("kernel32.dll", SetLastError = true)]
+	static extern int WriteProcessMemory(
+		nint hProcess,
+		nint baseAddress,
+		nint buffer,
+		nuint size,
+		nint bytesWritten
+	);
 
 	[DllImport("psapi.dll", SetLastError = true)]
 	static extern int EnumProcessModules(nint hProcess, [Out] nint ptrToModuleArray, int moduleArrayLength, [Out] nint sizeNeeded);
@@ -42,24 +59,62 @@ class HookerInjector
 		}
 		Console.WriteLine("processes...");
 		Dictionary<string, nint> dlls = new();
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 100; i++)
+		{
 			StringBuilder str = new(256);
 			GetModuleFileNameA(modules[i], str, str.Capacity);
 			//Console.WriteLine($"m: {str.ToString()}");
-			if(str.Length > 1) dlls[str.ToString()] = modules[i];
+			if (str.Length > 1) dlls[str.ToString()] = modules[i];
 		}
 		return dlls;
 	}
 
-	static unsafe nint FindKernel32InProcess(nint hProcess) {
+	static nint FindModuleInProcess(nint hProcess, string moduleName)
+	{
 		var modules = GetModulesInProcess(hProcess);
-		var kernel32 = modules.First(pair => pair.Key.ToLower().Contains("kernel32"));
+		var kernel32 = modules.First(pair => pair.Key.ToLower().Contains(moduleName));
 		return kernel32.Value;
 	}
 
-	static void Inject()
+	static nint GetRVAOfProcInModule(string dll, string procName)
 	{
+		nint dllBase = LoadLibrary(dll);
+		return GetProcAddress(dllBase, procName);
+	}
+
+	static void CallFunctionInProcess(nint hProcess, nint fnAddressInProcess, nint fnArgsInProcess)
+	{
+		CreateRemoteThread(hProcess, 0, 0, fnAddressInProcess, fnArgsInProcess, 0, out uint threadId);
+	}
+
+	static unsafe void Inject()
+	{
+		Console.Write("processId: ");
+		uint processId = Convert.ToUInt32(Console.ReadLine());
+		const uint PROCESS_ALL_ACCESS = 0x1FFFFF;
+		nint hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, processId);
+		Console.WriteLine($"hProcess: {hProcess}");
+		CloseHandle(hProcess);
+
 		// 1. call target's kernerl32!LoadLibrary with argument "hooker.dll"
+		nint kernel32Base = FindModuleInProcess(hProcess, "kernel32");
+		nint loadLibraryRva = GetRVAOfProcInModule("kernel32.dll", "LoadLibrary");
+		string hookerDllName = "hooker.dll\0";
+		byte[] data = Encoding.Unicode.GetBytes(hookerDllName);
+		nint dataPtr = Marshal.AllocHGlobal(data.Length);
+		Marshal.StructureToPtr<byte[]>(data, dataPtr, false);
+		const uint MEM_RESERVE = 0x00002000;
+		const uint MEM_COMMIT = 0x00001000;
+		const uint PAGE_READWRITE = 0x04;
+		nint argPtr = VirtualAllocEx(hProcess, 0, (nuint)data.Length, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+		WriteProcessMemory(hProcess, argPtr, dataPtr, (nuint)data.Length, 0);
+		CallFunctionInProcess(hProcess, kernel32Base + loadLibraryRva, argPtr);
+		Marshal.FreeHGlobal(dataPtr);
 		// 2. call hooker's Hook() function
+	}
+
+	static void Main()
+	{
+		Inject();
 	}
 }
