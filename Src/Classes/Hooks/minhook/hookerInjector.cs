@@ -76,9 +76,10 @@ class HookerInjector
 		return kernel32.Value;
 	}
 
-	static nint GetRVAOfProcInModule(string dll, string procName)
+	static nint GetRVAOfProcInModule(nint hProcess, string dll, string procName)
 	{
-		nint dllBase = LoadLibrary(dll);
+		var modules = GetModulesInProcess(hProcess);
+		nint dllBase = modules[dll];
 		return GetProcAddress(dllBase, procName);
 	}
 
@@ -94,22 +95,38 @@ class HookerInjector
 		const uint PROCESS_ALL_ACCESS = 0x1FFFFF;
 		nint hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, processId);
 		Console.WriteLine($"hProcess: {hProcess}");
-		CloseHandle(hProcess);
+		//CloseHandle(hProcess);
 
 		// 1. call target's kernerl32!LoadLibrary with argument "hooker.dll"
+		foreach (var item in GetModulesInProcess(hProcess))
+		{
+			Console.WriteLine(item.Key);
+		}
 		nint kernel32Base = FindModuleInProcess(hProcess, "kernel32");
-		nint loadLibraryRva = GetRVAOfProcInModule("kernel32.dll", "LoadLibrary");
+		Console.WriteLine($"kernel32base: {kernel32Base}");
+		nint loadLibraryRva = GetRVAOfProcInModule(hProcess, "KERNEL32", "LoadLibrary");
+		Console.WriteLine($"loadLibraryRva: {loadLibraryRva}");
 		string hookerDllName = "hooker.dll\0";
 		byte[] data = Encoding.Unicode.GetBytes(hookerDllName);
-		nint dataPtr = Marshal.AllocHGlobal(data.Length);
-		Marshal.StructureToPtr<byte[]>(data, dataPtr, false);
+		byte* dataPtr = (byte*)Marshal.AllocHGlobal(data.Length);
+		//Marshal.StructureToPtr<byte[]>(data, dataPtr, false);
+		for (int i = 0; i < data.Length; i++)
+		{
+			*(dataPtr + i) = data[i];
+		}
 		const uint MEM_RESERVE = 0x00002000;
 		const uint MEM_COMMIT = 0x00001000;
 		const uint PAGE_READWRITE = 0x04;
 		nint argPtr = VirtualAllocEx(hProcess, 0, (nuint)data.Length, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-		WriteProcessMemory(hProcess, argPtr, dataPtr, (nuint)data.Length, 0);
+		WriteProcessMemory(hProcess, argPtr, (nint)dataPtr, (nuint)data.Length, 0);
 		CallFunctionInProcess(hProcess, kernel32Base + loadLibraryRva, argPtr);
-		Marshal.FreeHGlobal(dataPtr);
+		Marshal.FreeHGlobal((nint)dataPtr);
+		// check if hooker.dll is loaded in target
+		var mods = GetModulesInProcess(hProcess);
+		foreach (var mod in mods)
+		{
+			Console.WriteLine(mod.Key);
+		}
 		// 2. call hooker's Hook() function
 	}
 
