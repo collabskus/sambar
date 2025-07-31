@@ -1,8 +1,10 @@
 using System;
+using System.IO;
 using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 #nullable enable
 
@@ -12,12 +14,12 @@ class HookerInjector
 	static extern nint OpenProcess(uint dwDesiredAccess, bool bInheritHandles, uint dwProcessId);
 	[DllImport("kernel32.dll", SetLastError = true)]
 	static extern int CloseHandle(nint handle);
-	[DllImport("kernel32.dll", SetLastError = true)]
-	static extern int GetModuleFileNameA(nint hModule, StringBuilder str, int nSize);
+	[DllImport("psapi.dll", SetLastError = true)]
+	static extern int GetModuleFileNameExA(nint hProcess, nint hModule, StringBuilder str, int nSize);
 	[DllImport("kernel32.dll", SetLastError = true)]
 	static extern nint GetProcAddress(nint hModule, string procName);
 	[DllImport("kernel32.dll", SetLastError = true)]
-	static extern nint LoadLibrary(string moduleName);
+	static extern nint LoadLibraryA(string moduleName);
 	[DllImport("kernel32.dll", SetLastError = true)]
 	static extern nint CreateRemoteThread(
 		nint hProcess,
@@ -46,46 +48,69 @@ class HookerInjector
 	);
 
 	[DllImport("psapi.dll", SetLastError = true)]
-	static extern int EnumProcessModules(nint hProcess, [Out] nint ptrToModuleArray, int moduleArrayLength, [Out] nint sizeNeeded);
+	static extern int EnumProcessModulesEx(nint hProcess, [Out] nint ptrToModuleArray, int moduleArrayLength, [Out] nint sizeNeeded, uint flags);
+
+	[DllImport("kernel32.dll", SetLastError = true)]
+	static extern int WaitForSingleObject(nint hHandle, uint dwMilliseconds);
 
 	static unsafe Dictionary<string, nint>? GetModulesInProcess(nint hProcess)
 	{
-		nint* modules = stackalloc nint[100];
+		int initArrayLength = 1024;
+		nint* modules = stackalloc nint[initArrayLength];
+		int cb = initArrayLength * sizeof(nint);
 		uint sizeNeeded = 0;
-		if (EnumProcessModules(hProcess, (nint)modules, 100 * sizeof(nint), (nint)(&sizeNeeded)) == 0)
+		uint LIST_MODULES_ALL = 0x03;
+		if (EnumProcessModulesEx(hProcess, (nint)modules, cb, (nint)(&sizeNeeded), LIST_MODULES_ALL) > 0)
 		{
-			Console.WriteLine($"EnumProcessModules() failed, win32: {Marshal.GetLastWin32Error()}");
-			return null;
+			Dictionary<string, nint> dlls = new();
+			for (int i = 0; i < sizeNeeded / sizeof(nint); i++)
+			{
+				StringBuilder str = new(1024);
+				if (GetModuleFileNameExA(hProcess, modules[i], str, str.Capacity) > 0)
+				{
+					dlls[str.ToString()] = modules[i];
+				}
+			}
+			Console.WriteLine("printing dlls...");
+			for (int i = 0; i < dlls.Count; i++)
+			{
+				Console.WriteLine($"{i}: {dlls.ElementAt(i).Key}");
+			}
+			return dlls;
 		}
-		Console.WriteLine("processes...");
-		Dictionary<string, nint> dlls = new();
-		for (int i = 0; i < 100; i++)
-		{
-			StringBuilder str = new(256);
-			GetModuleFileNameA(modules[i], str, str.Capacity);
-			//Console.WriteLine($"m: {str.ToString()}");
-			if (str.Length > 1) dlls[str.ToString()] = modules[i];
-		}
-		return dlls;
+		Console.WriteLine($"EnumProcessModules() failed, win32: {Marshal.GetLastWin32Error()}");
+		return null;
+
+
 	}
 
 	static nint FindModuleInProcess(nint hProcess, string moduleName)
 	{
 		var modules = GetModulesInProcess(hProcess);
-		var kernel32 = modules.First(pair => pair.Key.ToLower().Contains(moduleName));
-		return kernel32.Value;
+		var module = modules.First(pair => pair.Key.ToLower().Contains(moduleName));
+		return module.Value;
 	}
 
-	static nint GetRVAOfProcInModule(nint hProcess, string dll, string procName)
+	static nint GetRVAOfProcInModule(string moduleName, string procName)
 	{
-		var modules = GetModulesInProcess(hProcess);
-		nint dllBase = modules[dll];
-		return GetProcAddress(dllBase, procName);
+		nint dllBase = LoadLibraryA($"{moduleName}.dll");
+		return GetProcAddress(dllBase, procName) - dllBase;
 	}
+
+	[DllImport("kernel32.dll", SetLastError = true)]
+	static extern bool GetExitCodeThread(nint hThread, out uint exitCode);
 
 	static void CallFunctionInProcess(nint hProcess, nint fnAddressInProcess, nint fnArgsInProcess)
 	{
-		CreateRemoteThread(hProcess, 0, 0, fnAddressInProcess, fnArgsInProcess, 0, out uint threadId);
+		nint remoteThread = 0;
+		if ((remoteThread = CreateRemoteThread(hProcess, 0, 0, fnAddressInProcess, fnArgsInProcess, 0, out uint threadId)) == 0)
+		{
+			throw new Win32Exception(Marshal.GetLastWin32Error());
+		}
+		Console.WriteLine($"remoteThread: {remoteThread}");
+		int exitReason = WaitForSingleObject(remoteThread, 5000);
+		GetExitCodeThread(remoteThread, out uint exitCode);
+		Console.WriteLine($"exitReason: {exitReason}, threadReturn: {exitCode}");
 	}
 
 	static unsafe void Inject()
@@ -98,35 +123,32 @@ class HookerInjector
 		//CloseHandle(hProcess);
 
 		// 1. call target's kernerl32!LoadLibrary with argument "hooker.dll"
-		foreach (var item in GetModulesInProcess(hProcess))
-		{
-			Console.WriteLine(item.Key);
-		}
 		nint kernel32Base = FindModuleInProcess(hProcess, "kernel32");
 		Console.WriteLine($"kernel32base: {kernel32Base}");
-		nint loadLibraryRva = GetRVAOfProcInModule(hProcess, "KERNEL32", "LoadLibrary");
+		nint loadLibraryRva = GetRVAOfProcInModule("kernel32", "LoadLibraryW");
 		Console.WriteLine($"loadLibraryRva: {loadLibraryRva}");
-		string hookerDllName = "hooker.dll\0";
-		byte[] data = Encoding.Unicode.GetBytes(hookerDllName);
-		byte* dataPtr = (byte*)Marshal.AllocHGlobal(data.Length);
-		//Marshal.StructureToPtr<byte[]>(data, dataPtr, false);
-		for (int i = 0; i < data.Length; i++)
-		{
-			*(dataPtr + i) = data[i];
-		}
+
+		string hookerDllPath = new FileInfo("hooker.dll").FullName + "\0";
+		Console.WriteLine($"hookerDllPath: {hookerDllPath}");
+		byte[] data = Encoding.Unicode.GetBytes(hookerDllPath);
 		const uint MEM_RESERVE = 0x00002000;
 		const uint MEM_COMMIT = 0x00001000;
 		const uint PAGE_READWRITE = 0x04;
 		nint argPtr = VirtualAllocEx(hProcess, 0, (nuint)data.Length, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-		WriteProcessMemory(hProcess, argPtr, (nint)dataPtr, (nuint)data.Length, 0);
-		CallFunctionInProcess(hProcess, kernel32Base + loadLibraryRva, argPtr);
-		Marshal.FreeHGlobal((nint)dataPtr);
-		// check if hooker.dll is loaded in target
-		var mods = GetModulesInProcess(hProcess);
-		foreach (var mod in mods)
+		Console.WriteLine($"argPtr: {argPtr}");
+
+		fixed (void* dataPtr = data)
 		{
-			Console.WriteLine(mod.Key);
+			if (WriteProcessMemory(hProcess, argPtr, (nint)dataPtr, (nuint)data.Length, 0) == 0)
+			{
+				throw new Win32Exception(Marshal.GetLastWin32Error());
+			}
 		}
+
+		Console.WriteLine("calling loadlibrary in target ...");
+		CallFunctionInProcess(hProcess, kernel32Base + loadLibraryRva, argPtr);
+		GetModulesInProcess(hProcess);
+		// check if hooker.dll is loaded in target
 		// 2. call hooker's Hook() function
 	}
 
