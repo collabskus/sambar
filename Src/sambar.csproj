@@ -12,6 +12,7 @@
     <Compile Remove="WidgetPacks\**" />
     <Compile Remove="scripts\**" />
     <Compile Remove="Tests\**" />
+    <Compile Remove="Classes\Hooks\**" />
   </ItemGroup>
 
   <ItemGroup>

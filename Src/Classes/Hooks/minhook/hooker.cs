@@ -51,19 +51,20 @@ class Hooker
 		return 0;
 	}
 
-	//static void Main()
-	//{
+	[UnmanagedCallersOnly(EntryPoint = "Hook")]
+	public static void Hook()
+	{
 
-	//	nint user32Base = (nint)LoadLibrary("user32.dll");
-	//	nint targetFnPtr = GetProcAddress(user32Base, "MessageBoxA");
-	//	nint hookFnPtr = Marshal.GetFunctionPointerForDelegate<MessageBoxA_Delegate>(MessageBoxA_Hook);
+		nint user32Base = (nint)LoadLibrary("user32.dll");
+		nint targetFnPtr = GetProcAddress(user32Base, "MessageBoxA");
+		nint hookFnPtr = Marshal.GetFunctionPointerForDelegate<MessageBoxA_Delegate>(MessageBoxA_Hook);
 
-	//	HandleError(MH_Initialize());
-	//	HandleError(MH_CreateHook(targetFnPtr, hookFnPtr, 0));
-	//	HandleError(MH_EnableHook(0));
+		HandleError(MH_Initialize());
+		HandleError(MH_CreateHook(targetFnPtr, hookFnPtr, 0));
+		HandleError(MH_EnableHook(0));
 
-	//	MessageBoxA(0, "hello", "message", (uint)0x00000000L);
-	//}
+		MessageBoxA(0, "hello", "message", (uint)0x00000000L);
+	}
 }
 
 

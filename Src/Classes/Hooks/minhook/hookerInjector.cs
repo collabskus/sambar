@@ -148,6 +148,12 @@ class HookerInjector
 		Console.WriteLine("calling loadlibrary in target ...");
 		CallFunctionInProcess(hProcess, kernel32Base + loadLibraryRva, argPtr);
 		GetModulesInProcess(hProcess);
+		nint hookerBase = FindModuleInProcess(hProcess, "hooker");
+		Console.WriteLine($"hookerBase: {hookerBase}");
+		nint fnHookRva = GetRVAOfProcInModule("hooker", "Hook");
+		Console.WriteLine($"fnHookRva: {fnHookRva}");
+		nint fnHook = hookerBase + fnHookRva;
+		CallFunctionInProcess(hProcess, fnHook, 0);
 		// check if hooker.dll is loaded in target
 		// 2. call hooker's Hook() function
 	}

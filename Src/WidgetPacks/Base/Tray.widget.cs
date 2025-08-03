@@ -2,7 +2,7 @@
 
 public class Tray : Widget
 {
-	Window? menu = null;
+	sambar.Menu? menu = null;
 	public Tray() : base()
 	{
 		//UpdateTrayPanel();

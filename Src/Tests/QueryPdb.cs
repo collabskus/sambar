@@ -96,7 +96,7 @@ public class QueryPdb
 		// set mask to *GetWindow* or *CTaskListWnd* to resolve class methods
 		SymEnumSymbols(hProcess, dllBase, "*CTaskListWnd*", (ref SYMBOL_INFO info, uint size, nint ctx) =>
 		{
-			Console.WriteLine($"[ NAME ]: {info.Name}, [ TYPE ]: {(SymTagEnum)info.Tag}");
+			Console.WriteLine($"[ NAME ]: {info.Name}, [ RVA ]: {info.Address - info.ModBase}");
 			return true;
 		}, 0);
 
