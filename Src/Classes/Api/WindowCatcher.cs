@@ -11,7 +11,7 @@ public partial class Api
 
     private bool capturing = false;
     public List<StructureChangedMessage> capturedWindows = new();
-    public int WINDOW_CAPTURE_DURATION = 100;
+    public int WINDOW_CAPTURE_DURATION = 50;
     public async void StartTimedWindowCapture()
     { 
         capturing = true;

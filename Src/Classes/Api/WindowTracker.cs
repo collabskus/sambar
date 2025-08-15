@@ -113,5 +113,10 @@ public class RunningApp
 		Logger.Log($"App requested focus");
 		User32.SetForegroundWindow(hWnd);
 	}
+    public void Kill()
+    {
+		//Process.GetProcessById((int)processId).Kill();
+		User32.SendMessage(hWnd, (uint)WINDOWMESSAGE.WM_CLOSE, 0, 0);
+    }
 }
 

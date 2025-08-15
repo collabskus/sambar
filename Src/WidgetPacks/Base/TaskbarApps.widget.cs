@@ -2,6 +2,7 @@ public class TaskbarApps : Widget
 {
 	StackPanel panel = new();
 	RunningApp focusedApp;
+	
 	public TaskbarApps()
 	{
 		panel.Orientation = Orientation.Horizontal;
@@ -27,10 +28,34 @@ public class TaskbarApps : Widget
 				btn.IconWidth = Theme.BUTTON_WIDTH;
 				btn.Margin = new(0, 0, 5, 0);
 				btn.HoverEffect = false;
+				List<RoundedButton> menuItems = new()
+				{
+				   new()
+				   {
+						Text = "close",
+						HoverEffect = true,
+						Margin = new(5),
+						CornerRadius = new(5),
+						HoverColor = Utils.BrushFromHex("#383838"),
+						Height = 20,
+				   }
+				};
+				menuItems.ForEach(item => {
+					item.MouseDown += (s, e) => app.Kill();
+                });
 				btn.MouseDown += (s, e) =>
 				{
-					app.FocusWindow();
-				};
+					switch(e.ChangedButton)
+					{
+						case MouseButton.Left:
+                            app.FocusWindow();
+							break;
+						case MouseButton.Right:
+							Sambar.api.CreateContextMenu(menuItems);
+							break;
+                    }
+
+                };
 				if (focusedApp?.hWnd == app.hWnd)
 				{
 					btn.Background = Theme.BUTTON_PRESSED_BACKGROUND;

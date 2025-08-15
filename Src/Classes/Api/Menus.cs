@@ -22,6 +22,21 @@ public partial class Api
 		Menu menu = new(x, y, width, height);
 		return menu;
 	}
+	
+	// context menu with menubuttons
+	public Menu CreateContextMenu(List<RoundedButton> items) 
+	{
+		User32.GetCursorPos(out POINT pt);
+		Menu menu = new(pt.X, pt.Y, 100, 100);
+		StackPanel panel = new();
+		panel.Orientation = Orientation.Vertical;
+		foreach(var item in items)
+		{
+			panel.Children.Add(item);
+		}
+		menu.Content = panel;
+		return menu;
+	}
 }
 
 public class Menu : Window
@@ -97,8 +112,4 @@ public class Menu : Window
 	{
 		this.Close();
 	}
-
 }
-
-
-

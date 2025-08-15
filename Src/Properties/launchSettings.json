@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "sambar": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\Jayakuttan\\dev\\sambar\\Src"
+    }
+  }
+}

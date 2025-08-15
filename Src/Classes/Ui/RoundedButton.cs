@@ -204,13 +204,13 @@ public class RoundedButton : UserControl
 			_HoverEffect = value;
 			if (_HoverEffect)
 			{
-				this.MouseEnter += MouseHoverHandler;
-				this.MouseLeave += MouseHoverHandler;
+				this.MouseEnter += ChangeToHover;
+				this.MouseLeave += RestoreColor;
 			}
 			else
 			{
-				this.MouseEnter -= MouseHoverHandler;
-				this.MouseLeave -= MouseHoverHandler;
+				this.MouseEnter -= ChangeToHover;
+				this.MouseLeave -= RestoreColor;
 			}
 		}
 	}
@@ -223,10 +223,12 @@ public class RoundedButton : UserControl
 		RoundedButtonTextBlock.VerticalAlignment = VerticalAlignment.Center;
 	}
 
-	public void MouseHoverHandler(object sender, MouseEventArgs e)
+	public void ChangeToHover(object sender, MouseEventArgs e)
 	{
-		Brush buffer = HoverColor;
-		HoverColor = Background;
-		Background = buffer;
+		Background = HoverColor;
 	}
+    public void RestoreColor(object sender, MouseEventArgs e)
+    {
+        Background = new SolidColorBrush(Colors.Transparent);
+    }
 }
