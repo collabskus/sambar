@@ -38,6 +38,8 @@ public class TaskbarApps : Widget
 						CornerRadius = new(5),
 						HoverColor = Utils.BrushFromHex("#383838"),
 						Height = 20,
+						FontFamily = Theme.FONT_FAMILY,
+						TextAlignment = TextAlignment.Left
 				   }
 				};
 				menuItems.ForEach(item => {

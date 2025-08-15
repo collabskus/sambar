@@ -27,7 +27,7 @@ public partial class Api
 	public Menu CreateContextMenu(List<RoundedButton> items) 
 	{
 		User32.GetCursorPos(out POINT pt);
-		Menu menu = new(pt.X, pt.Y, 100, 100);
+		Menu menu = new(pt.X, pt.Y, 100, items.Count*30);
 		StackPanel panel = new();
 		panel.Orientation = Orientation.Vertical;
 		foreach(var item in items)
