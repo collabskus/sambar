@@ -39,7 +39,6 @@ public class TaskbarApps : Widget
 						HoverColor = Utils.BrushFromHex("#383838"),
 						Height = 20,
 						FontFamily = Theme.FONT_FAMILY,
-						TextAlignment = TextAlignment.Left
 				   }
 				};
 				menuItems.ForEach(item => {

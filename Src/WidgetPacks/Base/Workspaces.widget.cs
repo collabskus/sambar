@@ -47,9 +47,9 @@ public class Workspaces : Widget
 				button.Background = Theme.BUTTON_BACKGROUND;
 			}
 			buttons[index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
+			buttons[index].HoverEffect = false;
 		});
 	}
-
 
 	// for updating Glaze when buttons pressed
 	bool buttonRedrawing = false;
@@ -58,13 +58,9 @@ public class Workspaces : Widget
 		buttonRedrawing = true;
 		var btn = sender as RoundedButton;
 		string clickedBtnName = Convert.ToString(btn.Text);
-		Logger.Log($"{clickedBtnName} pressed");
 		Workspace clickedWorkspace = workspaces.Where(wksp => wksp.name == clickedBtnName).First();
 		int clickedBtnIndex = clickedWorkspace.index;
-		if (clickedBtnIndex != Sambar.api.currentWorkspace.index)
-		{
-			RedrawButtons(clickedBtnIndex);
-		}
+        RedrawButtons(clickedBtnIndex);
 		Task.Run(async () =>
 		{
 			await Sambar.api.ChangeWorkspace(clickedWorkspace);

@@ -215,12 +215,6 @@ public class RoundedButton : UserControl
 		}
 	}
 
-	public TextAlignment TextAlignment
-	{
-		get { return RoundedButtonTextBlock.TextAlignment; }
-		set { RoundedButtonTextBlock.TextAlignment = value; }
-    }
-
 	public RoundedButton()
 	{
 		this.Content = RoundedButtonBorder;
