@@ -129,7 +129,7 @@ public partial class Api
                 float speedDown = ((float)_delta_downBytes * 8)/ (DELTA / 1000) / 1024;
                 float speedUp = ((float)_delta_upBytes *8)/ (DELTA / 1000)/ 1024;
                 NETWORK_SPEED_NOTIFIED([speedDown, speedUp]);
-                Logger.Log($"DOWN: {speedDown} Kb/s, UP: {speedUp} Kb/s");
+                //Logger.Log($"DOWN: {speedDown} Kb/s, UP: {speedUp} Kb/s");
                 await Task.Delay(DELTA);
             }
         }, cts.Token);

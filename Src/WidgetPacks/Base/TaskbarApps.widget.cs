@@ -28,18 +28,9 @@ public class TaskbarApps : Widget
 				btn.IconWidth = Theme.BUTTON_WIDTH;
 				btn.Margin = new(0, 0, 5, 0);
 				btn.HoverEffect = false;
-				List<RoundedButton> menuItems = new()
+				List<MenuButton> menuItems = new()
 				{
-				   new()
-				   {
-						Text = "close",
-						HoverEffect = true,
-						Margin = new(5),
-						CornerRadius = new(5),
-						HoverColor = Utils.BrushFromHex("#383838"),
-						Height = 20,
-						FontFamily = Theme.FONT_FAMILY,
-				   }
+				   new("close")
 				};
 				menuItems.ForEach(item => {
 					item.MouseDown += (s, e) => app.Kill();

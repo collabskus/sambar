@@ -21,7 +21,7 @@ public partial class Api
     }
     private void CaptureWindows(StructureChangedMessage msg)
     {
-        Logger.Log($"StructureChanged, name: {msg.name}, class: {msg.className}, type: {msg.controlType}");
+        //Logger.Log($"StructureChanged, name: {msg.name}, class: {msg.className}, type: {msg.controlType}");
         if (capturing)
         {
             capturedWindows.Add(msg);
