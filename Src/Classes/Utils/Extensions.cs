@@ -1,4 +1,9 @@
-﻿using System.Windows.Media.Imaging;
+﻿/*
+	MIT License
+    Copyright (c) 2025 Ajaykrishnan R	
+*/
+
+using System.Windows.Media.Imaging;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Drawing;
 using System.IO;

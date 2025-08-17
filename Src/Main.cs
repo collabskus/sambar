@@ -1,4 +1,9 @@
-﻿using System.Windows;
+﻿/*
+	MIT License
+    Copyright (c) 2025 Ajaykrishnan R	
+*/
+
+using System.Windows;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 using System.IO;

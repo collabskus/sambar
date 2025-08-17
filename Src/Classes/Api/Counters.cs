@@ -1,4 +1,9 @@
-﻿using System.Diagnostics;
+﻿/*
+	MIT License
+    Copyright (c) 2025 Ajaykrishnan R	
+*/
+
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Net.NetworkInformation;
 

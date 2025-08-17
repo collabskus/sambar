@@ -1,4 +1,9 @@
-﻿using System.Windows.Controls;
+﻿/*
+	MIT License
+    Copyright (c) 2025 Ajaykrishnan R	
+*/
+
+using System.Windows.Controls;
 using System.Reflection;
 
 namespace sambar;
