@@ -18,28 +18,7 @@ public class Program
 		Paths.CreateIfAbsent();
 
 		// evaluate the .init.cs to get the widget pack name
-		if (!File.Exists(Paths.initCsFile))
-		{
-			Logger.Log(".init.cs does not exist, exiting...");
-			return;
-		}
-		string _initcs = File.ReadAllText(Paths.initCsFile);
-		string? widgetPackName = null;
-		Thread _t = new(async () =>
-		{
-			try
-			{
-				widgetPackName = await CSharpScript.EvaluateAsync<string>(_initcs);
-			}
-			catch (Exception ex)
-			{
-				Logger.Log($"unable to compile .init.cs");
-				Logger.Log(ex.Message);
-			}
-		});
-		_t.Start();
-		_t.Join();
-		Logger.Log($"widgetPackName: {widgetPackName}");
+		string? widgetPackName = WidgetLoader.GetObjectFromScript<string>(Paths.initCsFile);
 		if (widgetPackName == null) return;
 
 		Logger.Log($"Compiling config");

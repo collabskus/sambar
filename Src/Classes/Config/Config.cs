@@ -59,4 +59,11 @@ public class Config
 	public Config() { }
 }
 
+// .imports.cs
+public class WidgetImports
+{
+	public string ImportsPack;
+	public List<string> widgets;
+}
+
 

@@ -32,6 +32,16 @@ public class WidgetLoader
 		var widgetFiles = files.Where(file => file.Name.EndsWith(".widget.cs")).ToList();
 		var cachedDlls = new DirectoryInfo(Paths.dllFolder).GetFiles();
 
+		// read imports file and add widgets if any
+		string importsFile = Path.Join(Paths.widgetPacksFolder, widgetPackName, ".imports.cs");
+		WidgetImports? imports = null;
+		if (Path.Exists(importsFile))
+		{
+			imports = GetObjectFromScript<WidgetImports>(importsFile);
+		}
+
+		Logger.Log(imports == null ? "No .imports.cs file found!" : $".imports.cs: {imports.ImportsPack}");
+
 		// verify hashes and figure out which widgets to compile		
 		List<FileInfo> widgetFilesToCompile = new();
 		if (!File.Exists(Paths.hashesFile))
@@ -188,7 +198,7 @@ using Newtonsoft.Json;
 
 		if (!result.Success)
 		{
-			Logger.Log("COMPILATION FAILED");
+			Logger.Log($"COMPILATION FAILED: {dllName}");
 			foreach (Diagnostic err in result.Diagnostics)
 			{
 				Logger.Log(err.GetMessage());
@@ -219,6 +229,39 @@ using Newtonsoft.Json;
 		}
 		string historyFile = System.Text.Json.JsonSerializer.Serialize(widgetToHash);
 		File.WriteAllTextAsync(Paths.hashesFile, historyFile);
+	}
+
+	/// <summary>
+	/// Evaluate Script
+	/// (Alternative to CompileDll)
+	/// </summary>
+	public static T? GetObjectFromScript<T>(string scriptPath)
+	{
+        if (!File.Exists(scriptPath))
+		{
+			Logger.Log($"{scriptPath} does not exist, exiting...");
+			return default(T);
+		}
+		string script = File.ReadAllText(scriptPath);
+		ScriptOptions options = ScriptOptions.Default
+								.AddReferences(typeof(Sambar).Assembly)
+								.WithImports("sambar");
+		T? obj = default(T);
+		Thread _t = new(async () =>
+		{
+			try
+			{
+				obj = await CSharpScript.EvaluateAsync<T>(script, options: options);
+			}
+			catch (Exception ex)
+			{
+				Logger.Log($"unable to compile {scriptPath}");
+				Logger.Log(ex.Message);
+			}
+		});
+		_t.Start();
+		_t.Join();
+		return obj;
 	}
 
 }
