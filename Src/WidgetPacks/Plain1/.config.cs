@@ -2,11 +2,11 @@
 {
     public BaseConfig() 
     { 
-        this.height = 30;
+        this.height = 20;
         this.width = 0;
-        this.marginXLeft = 10;
-        this.marginXRight = 10;
-        this.marginYTop = 10;
+        this.marginXLeft = 0;
+        this.marginXRight = 0;
+        this.marginYTop = 0;
         this.paddingXLeft = 0;
         this.paddingXRight = 0;
         this.paddingYTop = 0;

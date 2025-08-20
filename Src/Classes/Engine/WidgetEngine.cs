@@ -87,8 +87,11 @@ public class WidgetLoader
 		Logger.Log($"To compile: {widgetFilesToCompile.Count()}");
 		widgetFilesToCompile.ForEach(file => Logger.Log($"name: {file.Name}"));
 
-		var themesFile = files.Where(file => file.Name == ".theme.cs").First();
-		string widgetsPrefix = File.ReadAllText(themesFile.FullName);
+		var themesFile = files.Where(file => file.Name == ".theme.cs").FirstOrDefault();
+		string? widgetsPrefix = null;
+		if(themesFile != null) {
+			widgetsPrefix = File.ReadAllText(themesFile.FullName);
+		}
 
 		var layoutFile = files.Where(file => file.Name == ".layout.cs").First();
 		string layoutFileContent = File.ReadAllText(layoutFile.FullName);
