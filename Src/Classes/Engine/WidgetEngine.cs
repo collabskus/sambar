@@ -22,6 +22,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Net.Http;
+using Windows.UI.Composition;
 
 namespace sambar;
 
@@ -43,9 +44,11 @@ public class WidgetLoader
 		if (Path.Exists(importsFile))
 		{
 			imports = GetObjectFromScript<WidgetImports>(importsFile);
-		}
+            if (!Directory.Exists(Path.Join(Paths.widgetPacksFolder, imports?.importsPack))) throw new Exception($"{imports?.importsPack} does not exist");
+            imports?.widgets.ForEach(_widget => widgetFiles.Add(new(Path.Join(Paths.widgetPacksFolder, imports.importsPack, _widget + ".widget.cs"))));
+        }
 
-		Logger.Log(imports == null ? "No .imports.cs file found!" : $".imports.cs: {imports.ImportsPack}");
+        Logger.Log(imports == null ? "No .imports.cs file found!" : $".imports.cs, pack: {imports.importsPack}");
 
 		// verify hashes and figure out which widgets to compile		
 		List<FileInfo> widgetFilesToCompile = new();
@@ -57,20 +60,22 @@ public class WidgetLoader
 		else
 		{
 			widgetToHash = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(Paths.hashesFile));
-			foreach (var file in widgetFiles)
-			{
-				string hash = ComputeWidgetSriptHash(File.ReadAllText(file.FullName));
+			widgetFiles
+				.ForEach(
+				file =>
+                {
+                    string hash = ComputeWidgetSriptHash(File.ReadAllText(file.FullName));
 
-				// new script added
-				if (!widgetToHash.ContainsKey(file.Name))
-				{
-					widgetFilesToCompile.Add(file);
-				}
-				else if (widgetToHash[file.Name] != hash)
-				{
-					widgetFilesToCompile.Add(file);
-				}
-			}
+                    // new script added
+                    if (!widgetToHash.ContainsKey(file.Name))
+                    {
+                        widgetFilesToCompile.Add(file);
+                    }
+                    else if (widgetToHash[file.Name] != hash)
+                    {
+                        widgetFilesToCompile.Add(file);
+                    }
+                });
 		}
 
 		// add script to compile list if dll is missing
@@ -89,16 +94,16 @@ public class WidgetLoader
 
 		var themesFile = files.Where(file => file.Name == ".theme.cs").FirstOrDefault();
 		string? widgetsPrefix = null;
+		bool compileWithThemes = false;
 		if(themesFile != null) {
-			widgetsPrefix = File.ReadAllText(themesFile.FullName);
+			compileWithThemes = true;
+			//widgetsPrefix = File.ReadAllText(themesFile.FullName);
+			Utils.CompileFileToDll(themesFile.FullName, ".theme");
 		}
 
-		var layoutFile = files.Where(file => file.Name == ".layout.cs").First();
-		string layoutFileContent = File.ReadAllText(layoutFile.FullName);
-
-		Thread thread = new(() => { CompileToDll(layoutFileContent, ".layout"); });
-		thread.Start();
-		thread.Join();
+		var layoutFile = files.Where(file => file.Name == ".layout.cs").FirstOrDefault();
+		if(layoutFile == null) throw new Exception($".layout.cs missing in {widgetPackName}");
+		Utils.CompileFileToDll(layoutFile.FullName, ".layout");
 
 		var layoutAssembly = Assembly.LoadFile(Path.Join(Paths.dllFolder, ".layout.dll"));
 		Type layoutType = layoutAssembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Layout))).First();
@@ -115,9 +120,7 @@ public class WidgetLoader
 					string fileContent = File.ReadAllText(file.FullName);
 					string finalScript = widgetsPrefix + "\n" + fileContent;
 					string dllName = file.Name.Replace(".cs", "");
-					Thread thread = new(() => { CompileToDll(finalScript, $"{dllName}"); });
-					thread.Start();
-					thread.Join();
+					Utils.CompileStringToDll(finalScript, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)]);
 					widgetToDllMap[file.Name.Replace(".widget.cs", "")] = Path.Join(Paths.dllFolder, dllName + ".dll");
 				}
 			);
@@ -126,6 +129,14 @@ public class WidgetLoader
 		BuildWidgetHistory(widgetFiles);
 
 		Logger.Log("Loading compiled dlls...");
+		// add _.dll to dependency search path so that if widgets contain dependency dlls
+		// such as .theme.dll they are loaded
+		AssemblyLoadContext.Default.Resolving += (assemblyLoadContext, name) => 
+		{
+			string _assemblyPath = Path.Join(Paths.dllFolder, name.Name);
+			if(File.Exists(_assemblyPath)) return Assembly.LoadFrom(_assemblyPath);
+			return null;
+		};
 		foreach (var widgetName in widgetToDllMap)
 		{
 			var assembly = Assembly.LoadFile(widgetName.Value);
@@ -134,6 +145,10 @@ public class WidgetLoader
 			Widget widget = (Widget)Activator.CreateInstance(widgetType);
 			if (widget != null) { widgets.Add(widget); }
 		}
+
+		// widgets currently being loaded
+		Logger.Log($"[ Currently loaded widgets: {widgets.Count} ]");
+		Logger.Log(widgets.Select(widget => widget.Name).ToList());
 
 		widgets.ForEach(
 			widget =>
@@ -144,10 +159,18 @@ public class WidgetLoader
 
 		GC.Collect();
 	}
-
-	public static void CompileToDll(string classCode, string dllName)
+	
+	/// <summary>
+	/// compiles code (primarily classes) into dlls. Used to compile widgets, themes, layouts etc
+	/// Since assembly cache is not unloaded automatically this must be run on a separate thread
+	/// and discarded, so use the wrapper defined inside Utils
+	/// </summary>
+	/// <param name="classCode"></param>
+	/// <param name="dllName"></param>
+	/// <param name="additionalDllsAndUsings"></param>
+	public static void CompileToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null)
 	{
-		MetadataReference[] references =
+		List<MetadataReference> references =
 		[
 			MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(Object).Assembly.Location),
@@ -170,7 +193,7 @@ public class WidgetLoader
 			MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 		];
-
+        
 		string usingsPrefix =
 """
 using sambar;
@@ -188,6 +211,17 @@ using System.Net.Http;
 using System.Windows.Ink;
 using Newtonsoft.Json;
 """;
+
+        if(additionalDllsAndUsings != null)
+		{
+			additionalDllsAndUsings	
+				.ForEach(dllAndUsing =>
+                {
+                    references.Add(MetadataReference.CreateFromFile(dllAndUsing.Item1));
+					if(dllAndUsing.Item2 != null) usingsPrefix += "\n" + $"using {dllAndUsing.Item2}";
+                }
+			);
+        }
 
 		string code = usingsPrefix + classCode;
 		CSharpParseOptions parseOptions = new(LanguageVersion.Preview);

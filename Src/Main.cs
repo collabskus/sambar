@@ -33,7 +33,7 @@ public class Program
 			Logger.Log("widget pack does not contain .config.cs file");
 			return;
 		}
-		Utils.CompileToDll(configFile, ".config");
+		Utils.CompileFileToDll(configFile, ".config");
 		Assembly configAssembly = Assembly.LoadFile(Paths.configDll);
 		Type configType = configAssembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Config))).First();
 		Config config = (Config)Activator.CreateInstance(configType);

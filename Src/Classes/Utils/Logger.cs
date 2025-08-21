@@ -17,4 +17,8 @@ public class Logger
 		if (DEBUG) Debug.WriteLine(text);
 		if(CONSOLE) Console.WriteLine(text);
 	}
+
+	public static void Log(List<string> array) {
+		foreach(var arr in array) Log(arr);
+	}
 }

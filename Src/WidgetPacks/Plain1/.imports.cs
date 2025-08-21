@@ -1,7 +1,5 @@
-﻿using sambar;
-
-return new WidgetImports
+﻿return new WidgetImports
 {
-    ImportsPack = "Base",
-    widgets = []
+    importsPack = "Base",
+    widgets = ["Clock"]
 };

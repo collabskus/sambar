@@ -67,7 +67,7 @@ public class Config
 // .imports.cs
 public class WidgetImports
 {
-	public string ImportsPack;
+	public string importsPack;
 	public List<string> widgets;
 }
 

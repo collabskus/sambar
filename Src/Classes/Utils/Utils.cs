@@ -329,13 +329,20 @@ public partial class Utils
 		return str.ToString();
 	}
 
-	public static void CompileToDll(string fileName, string dllName)
+	public static void CompileFileToDll(string fileName, string dllName, List<(string, string?)>? additionalDllsAndUsings = null)
 	{
 		string classCode = File.ReadAllText(fileName);
-		Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName));
+		Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName, additionalDllsAndUsings));
 		thread.Start();
 		thread.Join();
 	}
+
+    public static void CompileStringToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null)
+    {
+        Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName, additionalDllsAndUsings));
+        thread.Start();
+        thread.Join();
+    }
 
 	public static double GetDisplayScaling()
 	{

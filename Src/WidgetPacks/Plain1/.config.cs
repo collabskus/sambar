@@ -14,5 +14,6 @@
         this.backgroundColor = "#282828";
         this.borderColor = "#ffffff";
         this.borderThickness = 0;
+        this.roundedCorners = false;
     }
 }
