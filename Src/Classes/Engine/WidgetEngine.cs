@@ -55,7 +55,7 @@ public class WidgetLoader
 		if (!File.Exists(Paths.hashesFile))
 		{
 			BuildWidgetHistory(widgetFiles);
-			widgetFilesToCompile = widgetFiles;
+			widgetFilesToCompile = new(widgetFiles);
 		}
 		else
 		{
@@ -94,9 +94,9 @@ public class WidgetLoader
 
 		var themesFile = files.Where(file => file.Name == ".theme.cs").FirstOrDefault();
 		string? widgetsPrefix = null;
-		bool compileWithThemes = false;
+		//bool compileWithThemes = false;
 		if(themesFile != null) {
-			compileWithThemes = true;
+			//compileWithThemes = true;
 			//widgetsPrefix = File.ReadAllText(themesFile.FullName);
 			Utils.CompileFileToDll(themesFile.FullName, ".theme");
 		}
@@ -118,9 +118,9 @@ public class WidgetLoader
 				{
 					Logger.Log($"Compiling {file.Name}");
 					string fileContent = File.ReadAllText(file.FullName);
-					string finalScript = widgetsPrefix + "\n" + fileContent;
+					//string finalScript = widgetsPrefix + "\n" + fileContent;
 					string dllName = file.Name.Replace(".cs", "");
-					Utils.CompileStringToDll(finalScript, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)]);
+					Utils.CompileStringToDll(fileContent, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)]);
 					widgetToDllMap[file.Name.Replace(".widget.cs", "")] = Path.Join(Paths.dllFolder, dllName + ".dll");
 				}
 			);

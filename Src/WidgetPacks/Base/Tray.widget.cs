@@ -1,5 +1,3 @@
-#nullable enable
-
 public class Tray : Widget
 {
 	sambar.Menu? menu = null;
