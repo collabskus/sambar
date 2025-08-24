@@ -1,5 +1,5 @@
 ﻿return new WidgetImports
 {
     importsPack = "Base",
-    widgets = ["Clock", "Workspaces"]
+    widgets = ["Clock", "Workspaces", "Tray", "Counters", "TaskbarApps"]
 };

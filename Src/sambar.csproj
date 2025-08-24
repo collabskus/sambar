@@ -21,13 +21,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CoreAudio" Version="1.40.0" />
     <PackageReference Include="FlaUI.UIA3" Version="5.0.0" />
     <PackageReference Include="Interop.UIAutomationClient.Signed" Version="10.19041.0">
       <Aliases>IUIAutimationInteropNuget</Aliases>
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SharpVectors.Wpf" Version="1.8.4.2" />
+    <PackageReference Include="SkiaSharp.Views.WPF" Version="3.119.0" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.6" />
     <PackageReference Include="Tmds.ExecFunction" Version="0.8.0" />
   </ItemGroup>

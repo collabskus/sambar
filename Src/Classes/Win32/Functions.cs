@@ -282,3 +282,7 @@ public class Iphlpapi
 	public static extern int GetIpNetworkConnectionBandwidthEstimates(int interfaceIndex, ADRESS_FAMILY adressFamily, out _MIB_IP_NETWORK_CONNECTION_BANDWIDTH_ESTIMATES info);
 }
 
+public class Winmm
+{
+
+}

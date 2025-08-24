@@ -29,6 +29,7 @@ public partial class Api
 		ClockInit();
 		CountersInit();
 		initTasks.Add(Task.Run(GlazeInit));
+		AudioInit();
 	}
 
 	public void Print(string text)
