@@ -49,8 +49,8 @@ public partial class Api
 	public Window CreateLogWindow(UIElement content)
 	{
 		Window logWnd = new();
-		logWnd.Width= 200;
-		logWnd.Height = 200;
+		logWnd.Width= 800;
+		logWnd.Height = 400;
 		logWnd.Content = content;
 		logWnd.Show();
 		return logWnd;

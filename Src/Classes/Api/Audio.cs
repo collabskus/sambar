@@ -16,18 +16,22 @@ public partial class Api
 {
     WasapiLoopbackCapture systemAudioCapture = new();
     AudioMeterInformation? audioMeterInformation = null;
-    
 
-    int sampleRate = 44100;
-    int bits = 16;
-    int channels = 2;
-    int TIME_SLICE = 100;
+    const int SAMPLE_RATE = 44100;
+    const int BITS = 16;
+    const int CHANNELS = 2;
+    const int SAMPLE_WIDTH = (BITS/sizeof(byte)) * CHANNELS;
+    const int TIME_SLICE = 100;
+    const int SAMPLES_IN_TIME_SLICE = SAMPLE_RATE * TIME_SLICE / 1000;
+    const int BYTES_IN_TIME_SLICE = SAMPLES_IN_TIME_SLICE * SAMPLE_WIDTH * (BITS / sizeof(byte));
+
     WaveFormat waveFormat;
     
+    List<double> amplitudes = new();
     WpfPlot plot = new();
     private void AudioInit() 
     {
-        waveFormat = new(sampleRate, bits, channels); 
+        waveFormat = new(SAMPLE_RATE, BITS, CHANNELS); 
         systemAudioCapture.WaveFormat = waveFormat;
 
         MMDeviceEnumerator deviceEnumerator = new();
@@ -38,8 +42,8 @@ public partial class Api
         audioTimer.Elapsed += AudioTimer_Elapsed;
         audioTimer.Start();
 
-        amplitudes = new double[sampleRate*TIME_SLICE/1000];
-        plot.Plot.Add.Signal(amplitudes, sampleRate/1000);
+        //amplitudes = new double[SAMPLES_IN_TIME_SLICE];
+        plot.Plot.Add.Signal(amplitudes, SAMPLE_RATE/1000);
         CreateLogWindow(plot);
     }
 
@@ -65,23 +69,39 @@ public partial class Api
         }
     }
 
-    double[] amplitudes;
     private void SystemAudioCapture_DataAvailable(object? sender, WaveInEventArgs e)
     {
         byte[] bytes = e.Buffer.Take(e.BytesRecorded).ToArray();
         float[] samples = GetSamples(bytes);
-        for(int i = 0; i < samples.Length; i++) amplitudes[i] = samples[i];
-        plot.Plot.Axes.AutoScale();
+        for (int i = 0; i < samples.Length; i++)
+        {
+            if (i >= amplitudes.Count) amplitudes.Add(samples[i]);
+            else { amplitudes[i] = samples[i]; }
+        }
+        amplitudes.RemoveRange(samples.Length - 1, amplitudes.Count - samples.Length);
+        plot.Plot.Axes.SetLimitsY(-1, 1);
+        plot.Plot.Axes.AutoScaleX();
         plot.Refresh();
     }
+
+    //private void UpdateWhenTimeSliceFilled(byte[] bytes)
+    //{
+    //    if()
+    //    {
+    //        UpdatePlot();
+    //    }
+    //    else
+    //    {
+
+    //    }
+    //}
     
     // Samples are the amplitudes
     private float[] GetSamples(byte[] bytes)
     {
-        int sampleWidth = 2 * channels;
         // total bytes recorded = samples * bytes per sample * channels
         // 16 bit = 2 bytes => bytes per sample
-        int samplesCount = bytes.Length / sampleWidth;
+        int samplesCount = bytes.Length / SAMPLE_WIDTH;
 
         // each sample has an amplitude
         float[] samples = new float[samplesCount];
@@ -92,7 +112,7 @@ public partial class Api
             // [ ..., 0x00, 0x10, ...]
             //        ^(i)  ^(i+1) 
             //            <-| shift to the left halfway (16/2 = 8 bits)
-            short sample = (short)(bytes[i*sampleWidth] | bytes[i*sampleWidth+ 1] << 8);
+            short sample = (short)(bytes[i*SAMPLE_WIDTH] | bytes[i*SAMPLE_WIDTH+ 1] << 8);
             samples[i] = sample / 32768f;
         }
 
