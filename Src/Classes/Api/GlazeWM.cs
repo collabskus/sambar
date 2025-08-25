@@ -88,11 +88,19 @@ public partial class Api
 		string command = $"sub --events focus_changed";
 		string reply = await client.SendCommand(command);
 		Logger.Log($"subscribe reply: {reply}");
-		Message? replyMessage = JsonConvert.DeserializeObject<Message>(reply);
-		Logger.Log($"subscriptionId: {replyMessage?.data.subscriptionId}");
-	}
+		try
+		{
+			Message? replyMessage = JsonConvert.DeserializeObject<Message>(reply);
+			Logger.Log($"subscriptionId: {replyMessage?.data.subscriptionId}");
+		}
+		catch (Exception ex) 
+		{
+			Logger.Log($"[ JSON ERROR ]: {ex.Message}");	
+		}
 
-	public async Task ChangeWorkspace(Workspace newWorkspace)
+    }
+
+    public async Task ChangeWorkspace(Workspace newWorkspace)
 	{
 		string message = $"command focus --workspace {newWorkspace.name}";
 		await client.SendCommand(message);

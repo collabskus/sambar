@@ -9,6 +9,8 @@ using NAudio.Dsp;
 using ScottPlot;
 using ScottPlot.WPF;
 using System.Windows;
+using FftSharp;
+using System.Numerics;
 
 namespace sambar;
 
@@ -27,7 +29,8 @@ public partial class Api
 
     WaveFormat waveFormat;
     
-    List<double> amplitudes = new();
+    
+    double samplePeriod = 1;
     WpfPlot plot = new();
     private void AudioInit() 
     {
@@ -41,9 +44,8 @@ public partial class Api
         System.Timers.Timer audioTimer = new(TIME_SLICE);
         audioTimer.Elapsed += AudioTimer_Elapsed;
         audioTimer.Start();
-
-        //amplitudes = new double[SAMPLES_IN_TIME_SLICE];
-        plot.Plot.Add.Signal(amplitudes, SAMPLE_RATE/1000);
+        
+        
         CreateLogWindow(plot);
     }
 
@@ -68,34 +70,55 @@ public partial class Api
             Logger.Log($"Audio Stopped... ");
         }
     }
-
+    
+    // does not fire at fixed intervals which can be specified manually
     private void SystemAudioCapture_DataAvailable(object? sender, WaveInEventArgs e)
     {
         byte[] bytes = e.Buffer.Take(e.BytesRecorded).ToArray();
         float[] samples = GetSamples(bytes);
-        for (int i = 0; i < samples.Length; i++)
-        {
-            if (i >= amplitudes.Count) amplitudes.Add(samples[i]);
-            else { amplitudes[i] = samples[i]; }
-        }
-        amplitudes.RemoveRange(samples.Length - 1, amplitudes.Count - samples.Length);
+        double[] amplitudes = new double[samples.Length];
+        Array.Copy(samples, amplitudes, amplitudes.Length);
+        
+        // fast fourier transfor for frequencies from amplitudes
+        double[] zeroPaddedAmplitudes = Pad.ZeroPad(amplitudes);
+        System.Numerics.Complex[] complexFrequencyDistribution = FFT.Forward(zeroPaddedAmplitudes);
+        double[] frequencies = FFT.Power(complexFrequencyDistribution);
+
+        // amplitude plot
         plot.Plot.Axes.SetLimitsY(-1, 1);
-        plot.Plot.Axes.AutoScaleX();
-        plot.Refresh();
+        plot.Plot.Axes.SetLimitsX(0, SAMPLES_IN_TIME_SLICE);
+        UpdateScottPlot(amplitudes, SAMPLE_RATE/1000);
+        // frequency plot
+        //samplePeriod = 1.0f / ((double)frequencies.Length / SAMPLE_RATE);
+
+        //plot.Plot.Axes.AutoScale();
+        //UpdateScottPlot(frequencies, samplePeriod);
+        //UpdateScottPlot(amplitudes.ToArray(), SAMPLE_RATE/1000);
     }
 
-    //private void UpdateWhenTimeSliceFilled(byte[] bytes)
-    //{
-    //    if()
-    //    {
-    //        UpdatePlot();
-    //    }
-    //    else
-    //    {
+    bool firstRender = true;
+    List<double> signalData = new();
+    private void UpdateScottPlot(double[] signalData, double signalPeriod)
+    {
+        MorphListIntoArray<double>(signalData, this.signalData);
+        if(firstRender)
+        {
+            firstRender = false;
+            plot.Plot.Add.Signal(this.signalData, signalPeriod);
+        }
+        plot.Refresh();
+    } 
 
-    //    }
-    //}
-    
+    private static void MorphListIntoArray<T>(T[] array, List<T> list)
+    {
+        for(int i = 0; i < array.Length; i++)
+        {
+            if (i >= list.Count) list.Add(array[i]);
+            else list[i] = array[i];
+        }
+        list.RemoveRange(array.Length - 1, list.Count - array.Length);
+    }
+
     // Samples are the amplitudes
     private float[] GetSamples(byte[] bytes)
     {
