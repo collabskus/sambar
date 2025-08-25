@@ -82,18 +82,19 @@ public partial class Api
         // fast fourier transfor for frequencies from amplitudes
         double[] zeroPaddedAmplitudes = Pad.ZeroPad(amplitudes);
         System.Numerics.Complex[] complexFrequencyDistribution = FFT.Forward(zeroPaddedAmplitudes);
-        double[] frequencies = FFT.Power(complexFrequencyDistribution);
+        double[] frequencyPowers = FFT.Magnitude(complexFrequencyDistribution);
 
         // amplitude plot
-        plot.Plot.Axes.SetLimitsY(-1, 1);
-        plot.Plot.Axes.SetLimitsX(0, SAMPLES_IN_TIME_SLICE);
-        UpdateScottPlot(amplitudes, SAMPLE_RATE/1000);
-        // frequency plot
-        //samplePeriod = 1.0f / ((double)frequencies.Length / SAMPLE_RATE);
+        //plot.Plot.Axes.SetLimitsY(-1, 1);
+        //plot.Plot.Axes.SetLimitsX(0, SAMPLES_IN_TIME_SLICE);
+        //UpdateScottPlot(amplitudes, SAMPLE_RATE/1000);
 
+        // frequency plot
+        samplePeriod = 1.0f / ((double)frequencyPowers.Length / SAMPLE_RATE);
+        plot.Plot.Axes.SetLimitsY(0, 0.3);
+        plot.Plot.Axes.SetLimitsX(0, 20000);
         //plot.Plot.Axes.AutoScale();
-        //UpdateScottPlot(frequencies, samplePeriod);
-        //UpdateScottPlot(amplitudes.ToArray(), SAMPLE_RATE/1000);
+        UpdateScottPlot(frequencyPowers, samplePeriod);
     }
 
     bool firstRender = true;
