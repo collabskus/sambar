@@ -88,8 +88,8 @@ public partial class Api
 		string command = $"sub --events focus_changed";
 		string reply = await client.SendCommand(command);
 		Logger.Log($"subscribe reply: {reply}");
-		Message replyMessage = JsonConvert.DeserializeObject<Message>(reply);
-		Logger.Log($"subscriptionId: {replyMessage.data.subscriptionId}");
+		Message? replyMessage = JsonConvert.DeserializeObject<Message>(reply);
+		Logger.Log($"subscriptionId: {replyMessage?.data.subscriptionId}");
 	}
 
 	public async Task ChangeWorkspace(Workspace newWorkspace)

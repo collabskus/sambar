@@ -90,7 +90,7 @@ public partial class Api
 	public event TaskbarChangedEventHandler TASKBAR_CHANGED = () => { };
 	public static void TaskbarChanged()
 	{
-		Sambar.api.TASKBAR_CHANGED();
+		Sambar.api?.TASKBAR_CHANGED();
 	}
 }
 /// <summary>
