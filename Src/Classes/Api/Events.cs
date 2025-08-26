@@ -11,6 +11,17 @@ namespace sambar;
 
 public partial class Api
 {
+    public void EventsInit()
+    {
+        FOCUS_CHANGED_EVENT = (msg) => { };
+        FocusChangedEventHandlerClass focusChangedHandlerObject = new();
+        ui.AddFocusChangedEventHandler(null, focusChangedHandlerObject);
+
+        STRUCTURE_CHANGED_EVENT = (msg) => { };
+        StructureChangedEventHandlerClass structureChangedHandlerObject = new();
+        ui.AddStructureChangedEventHandler(ui.GetRootElement(), TreeScope.TreeScope_Children, null, structureChangedHandlerObject);
+    }
+
     public delegate void FocusChangedEventHandler(FocusChangedMessage msg);
     public static event FocusChangedEventHandler FOCUS_CHANGED_EVENT;
     class FocusChangedEventHandlerClass: IUIAutomationFocusChangedEventHandler
@@ -45,34 +56,27 @@ public partial class Api
             STRUCTURE_CHANGED_EVENT(msg);
         }
     }
-
-    public void EventsInit()
-    {
-        FOCUS_CHANGED_EVENT = (msg) => { };
-        FocusChangedEventHandlerClass focusChangedHandlerObject = new();
-        ui.AddFocusChangedEventHandler(null, focusChangedHandlerObject);
-
-        STRUCTURE_CHANGED_EVENT = (msg) => { };
-        StructureChangedEventHandlerClass structureChangedHandlerObject = new();
-        ui.AddStructureChangedEventHandler(ui.GetRootElement(), TreeScope.TreeScope_Children, null, structureChangedHandlerObject);
-    }
+    
+    // frequencyAndWeights := (freq, weight)
+    public delegate void AudioPlayedEventHandler(float[] amplitudes, (float, float)[] frequencyAndWeights);
+    public static event AudioPlayedEventHandler AUDIO_PLAYED_EVENT = (a, fw) => { };
 }
 
 public class FocusChangedMessage
 {
-    public string name;
-    public string className;
-    public IntPtr hWnd;
-    public string type;
+    public string? name;
+    public string? className;
+    public nint hWnd;
+    public string? type;
     public ControlType controlType;
-    public IUIAutomationElement sender;
+    public IUIAutomationElement? sender;
 }
 
 public class StructureChangedMessage
 {
-    public string name;
-    public string className;
-    public IntPtr hWnd;
+    public string? name;
+    public string? className;
+    public nint hWnd;
     public StructureChangeType type;
     public ControlType controlType;
 }

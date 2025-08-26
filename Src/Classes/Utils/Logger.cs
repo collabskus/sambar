@@ -4,6 +4,7 @@
 */
 
 using System.Diagnostics;
+using System.Windows;
 
 namespace sambar;
 
@@ -20,5 +21,15 @@ public class Logger
 
 	public static void Log(List<string> array) {
 		foreach(var arr in array) Log(arr);
+	}
+
+    public static Window NewWindow(UIElement? content = null)
+	{
+		Window logWnd = new();
+		logWnd.Width= 800;
+		logWnd.Height = 400;
+		logWnd.Content = content;
+		logWnd.Show();
+		return logWnd;
 	}
 }

@@ -45,15 +45,5 @@ public partial class Api
 
 	// IUIAutomation
 	CUIAutomation ui = new();
-	
-	public Window CreateLogWindow(UIElement content)
-	{
-		Window logWnd = new();
-		logWnd.Width= 800;
-		logWnd.Height = 400;
-		logWnd.Content = content;
-		logWnd.Show();
-		return logWnd;
-	}
 }
 

@@ -15,6 +15,8 @@ public class Theme
     public static Brush BUTTON_HOVER_COLOR = Utils.BrushFromHex("#828181");
     public static CornerRadius BUTTON_CORNER_RADIUS = new(5);
     public static Thickness BUTTON_MARGIN = new(2);
+    public static int ICON_WIDTH = 16;
+    public static int ICON_HEIGHT= 16;
     public static int BUTTON_WIDTH = 20;
     public static int BUTTON_HEIGHT = 20;
     public static Thickness BUTTON_BORDER_THICKNESS = new(0);

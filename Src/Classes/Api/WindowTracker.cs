@@ -38,6 +38,7 @@ public partial class Api
 		// and refreshing runs very fast, we only instantiate new apps
 
 		// add new (if any)
+		if (hWndsInTaskbar == null) return;
 		foreach (nint hWnd in hWndsInTaskbar)
 		{
 			if (!runningApps.Select(app => app.hWnd).Contains(hWnd))
@@ -101,7 +102,7 @@ public class RunningApp
 		StringBuilder str = new(256);
 		User32.GetWindowText(hWnd, str, str.Capacity);
 		title = str.ToString();
-		exePath = Utils.GetExePathFromHWND(hWnd);
+		exePath = Utils.GetExePathFromHWND(hWnd)!;
 		className = Utils.GetClassNameFromHWND(hWnd);
 		User32.GetWindowThreadProcessId(hWnd, out processId);
 

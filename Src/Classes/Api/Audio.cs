@@ -27,14 +27,10 @@ public partial class Api
     const int SAMPLES_IN_TIME_SLICE = SAMPLE_RATE * TIME_SLICE / 1000;
     const int BYTES_IN_TIME_SLICE = SAMPLES_IN_TIME_SLICE * SAMPLE_WIDTH * (BITS / sizeof(byte));
 
-    WaveFormat waveFormat;
-    
-    
-    double samplePeriod = 1;
+    WaveFormat waveFormat = new(SAMPLE_RATE, BITS, CHANNELS); 
     WpfPlot plot = new();
     private void AudioInit() 
     {
-        waveFormat = new(SAMPLE_RATE, BITS, CHANNELS); 
         systemAudioCapture.WaveFormat = waveFormat;
 
         MMDeviceEnumerator deviceEnumerator = new();
@@ -45,8 +41,8 @@ public partial class Api
         audioTimer.Elapsed += AudioTimer_Elapsed;
         audioTimer.Start();
         
-        
-        CreateLogWindow(plot);
+        // for logging only
+        Logger.NewWindow(plot);
     }
 
     private void AudioTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
@@ -82,7 +78,7 @@ public partial class Api
         // fast fourier transfor for frequencies from amplitudes
         double[] zeroPaddedAmplitudes = Pad.ZeroPad(amplitudes);
         System.Numerics.Complex[] complexFrequencyDistribution = FFT.Forward(zeroPaddedAmplitudes);
-        double[] frequencyPowers = FFT.Magnitude(complexFrequencyDistribution);
+        double[] frequencyWeights = FFT.Magnitude(complexFrequencyDistribution);
 
         // amplitude plot
         //plot.Plot.Axes.SetLimitsY(-1, 1);
@@ -90,11 +86,11 @@ public partial class Api
         //UpdateScottPlot(amplitudes, SAMPLE_RATE/1000);
 
         // frequency plot
-        samplePeriod = 1.0f / ((double)frequencyPowers.Length / SAMPLE_RATE);
+        double signalPeriod = 1.0f / ((double)frequencyWeights.Length / SAMPLE_RATE);
         plot.Plot.Axes.SetLimitsY(0, 0.3);
         plot.Plot.Axes.SetLimitsX(0, 20000);
         //plot.Plot.Axes.AutoScale();
-        UpdateScottPlot(frequencyPowers, samplePeriod);
+        UpdateScottPlot(frequencyWeights, signalPeriod);
     }
 
     bool firstRender = true;

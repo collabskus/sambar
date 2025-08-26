@@ -7,8 +7,8 @@ public class Tray : Widget
 
 		RoundedButton btn = new();
 		btn.ImageSrc = @"C:\Users\Jayakuttan\dev\sambar\Src\WidgetPacks\Base\assets\arrow_down.svg";
-		btn.IconHeight = 16;
-		btn.IconWidth = 16;
+		btn.IconHeight = Theme.ICON_HEIGHT;
+		btn.IconWidth = Theme.ICON_WIDTH;
 		btn.Height = Theme.BUTTON_HEIGHT;
 		btn.Width = Theme.BUTTON_WIDTH;
 		btn.Margin = Theme.BUTTON_MARGIN;

@@ -27,11 +27,15 @@ positions and colors are <ins>fully customizable</ins>. [dive in?](https://www.g
  4. Buttons (Start, Action Center)
  5. Toggle native taskbar
  6. Performance counters (CPU, Memory, Network)
+ 7. Audio visualizer
 
+## Requirements
+
+ 1. Windows 11 build 26100+
 
 ## Building
 
- 1. Install .NET 10 SDK
+ 1. Download and Install .NET 9 SDK
  2. `git clone https://github.com/TheAjaykrishnanR/sambar`
  3. `cd Src`
  4. `dotnet run`
