@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
+using FlaUI.UIA3.Patterns;
 
 namespace sambar;
 
@@ -44,7 +45,13 @@ public class LoggerWindow
             wnd.Width= 800;
             wnd.Height = 400;
 
-			StackPanel panel = new();	
+			Grid grid = new();
+			RowDefinition _row1 = new() { Height = new GridLength(1, GridUnitType.Star) };
+			RowDefinition _row2 = new() { Height = new GridLength(0.25, GridUnitType.Star) };
+
+			grid.RowDefinitions.Add(_row1);
+			grid.RowDefinitions.Add(_row2);
+
             if (contentType != null)
             {
                 // all this so that this windows content UIElement can be created in this thread
@@ -56,13 +63,19 @@ public class LoggerWindow
                     content.Height = 3 * e.NewSize.Height / 4;
                     content.Width = e.NewSize.Width;
 				};
-                panel.Children.Add(content);
+				Grid.SetRow(content, 0);
+                grid.Children.Add(content);
             }
 
-			debugConsole = new();
-			panel.Children.Add(debugConsole);
+            debugConsole = new();
+            ScrollViewer scrollViewer = new();
+            scrollViewer.Margin = new(5);
+            scrollViewer.Content = debugConsole;
 
-			wnd.Content = panel;
+			Grid.SetRow(scrollViewer, 1);
+            grid.Children.Add(scrollViewer);
+
+			wnd.Content = grid;
             wnd.Show();
 
             initialized = true;
