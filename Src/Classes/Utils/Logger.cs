@@ -23,13 +23,23 @@ public class Logger
 		foreach(var arr in array) Log(arr);
 	}
 
-    public static Window NewWindow(UIElement? content = null)
+    public static Window? NewWindow()
 	{
-		Window logWnd = new();
-		logWnd.Width= 800;
-		logWnd.Height = 400;
-		logWnd.Content = content;
-		logWnd.Show();
-		return logWnd;
-	}
+		Window? logWnd = null;
+		bool finished = false;
+		Thread thread = new(() =>
+		{
+            logWnd = new();
+            logWnd.Width= 800;
+            logWnd.Height = 400;
+            logWnd.Show();
+            finished = true;
+            System.Windows.Threading.Dispatcher.Run();
+        });
+		thread.SetApartmentState(ApartmentState.STA);
+		thread.IsBackground = true;
+		thread.Start();
+		while (!finished) Thread.Sleep(1);
+        return logWnd;
+    }
 }

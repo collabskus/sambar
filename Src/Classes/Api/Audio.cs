@@ -27,8 +27,10 @@ public partial class Api
     const int SAMPLES_IN_TIME_SLICE = SAMPLE_RATE * TIME_SLICE / 1000;
     const int BYTES_IN_TIME_SLICE = SAMPLES_IN_TIME_SLICE * SAMPLE_WIDTH * (BITS / sizeof(byte));
 
-    WaveFormat waveFormat = new(SAMPLE_RATE, BITS, CHANNELS); 
-    WpfPlot plot = new();
+    WaveFormat waveFormat = new(SAMPLE_RATE, BITS, CHANNELS);
+    //WpfPlot plot = new();
+    WpfPlot plot;
+    System.Windows.Window? logWnd;
     private void AudioInit() 
     {
         systemAudioCapture.WaveFormat = waveFormat;
@@ -42,7 +44,12 @@ public partial class Api
         audioTimer.Start();
         
         // for logging only
-        Logger.NewWindow(plot);
+        logWnd = Logger.NewWindow();
+        logWnd?.Dispatcher.Invoke(() =>
+        {
+            plot = new();
+            logWnd.Content = plot;
+        });
     }
 
     private void AudioTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
