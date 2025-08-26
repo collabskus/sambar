@@ -28,7 +28,6 @@ public partial class Api
     const int BYTES_IN_TIME_SLICE = SAMPLES_IN_TIME_SLICE * SAMPLE_WIDTH * (BITS / sizeof(byte));
 
     WaveFormat waveFormat = new(SAMPLE_RATE, BITS, CHANNELS);
-    //WpfPlot plot = new();
     WpfPlot? plot;
     private void AudioInit() 
     {
@@ -43,15 +42,17 @@ public partial class Api
         audioTimer.Start();
 
         // for logging only
-        //(logWnd, UIElement? _plot) = Logger.NewWindow(typeof(WpfPlot));
-        //plot = (WpfPlot?)_plot;
         LoggerWindow logWnd = new(typeof(WpfPlot));
         plot = (WpfPlot?)logWnd.GetContent();
-        //logWnd?.Dispatcher.Invoke(() =>
-        //{
-        //    plot = new();
-        //    logWnd.Content = plot;
-        //});
+        Task.Run(async () =>
+        {
+            int i = 0;
+            while(true)
+            {
+                logWnd.Log($"testing {i++}");
+                await Task.Delay(1000);
+            }
+        });
     }
 
     private void AudioTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
