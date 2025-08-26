@@ -86,7 +86,7 @@ public class LoggerWindow
         thread.Start();
 	}
 
-	public UIElement? GetContent()
+	public FrameworkElement? GetContent()
 	{
 		while(!initialized) Thread.Sleep(1);
 		return content;
@@ -98,6 +98,15 @@ public class LoggerWindow
 		wnd?.Dispatcher.Invoke(() =>
 		{
             debugConsole.Text += "\n" + message;
+        });
+	}
+
+	public void SetContentProperty(Action<FrameworkElement?> contentPropertySetterLambda)
+	{
+		while(!initialized) Thread.Sleep(1);
+		wnd?.Dispatcher.Invoke(() => 
+		{
+            contentPropertySetterLambda(content);
         });
 	}
 }

@@ -11,6 +11,7 @@ using ScottPlot.WPF;
 using System.Windows;
 using FftSharp;
 using System.Numerics;
+using System.Windows.Media;
 
 namespace sambar;
 
