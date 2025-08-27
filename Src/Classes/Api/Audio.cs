@@ -12,6 +12,8 @@ using System.Windows;
 using FftSharp;
 using System.Numerics;
 using System.Windows.Media;
+using Colors = System.Windows.Media.Colors;
+using System.Collections.Immutable;
 
 namespace sambar;
 
@@ -42,18 +44,23 @@ public partial class Api
         audioTimer.Elapsed += AudioTimer_Elapsed;
         audioTimer.Start();
 
-        // for logging only
-        LoggerWindow logWnd = new(typeof(WpfPlot));
-        plot = (WpfPlot?)logWnd.GetContent();
-        Task.Run(async () =>
+        //for logging only
+        ThreadWindow _threadWnd = new(typeof(WpfPlot), wndInit: wnd =>
         {
-            int i = 0;
-            while(true)
-            {
-                logWnd.Log($"testing {i++}");
-                await Task.Delay(1000);
-            }
+            wnd.WindowStyle = WindowStyle.None;
+			wnd.AllowsTransparency = true;
+            wnd.Background = new SolidColorBrush(Colors.Transparent);
         });
+        plot = (WpfPlot?)_threadWnd.GetContent();
+        _threadWnd.SetContentProperty(content =>
+        {
+            WpfPlot _plot = (WpfPlot)content!;
+            _plot.Plot.FigureBackground = new() { Color = ScottPlot.Colors.Transparent };
+            _plot.Plot.Axes.Color(ScottPlot.Colors.Transparent);
+            _plot.Plot.Axes.FrameColor(ScottPlot.Colors.Transparent);
+            _plot.Plot.Grid.LineColor = ScottPlot.Colors.Transparent;
+        });
+        Utils.HideWindowInAltTab(_threadWnd.hWnd);
     }
 
     private void AudioTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)

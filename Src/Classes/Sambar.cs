@@ -30,14 +30,17 @@ namespace sambar;
 /// </summary>
 public partial class Sambar : Window
 {
-	private nint hWnd;
-	public static Api api;
+	public nint hWnd;
+	public static Api? api;
 	Config config;
 	string widgetPackName;
+	bool firstShow = true;
 	public Sambar(string widgetPackName, Config config)
 	{
-		// Initialize the api
-		api = new();
+		// Initialize the following in order
+        // 1. window 
+		// 2. api
+		// 3. widgets
 
 		this.Title = "Bar";
 		this.WindowStyle = WindowStyle.None;
@@ -46,17 +49,24 @@ public partial class Sambar : Window
 		this.widgetPackName = widgetPackName;
 		this.config = config;
 
-		// setting a copy of the config to the API
-		api.config = config;
-
-		SourceInitialized += (s, e) =>
+        // WPF event sequence
+        // https://memories3615.wordpress.com/2017/03/24/wpf-window-events-sequence/
+        SourceInitialized += (s, e) =>
 		{
 			hWnd = new WindowInteropHelper(this).Handle;
-			WindowInit();
-			AddWidgets();
+			WindowInit(); // needs hWnd
 		};
 
-		api.barWindow = this;
+		Activated += (s, e) => 
+		{ 
+			if(firstShow)
+			{
+                api = new(this);
+                api.config = config; //setting a copy of the config to the API 
+                AddWidgets();
+				firstShow = false;
+            }
+        };
 	}
 
 	bool barTransparent = false;
@@ -75,9 +85,13 @@ public partial class Sambar : Window
 
 		this.Background = Utils.BrushFromHex(config.backgroundColor);
 		if (this.Background.Equals(Colors.Transparent)) { barTransparent = true; }
-
+		
+		// Make bar a toolwindow (appear always on top)
+		// TODO: loses topmost to other windows when task manager is open
 		uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
 		User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, (int)(exStyles | (uint)sambar.WINDOWSTYLE.WS_EX_TOOLWINDOW));
+
+		Utils.HideWindowInAltTab(hWnd);
 
 		//Win32.SetWindowPos(hWnd, IntPtr.Zero, config.marginXLeft, config.marginYTop, config.width, config.height, 0x0400);
 		this.Width = config.width;

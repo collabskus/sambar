@@ -75,7 +75,7 @@ public class Menu : Window
 
 		Task.Run(async () =>
 		{
-            Sambar.api.barWindow.Dispatcher.Invoke(() => this.Show());
+            Sambar.api.bar.Dispatcher.Invoke(() => this.Show());
             await Task.Delay(200);
             Api.FOCUS_CHANGED_EVENT += MenuFocusChangedHandler;
         });
@@ -87,7 +87,7 @@ public class Menu : Window
 		if (isClosing) return;
 
 		Logger.Log($"MenuFocusChanged, name: {msg.name}, class: {msg.className}, controlType: {msg.controlType}");
-		if (msg.name == "Desktop") Sambar.api.barWindow.Dispatcher.Invoke(() => CustomClose());
+		if (msg.name == "Desktop") Sambar.api.bar.Dispatcher.Invoke(() => CustomClose());
 		// if cursor inside menu
 		User32.GetCursorPos(out POINT cursorPos);
 		if (cursorPos.X > _left && cursorPos.X < _right)
@@ -111,7 +111,7 @@ public class Menu : Window
 		if (!Sambar.api.capturedWindows.Select(_msg => _msg.className).Contains(msg.className))
 		{
 			Logger.Log($"Closing menu by losing focus to non-menu item: {msg.name}, {msg.className}");
-			Sambar.api.barWindow.Dispatcher.Invoke(() => CustomClose());
+			Sambar.api.bar.Dispatcher.Invoke(() => CustomClose());
 		}
 	}
 
@@ -136,7 +136,7 @@ public class ContextMenu : Menu
 	{
 		if (isClosing) return;
 
-        if(msg.name != "SambarContextMenu") Sambar.api.barWindow.Dispatcher.Invoke(() => CustomClose());
+        if(msg.name != "SambarContextMenu") Sambar.api.bar.Dispatcher.Invoke(() => CustomClose());
 		Logger.Log($"overriden focushandler, closing due to: {msg.name}");
 	}
 }

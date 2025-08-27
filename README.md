@@ -40,6 +40,10 @@ positions and colors are <ins>fully customizable</ins>. [dive in?](https://www.g
  3. `cd Src`
  4. `dotnet run`
 
+## Contributing
+
+PRs welcome !
+
 ## License
 
 This project is free to use, modify and distribute according to the MIT License.

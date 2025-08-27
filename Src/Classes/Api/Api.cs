@@ -19,8 +19,10 @@ public partial class Api
 {
 
 	public List<Task> initTasks = new();
-	public Api()
+	public Api(Sambar bar)
 	{
+		this.bar = bar;
+
 		EventsInit();
 		ToggleTaskbarInit();
 		WindowingInit();
@@ -41,7 +43,7 @@ public partial class Api
 	public Config config;
 
 	// instance of mainWindow
-	public Sambar barWindow;
+	public Sambar bar;
 
 	// IUIAutomation
 	CUIAutomation ui = new();

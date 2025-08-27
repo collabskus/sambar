@@ -174,6 +174,9 @@ public class User32
 
 	[DllImport("user32.dll", SetLastError = true)]
 	public extern static nint MonitorFromWindow(nint hWnd, uint dwFlags);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern nint SetParent(nint hWndChild, nint hWndNewParent);
 }
 
 public class Shell32

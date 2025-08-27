@@ -35,7 +35,7 @@ public class LoggerWindow
 	FrameworkElement? content;
 	TextBlock? debugConsole;
 	bool initialized = false;
-	public LoggerWindow(Type? contentType = null, params dynamic[] contentConstructorArgs)
+	public LoggerWindow(Type? contentType = null, dynamic[]? contentConstructorArgs = null, Action<Window>? wndInit = null)
 	{
         // window runs on a separate thread so that UI heavy updates dont
         // slow down the main UI thread.
@@ -44,6 +44,11 @@ public class LoggerWindow
             wnd = new();
             wnd.Width= 800;
             wnd.Height = 400;
+
+			//wnd.WindowStyle = WindowStyle.None;
+			//wnd.AllowsTransparency = true;
+			//wnd.Background = new SolidColorBrush(Colors.Transparent);
+			wndInit?.Invoke(wnd);
 
 			Grid grid = new();
 			RowDefinition _row1 = new() { Height = new GridLength(1, GridUnitType.Star) };
@@ -85,7 +90,8 @@ public class LoggerWindow
         thread.IsBackground = true;
         thread.Start();
 	}
-
+	
+	// to get a reference to the window's primary content to write to it
 	public FrameworkElement? GetContent()
 	{
 		while(!initialized) Thread.Sleep(1);
@@ -100,7 +106,8 @@ public class LoggerWindow
             debugConsole.Text += "\n" + message;
         });
 	}
-
+	
+	// to set the properties of windows primary content because it is owned by a separate thread
 	public void SetContentProperty(Action<FrameworkElement?> contentPropertySetterLambda)
 	{
 		while(!initialized) Thread.Sleep(1);

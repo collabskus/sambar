@@ -29,14 +29,21 @@ public partial class Api
         public void HandleFocusChangedEvent(IUIAutomationElement sender)
         {
             //Logger.Log($"focusChangedEvent, name: {sender.CurrentName}, windowClass: {sender.CurrentClassName}, type: {sender.CurrentItemType}");
-            FocusChangedMessage msg = new();
-            msg.className = sender.CurrentClassName;
-            msg.type = sender.CurrentItemType;
-            msg.name = sender.CurrentName;
-            msg.hWnd = sender.CurrentNativeWindowHandle;
-            msg.controlType = (ControlType)sender.CurrentControlType;
-            msg.sender = sender;
-            FOCUS_CHANGED_EVENT(msg);
+            try
+            {
+                FocusChangedMessage msg = new();
+                msg.className = sender.CurrentClassName;
+                msg.type = sender.CurrentItemType;
+                msg.name = sender.CurrentName;
+                msg.hWnd = sender.CurrentNativeWindowHandle;
+                msg.controlType = (ControlType)sender.CurrentControlType;
+                msg.sender = sender;
+                FOCUS_CHANGED_EVENT(msg);
+            }
+            catch(Exception ex)
+            {
+                Logger.Log($"UIAutomation, HandleFocusChangedEvent: {ex.Message}");
+            }
         }
     }
 
@@ -47,13 +54,20 @@ public partial class Api
         public void HandleStructureChangedEvent(IUIAutomationElement sender, StructureChangeType changeType, int[] runtimeId)
         {
             //Logger.Log($"structureChangedEvent, senderName: {sender.CurrentName}, class: {sender.CurrentClassName}, hWnd: {sender.CurrentNativeWindowHandle}, changeType: {changeType}");
-            StructureChangedMessage msg = new();
-            msg.className = sender.CurrentClassName;
-            msg.type = changeType;
-            msg.name = sender.CurrentName;
-            msg.hWnd = sender.CurrentNativeWindowHandle;
-            msg.controlType = (ControlType)sender.CurrentControlType;
-            STRUCTURE_CHANGED_EVENT(msg);
+            try
+            {
+                StructureChangedMessage msg = new();
+                msg.className = sender.CurrentClassName;
+                msg.type = changeType;
+                msg.name = sender.CurrentName;
+                msg.hWnd = sender.CurrentNativeWindowHandle;
+                msg.controlType = (ControlType)sender.CurrentControlType;
+                STRUCTURE_CHANGED_EVENT(msg);
+            }
+            catch(Exception ex)
+            {
+                Logger.Log($"UIAutomation, StructureChangedEventHandler: {ex.Message}");
+            }
         }
     }
     

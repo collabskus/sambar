@@ -350,6 +350,22 @@ public partial class Utils
 		Shcore.GetDpiForMonitor(hMon, MONITOR_DPI_TYPE.MDT_EFFECTIVE_DPI, out uint dpiX, out uint dpiY);
 		return dpiX / 96.0f;
 	}
+	
+	/// <summary>
+	/// Hides window in the alt-tab window by (ADDING the WS_EX_TOOLWINDOW) and 
+	/// (REMOVING the WS_EX_APPWINDOW) extended Styles
+	/// </summary>
+	/// <param name="hWnd"></param>
+	/// <returns></returns>
+	public static int HideWindowInAltTab(nint hWnd)
+	{
+		uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
+        return User32.SetWindowLong(
+			hWnd, 
+			(int)GETWINDOWLONG.GWL_EXSTYLE, 
+			(int)((exStyles | (uint)WINDOWSTYLE.WS_EX_TOOLWINDOW) & ~(uint)WINDOWSTYLE.WS_EX_APPWINDOW)
+		);
+	}
 }
 
 public class _Window
