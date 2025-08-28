@@ -19,7 +19,7 @@ public partial class Api
 {
 
 	public List<Task> initTasks = new();
-	public Api(Sambar bar)
+	internal Api(Sambar bar)
 	{
 		this.bar = bar;
 

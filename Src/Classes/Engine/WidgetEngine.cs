@@ -23,10 +23,11 @@ using System.Text;
 using System.Text.Json;
 using System.Net.Http;
 using Windows.UI.Composition;
+using ScottPlot.WPF;
 
 namespace sambar;
 
-public class WidgetLoader
+internal class WidgetLoader
 {
 	public List<Widget> widgets = new();
 
@@ -153,7 +154,9 @@ public class WidgetLoader
 		widgets.ForEach(
 			widget =>
 			{
-				layout.WidgetToContainerMap[widget.GetType().Name].Child = widget;
+				//layout.WidgetToContainerMap[widget.GetType().Name].Child = widget;
+				Border? border = layout?.WidgetToContainerMap.GetValueOrDefault(widget.GetType().Name);
+				if(border != null) border.Child = widget;
 			}
 		);
 
@@ -190,6 +193,7 @@ public class WidgetLoader
 			MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(HttpClient).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(DrawingAttributes).Assembly.Location),
+			MetadataReference.CreateFromFile(typeof(WpfPlot).Assembly.Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 		];
@@ -210,6 +214,7 @@ using System.Windows.Media;
 using System.Net.Http;
 using System.Windows.Ink;
 using Newtonsoft.Json;
+using ScottPlot.WPF;
 """;
 
         if(additionalDllsAndUsings != null)

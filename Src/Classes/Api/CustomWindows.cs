@@ -12,6 +12,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
+using ScottPlot.WPF;
 
 namespace sambar;
 
@@ -21,18 +22,35 @@ public partial class Api
     {
 
     }
+
+    public (ThreadWindow, WpfPlot) CreateAudioVisualizer(
+        Action<Window>? init = null,
+        int width = 800,
+        int height = 400
+    ) 
+    {
+        ThreadWindow threadWnd = new(init, width, height);
+        threadWnd.Run(() =>
+        {
+            audioVisPlot = new();
+            audioVisPlot.Plot.FigureBackground = new() { Color = ScottPlot.Colors.Transparent };
+            audioVisPlot.Plot.Axes.Color(ScottPlot.Colors.Transparent);
+            audioVisPlot.Plot.Axes.FrameColor(ScottPlot.Colors.Transparent);
+            audioVisPlot.Plot.Grid.LineColor = ScottPlot.Colors.Transparent;
+        });
+        Utils.HideWindowInAltTab(threadWnd.EnsureInitialized().hWnd);
+        return (threadWnd, audioVisPlot);
+    }
 }
 
 public class ThreadWindow
 {
-    Window? wnd;
+    public Window? wnd;
     public nint hWnd;
-    FrameworkElement? content;
+    public FrameworkElement? content;
     bool initialized = false;
-    public ThreadWindow(
-        Type? contentType = null, 
-        dynamic[]? contentConstructorArgs = null, 
-        Action<Window>? wndInit = null,
+    internal ThreadWindow(
+        Action<Window>? init = null,
         int width = 800,
         int height = 400
     ) 
@@ -42,18 +60,11 @@ public class ThreadWindow
             wnd = new();
             wnd.Width = width;
             wnd.Height = height;
-            wndInit?.Invoke(wnd);
-            if(contentType != null)
-            {
-                if (!contentType.IsSubclassOf(typeof(FrameworkElement))) return;
-                content = (FrameworkElement?)Activator.CreateInstance(contentType!, contentConstructorArgs);
-                wnd.Content = content;
-            }
-            initialized = true;
-
+            init?.Invoke(wnd);
             wnd.SourceInitialized += (s, e) =>
             {
                 hWnd = new WindowInteropHelper(wnd).EnsureHandle();
+                initialized = true;
             };
 
             wnd.Show();
@@ -65,20 +76,20 @@ public class ThreadWindow
         thread.Start();
     }
 
-    // to get a reference to the window's primary content to write to it
-	public FrameworkElement? GetContent()
-	{
+    public ThreadWindow EnsureInitialized()
+    {
 		while(!initialized) Thread.Sleep(1);
-		return content;
-	}
+        return this;
+    }
 
-    // to set the properties of windows primary content because it is owned by a separate thread
-	public void SetContentProperty(Action<FrameworkElement?> contentPropertySetterLambda)
-	{
+    public void Run(Action runLambda)
+    {
 		while(!initialized) Thread.Sleep(1);
-		wnd?.Dispatcher.Invoke(() => 
-		{
-            contentPropertySetterLambda(content);
+        wnd?.Dispatcher.Invoke(() => 
+        {
+            runLambda();
         });
-	}
+    }
 }
+
+

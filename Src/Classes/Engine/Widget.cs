@@ -25,7 +25,7 @@ public class Widget : Border
 	}
 
 	Config config;
-	public Widget()
+	protected Widget()
 	{
 		this.HorizontalAlignment = HorizontalAlignment.Left;
 		config = Sambar.api.config;

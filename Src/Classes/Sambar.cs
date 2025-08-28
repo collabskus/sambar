@@ -35,7 +35,7 @@ public partial class Sambar : Window
 	Config config;
 	string widgetPackName;
 	bool firstShow = true;
-	public Sambar(string widgetPackName, Config config)
+	internal Sambar(string widgetPackName, Config config)
 	{
 		// Initialize the following in order
         // 1. window 

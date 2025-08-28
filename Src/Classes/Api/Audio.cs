@@ -31,7 +31,7 @@ public partial class Api
     const int BYTES_IN_TIME_SLICE = SAMPLES_IN_TIME_SLICE * SAMPLE_WIDTH * (BITS / sizeof(byte));
 
     WaveFormat waveFormat = new(SAMPLE_RATE, BITS, CHANNELS);
-    WpfPlot? plot;
+    WpfPlot audioVisPlot;
     private void AudioInit() 
     {
         systemAudioCapture.WaveFormat = waveFormat;
@@ -45,22 +45,26 @@ public partial class Api
         audioTimer.Start();
 
         //for logging only
-        ThreadWindow _threadWnd = new(typeof(WpfPlot), wndInit: wnd =>
-        {
-            wnd.WindowStyle = WindowStyle.None;
-			wnd.AllowsTransparency = true;
-            wnd.Background = new SolidColorBrush(Colors.Transparent);
-        });
-        plot = (WpfPlot?)_threadWnd.GetContent();
-        _threadWnd.SetContentProperty(content =>
-        {
-            WpfPlot _plot = (WpfPlot)content!;
-            _plot.Plot.FigureBackground = new() { Color = ScottPlot.Colors.Transparent };
-            _plot.Plot.Axes.Color(ScottPlot.Colors.Transparent);
-            _plot.Plot.Axes.FrameColor(ScottPlot.Colors.Transparent);
-            _plot.Plot.Grid.LineColor = ScottPlot.Colors.Transparent;
-        });
-        Utils.HideWindowInAltTab(_threadWnd.hWnd);
+        //ThreadWindow threadWnd = new(
+        //    init: wnd =>
+        //    {
+        //        wnd.WindowStyle = WindowStyle.None;
+        //        wnd.AllowsTransparency = true;
+        //        wnd.Background = new SolidColorBrush(Colors.Transparent);
+        //    }
+        //);
+        ////plot = (WpfPlot?)_threadWnd.GetContent();
+        //threadWnd.Run(() =>
+        //{
+        //    threadWnd.EnsureInitialized().wnd!.Content = audioVisPlot = new();
+
+        //    audioVisPlot.Plot.FigureBackground = new() { Color = ScottPlot.Colors.Transparent };
+        //    audioVisPlot.Plot.Axes.Color(ScottPlot.Colors.Transparent);
+        //    audioVisPlot.Plot.Axes.FrameColor(ScottPlot.Colors.Transparent);
+        //    audioVisPlot.Plot.Grid.LineColor = ScottPlot.Colors.Transparent;
+        //});
+        //Utils.HideWindowInAltTab(threadWnd.EnsureInitialized().hWnd);
+        //CreateAudioVisualizer();
     }
 
     private void AudioTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
@@ -105,8 +109,8 @@ public partial class Api
 
         // frequency plot
         double signalPeriod = 1.0f / ((double)frequencyWeights.Length / SAMPLE_RATE);
-        plot.Plot.Axes.SetLimitsY(0, 0.3);
-        plot.Plot.Axes.SetLimitsX(0, 20000);
+        audioVisPlot?.Plot.Axes.SetLimitsY(0, 0.3);
+        audioVisPlot?.Plot.Axes.SetLimitsX(0, 20000);
         //plot.Plot.Axes.AutoScale();
         UpdateScottPlot(frequencyWeights, signalPeriod);
     }
@@ -119,9 +123,9 @@ public partial class Api
         if(firstRender)
         {
             firstRender = false;
-            plot.Plot.Add.Signal(this.signalData, signalPeriod);
+            audioVisPlot?.Plot.Add.Signal(this.signalData, signalPeriod);
         }
-        plot.Refresh();
+        audioVisPlot?.Refresh();
     } 
 
     private static void MorphListIntoArray<T>(T[] array, List<T> list)
