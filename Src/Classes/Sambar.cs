@@ -33,7 +33,7 @@ public partial class Sambar : Window
 	public nint hWnd;
 	public static Api? api;
 	Config config;
-	string widgetPackName;
+	public string widgetPackName;
 	bool firstShow = true;
 	internal Sambar(string widgetPackName, Config config)
 	{
@@ -109,7 +109,7 @@ public partial class Sambar : Window
 	public async void AddWidgets()
 	{
 		// the api has some blocking init tasks (looking at you glazewm) in the constructor that widgets might request, so only load the widgets once they are finished
-		await Task.WhenAll(api.initTasks);
-		WidgetLoader widgetLoader = new(widgetPackName, this);
+		await Task.WhenAll(api!.initTasks);
+		WidgetLoader widgetLoader = new(/*widgetPackName, this*/);
 	}
 }

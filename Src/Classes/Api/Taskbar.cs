@@ -266,6 +266,7 @@ public class TaskbarInterceptor
 	}
 }
 
+// TODO: use IUIAutomation for Windows Defender Context Menu
 public class TrayIcon
 {
 	public NOTIFYICONDATA nid;

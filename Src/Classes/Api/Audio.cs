@@ -43,28 +43,6 @@ public partial class Api
         System.Timers.Timer audioTimer = new(TIME_SLICE);
         audioTimer.Elapsed += AudioTimer_Elapsed;
         audioTimer.Start();
-
-        //for logging only
-        //ThreadWindow threadWnd = new(
-        //    init: wnd =>
-        //    {
-        //        wnd.WindowStyle = WindowStyle.None;
-        //        wnd.AllowsTransparency = true;
-        //        wnd.Background = new SolidColorBrush(Colors.Transparent);
-        //    }
-        //);
-        ////plot = (WpfPlot?)_threadWnd.GetContent();
-        //threadWnd.Run(() =>
-        //{
-        //    threadWnd.EnsureInitialized().wnd!.Content = audioVisPlot = new();
-
-        //    audioVisPlot.Plot.FigureBackground = new() { Color = ScottPlot.Colors.Transparent };
-        //    audioVisPlot.Plot.Axes.Color(ScottPlot.Colors.Transparent);
-        //    audioVisPlot.Plot.Axes.FrameColor(ScottPlot.Colors.Transparent);
-        //    audioVisPlot.Plot.Grid.LineColor = ScottPlot.Colors.Transparent;
-        //});
-        //Utils.HideWindowInAltTab(threadWnd.EnsureInitialized().hWnd);
-        //CreateAudioVisualizer();
     }
 
     private void AudioTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)

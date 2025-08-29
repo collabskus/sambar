@@ -9,7 +9,8 @@
 		btn.Height = Theme.BUTTON_HEIGHT;
 		btn.Width = Theme.BUTTON_WIDTH;
 		//btn.ImageSrc = "C:\\Users\\Jayakuttan\\Downloads\\wireless-16.ico";
-		btn.ImageSrc = @"C:\Users\Jayakuttan\dev\sambar\Src\WidgetPacks\Base\assets\wifi.svg";
+		//btn.ImageSrc = @"C:\Users\Jayakuttan\dev\sambar\Src\WidgetPacks\Base\assets\wifi.svg";
+		btn.ImageSrc = Path.Join(Paths.assetsFolder, "wifi.svg");
 		btn.IconWidth = 16;
 		btn.IconHeight = 16;
 		btn.FontFamily = Theme.FONT_FAMILY;

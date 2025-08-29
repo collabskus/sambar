@@ -33,8 +33,10 @@ internal class WidgetLoader
 
 	Dictionary<string, string> widgetToDllMap = new();
 
-	public WidgetLoader(string widgetPackName, Window window)
+	public WidgetLoader(/*Sambar bar*/)
 	{
+		string? widgetPackName = Sambar.api?.bar.widgetPackName;
+
 		var files = new DirectoryInfo(Path.Join(Paths.widgetPacksFolder, widgetPackName)).GetFiles();
 		var widgetFiles = files.Where(file => file.Name.EndsWith(".widget.cs")).ToList();
 		var cachedDlls = new DirectoryInfo(Paths.dllFolder).GetFiles();
@@ -111,7 +113,7 @@ internal class WidgetLoader
 		Layout layout = (Layout)Activator.CreateInstance(layoutType);
 
 		// IMPORTANT
-		window.Content = layout?.Container;
+		Sambar.api!.bar.Content = layout?.Container;
 
 		widgetFilesToCompile
 			.ForEach(
@@ -194,6 +196,7 @@ internal class WidgetLoader
 			MetadataReference.CreateFromFile(typeof(HttpClient).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(DrawingAttributes).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(WpfPlot).Assembly.Location),
+			MetadataReference.CreateFromFile(typeof(ScottPlot.Colors).Assembly.Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 		];
@@ -202,6 +205,7 @@ internal class WidgetLoader
 """
 using sambar;
 using System;
+using System.IO;
 using System.Linq;
 using System.Diagnostics;
 using System.Threading;
@@ -215,6 +219,7 @@ using System.Net.Http;
 using System.Windows.Ink;
 using Newtonsoft.Json;
 using ScottPlot.WPF;
+using ScottColors = ScottPlot.Colors;
 """;
 
         if(additionalDllsAndUsings != null)
