@@ -199,6 +199,7 @@ internal class WidgetLoader
 			MetadataReference.CreateFromFile(typeof(DrawingAttributes).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(WpfPlot).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(ScottPlot.Colors).Assembly.Location),
+			MetadataReference.CreateFromFile(typeof(ScottPlot.Plottables.Signal).Assembly.Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 		];
@@ -222,6 +223,7 @@ using System.Windows.Ink;
 using Newtonsoft.Json;
 using ScottPlot.WPF;
 using ScottColors = ScottPlot.Colors;
+using ScottPlot.Plottables;
 """;
 
         if(additionalDllsAndUsings != null)

@@ -14,6 +14,7 @@ using System.Numerics;
 using System.Windows.Media;
 using Colors = System.Windows.Media.Colors;
 using System.Collections.Immutable;
+using ScottPlot.Plottables;
 
 namespace sambar;
 
@@ -31,7 +32,9 @@ public partial class Api
     const int BYTES_IN_TIME_SLICE = SAMPLES_IN_TIME_SLICE * SAMPLE_WIDTH * (BITS / sizeof(byte));
 
     WaveFormat waveFormat = new(SAMPLE_RATE, BITS, CHANNELS);
+    // initialized in CreateAudioVisualizer()
     WpfPlot audioVisPlot;
+    Signal audioSignal;
     private void AudioInit() 
     {
         systemAudioCapture.WaveFormat = waveFormat;
@@ -97,11 +100,13 @@ public partial class Api
     List<double> signalData = new();
     private void UpdateScottPlot(double[] signalData, double signalPeriod)
     {
+        // WpfPlot holds a reference to "this.signalData", so just update it
         MorphListIntoArray<double>(signalData, this.signalData);
         if(firstRender)
         {
             firstRender = false;
-            audioVisPlot?.Plot.Add.Signal(this.signalData, signalPeriod);
+            //audioSignal = audioVisPlot!.Plot.Add.Signal(this.signalData, signalPeriod);
+            audioSignal.Data.Period = signalPeriod;
         }
         audioVisPlot?.Refresh();
     } 

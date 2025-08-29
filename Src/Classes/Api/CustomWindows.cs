@@ -13,7 +13,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
+using ScottPlot;
 using ScottPlot.WPF;
+using WinRT;
+using ScottPlot.Plottables;
 
 namespace sambar;
 
@@ -24,23 +27,27 @@ public partial class Api
 
     }
 
-    public (ThreadWindow, WpfPlot) CreateAudioVisualizer(
+    public (ThreadWindow, WpfPlot, Signal) CreateAudioVisualizer(
         Action<Window>? init = null,
         int width = 400,
         int height = 200 
     ) 
     {
         ThreadWindow threadWnd = new(init, width, height);
+        bool initialized = false;
         threadWnd.Run(() =>
         {
             audioVisPlot = new();
+            audioSignal = audioVisPlot!.Plot.Add.Signal(this.signalData);
             // WpfPlot does not automatically get its dimensions when inside a container like
             // stackpanel or border, therefore width and height must be set manually
             audioVisPlot.Height = 100;
             audioVisPlot.Width = 200;
+            initialized = true;
         });
         Utils.HideWindowInAltTab(threadWnd.EnsureInitialized().hWnd);
-        return (threadWnd, audioVisPlot);
+        while (!initialized) Thread.Sleep(1);
+        return (threadWnd, audioVisPlot, audioSignal);
     }
 }
 
