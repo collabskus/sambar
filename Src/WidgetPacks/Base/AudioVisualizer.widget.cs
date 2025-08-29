@@ -19,12 +19,11 @@
             Border pltBorder = new();
 
             signal.LineWidth = 2;
+            plt.Plot.Layout.Frameless();
             plt.Plot.FigureBackground = new() { Color = ScottColors.Transparent };
             plt.Plot.Axes.Color(ScottColors.Transparent);
             plt.Plot.Axes.FrameColor(ScottColors.Transparent);
             plt.Plot.Grid.LineColor = ScottColors.Transparent;
-            //plt.Width = 200;
-            //plt.Height = 100;
 
             pltBorder.BorderBrush = new SolidColorBrush(Colors.Red);
             pltBorder.BorderThickness = new(2);
