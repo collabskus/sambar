@@ -110,6 +110,6 @@ public partial class Sambar : Window
 	{
 		// the api has some blocking init tasks (looking at you glazewm) in the constructor that widgets might request, so only load the widgets once they are finished
 		await Task.WhenAll(api!.initTasks);
-		WidgetLoader widgetLoader = new(/*widgetPackName, this*/);
+		WidgetLoader widgetLoader = new();
 	}
 }

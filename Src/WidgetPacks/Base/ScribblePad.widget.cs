@@ -2,7 +2,7 @@
 {
 	InkCanvas inkCanvas = new();
 	RoundedButton btn = new();
-	public ScribblePad()
+	public ScribblePad(WidgetEnv ENV): base(ENV)
 	{
 		DrawingAttributes drawingAttributes = new();
 		drawingAttributes.Color = Colors.White;

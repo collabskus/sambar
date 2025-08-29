@@ -2,7 +2,7 @@ public class Workspaces : Widget
 {
 	List<Workspace> workspaces = new();
 	List<RoundedButton> buttons = new();
-	public Workspaces()
+	public Workspaces(WidgetEnv ENV): base(ENV)
 	{
 		workspaces = Sambar.api.workspaces;
 

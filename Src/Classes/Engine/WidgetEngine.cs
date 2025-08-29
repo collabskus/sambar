@@ -33,7 +33,8 @@ internal class WidgetLoader
 
 	Dictionary<string, string> widgetToDllMap = new();
 
-	public WidgetLoader(/*Sambar bar*/)
+    WidgetImports? imports = null;
+	public WidgetLoader()
 	{
 		string? widgetPackName = Sambar.api?.bar.widgetPackName;
 
@@ -43,7 +44,6 @@ internal class WidgetLoader
 
 		// read imports file and add widgets if any
 		string importsFile = Path.Join(Paths.widgetPacksFolder, widgetPackName, ".imports.cs");
-		WidgetImports? imports = null;
 		if (Path.Exists(importsFile))
 		{
 			imports = GetObjectFromScript<WidgetImports>(importsFile);
@@ -145,7 +145,9 @@ internal class WidgetLoader
 			var assembly = Assembly.LoadFile(widgetName.Value);
 			Type[] typesInAssembly = assembly.GetTypes();
 			Type widgetType = typesInAssembly.Where(type => type.IsSubclassOf(typeof(Widget))).First();
-			Widget widget = (Widget)Activator.CreateInstance(widgetType);
+			// prepare the ENV VARS for widget
+			WidgetEnv env = PrepareEnvVarsForWidget(widgetName.Key);
+			Widget widget = (Widget)Activator.CreateInstance(widgetType, [env])!;
 			if (widget != null) { widgets.Add(widget); }
 		}
 
@@ -315,6 +317,21 @@ using ScottColors = ScottPlot.Colors;
 		_t.Join();
 		return obj;
 	}
+
+	public WidgetEnv PrepareEnvVarsForWidget(string widgetName)
+	{
+		WidgetEnv env = new();
+		if(imports == null)
+		{
+			env.ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, Sambar.api!.bar.widgetPackName, "assets");
+            return env;
+		}
+		if(imports!.widgets.Contains(widgetName))
+		{
+			env.ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, imports.importsPack, "assets");
+        }
+        return env;
+    }
 
 }
 

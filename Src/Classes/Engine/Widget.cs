@@ -25,9 +25,17 @@ public class Widget : Border
 	}
 
 	Config config;
-	protected Widget()
+	WidgetEnv ENV;
+	protected Widget(WidgetEnv ENV)
 	{
 		this.HorizontalAlignment = HorizontalAlignment.Left;
 		config = Sambar.api.config;
+
+		this.ENV = ENV;
 	}
 }
+
+public class WidgetEnv
+{
+	public string ASSETS_FOLDER;
+} 

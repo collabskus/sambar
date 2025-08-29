@@ -1,6 +1,6 @@
 ﻿public class AudioVisualizer: Widget
 {
-    public AudioVisualizer()
+    public AudioVisualizer(WidgetEnv ENV): base(ENV)
     {
         (ThreadWindow t_wnd, WpfPlot plt) = Sambar.api.CreateAudioVisualizer(
             init: wnd =>

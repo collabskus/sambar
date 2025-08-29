@@ -1,6 +1,6 @@
 public class HideTaskbar : Widget
 {
-    public HideTaskbar() : base()
+    public HideTaskbar(WidgetEnv ENV): base(ENV)
     {
         RoundedButton btn = new();
         

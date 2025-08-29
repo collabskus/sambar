@@ -3,7 +3,7 @@ public class TaskbarApps : Widget
 	StackPanel panel = new();
 	RunningApp focusedApp;
 	
-	public TaskbarApps()
+	public TaskbarApps(WidgetEnv ENV): base(ENV)
 	{
 		panel.Orientation = Orientation.Horizontal;
 		panel.VerticalAlignment = VerticalAlignment.Center;

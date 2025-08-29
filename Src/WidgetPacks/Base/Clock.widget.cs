@@ -3,7 +3,7 @@ public class Clock: Widget
 {
     TextBlock textBlock = new();
 
-    public Clock()
+    public Clock(WidgetEnv ENV): base(ENV)
     {
         textBlock.Foreground = Theme.TEXT_COLOR;
         textBlock.FontFamily = Theme.FONT_FAMILY;

@@ -1,6 +1,8 @@
-﻿public class StartButton : Widget
+﻿using System.IO;
+
+public class StartButton : Widget
 {
-	public StartButton()
+	public StartButton(WidgetEnv ENV): base(ENV)
 	{
 		RoundedButton btn = new();
 		btn.Height = 16;
@@ -11,7 +13,7 @@
 		btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
 		btn.FontFamily = Theme.FONT_FAMILY;
 		btn.HoverEffect = false;
-		btn.ImageSrc = @"C:\Users\Jayakuttan\dev\sambar\Src\WidgetPacks\Base\assets\start.svg";
+		btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "start.svg"); 
 		btn.MouseDown += ButtonMouseDown;
 		this.Content = btn;
 	}
