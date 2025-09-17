@@ -72,6 +72,7 @@ public partial class Api
 	/// <summary>
 	/// Live task for constantly monitoring current taskbar apps
 	/// </summary>
+	List<RunningApp> _old_runningApps = new();
 	public void MonitorTaskbarApps()
 	{
 		Task.Run(async () =>
@@ -79,8 +80,14 @@ public partial class Api
 			while (true)
 			{
 				RefreshRunningApps();
-				if (runningApps != null) TASKBAR_APPS_EVENT(runningApps);
-				await Task.Delay(100);
+				// wpf ui rendering is expensive, therefore only fire when new apps actually 
+				// have appeared
+				if (runningApps != null && runningApps.Count != _old_runningApps.Count)
+				{
+                    TASKBAR_APPS_EVENT(runningApps);
+                    _old_runningApps = runningApps.ToList();
+                }
+                await Task.Delay(100);
 				//Logger.Log($"MONITORING TASKBAR APPS");
 			}
 		}, _mta_cts.Token);

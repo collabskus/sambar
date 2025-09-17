@@ -38,7 +38,8 @@ public partial class Api
         threadWnd.Run(() =>
         {
             audioVisPlot = new();
-            audioSignal = audioVisPlot!.Plot.Add.Signal(this.signalData);
+            //audioSignal = audioVisPlot!.Plot.Add.Signal(this.signalData);
+            audioSignal = FilledSignal.AddFilledSignalToPlot(this.audioVisPlot, this.signalData);
             // WpfPlot does not automatically get its dimensions when inside a container like
             // stackpanel or border, therefore width and height must be set manually
             audioVisPlot.Height = 100;
