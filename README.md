@@ -48,10 +48,10 @@ Read the [docs](https://github.com/TheAjaykrishnanR/sambar/blob/master/Docs/Land
 
 Sambar wouldnt have been possible without the existence of all the libraries it depends on.
 Thanks to :
- 1. NAudio
- 2. Newtonsoft.Json
- 3. ScottPlot
- 4. SkiaSharp
+ 1. `NAudio`
+ 2. `Newtonsoft.Json`
+ 3. `ScottPlot`
+ 4. `SkiaSharp`
 
 ## Contributing
 
