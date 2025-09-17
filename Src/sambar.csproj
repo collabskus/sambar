@@ -34,7 +34,6 @@
     <PackageReference Include="SharpVectors.Wpf" Version="1.8.4.2" />
     <PackageReference Include="SkiaSharp.Views.WPF" Version="3.119.0" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.6" />
-    <PackageReference Include="Tmds.ExecFunction" Version="0.8.0" />
   </ItemGroup>
 
   <ItemGroup>

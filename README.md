@@ -40,6 +40,19 @@ positions and colors are <ins>fully customizable</ins>. [dive in?](https://githu
  3. `cd Src`
  4. `dotnet run`
 
+## Documentation
+
+Read the [docs](https://github.com/TheAjaykrishnanR/sambar/blob/master/Docs/Landing.md) here.
+
+## Acknowledgements
+
+Sambar wouldnt have been possible without the existence of all the libraries it depends on.
+Thanks to :
+ 1. NAudio
+ 2. Newtonsoft.Json
+ 3. ScottPlot
+ 4. SkiaSharp
+
 ## Contributing
 
 PRs welcome !
