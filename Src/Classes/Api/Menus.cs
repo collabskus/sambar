@@ -25,7 +25,7 @@ public partial class Api
 		int y = Sambar.api.config.marginYTop + Sambar.api.config.height + 5;
 
 		x = (int)(x / Sambar.scale);
-		y = (int)(y / Sambar.scale);
+		//y = (int)(y / Sambar.scale);
 
 		Menu menu = new(x, y, width, height);
 		return menu;
@@ -90,7 +90,14 @@ public class Menu : Window
 		if (isClosing) return;
 
 		Logger.Log($"MenuFocusChanged, name: {msg.name}, class: {msg.className}, controlType: {msg.controlType}");
-		if (msg.name == "Desktop") Sambar.api.bar.Dispatcher.Invoke(() => CustomClose());
+		if (
+			msg.name == "Desktop" ||
+			msg.className == "Progman"
+		)
+		{
+			Sambar.api.bar.Dispatcher.Invoke(() => CustomClose());
+			return;
+		}
 		// if cursor inside menu
 		User32.GetCursorPos(out POINT cursorPos);
 		if (cursorPos.X > _left && cursorPos.X < _right)
@@ -110,7 +117,7 @@ public class Menu : Window
 		if (Utils.IsContextMenu(msg.hWnd)) return;
 		// wait for trayIconMenuChildren to get filled if icon children havent been retrieved
 		// and also wait so that focus changed event is not consumed when menu it is opening
-		await Task.Delay(Sambar.api.WINDOW_CAPTURE_DURATION);
+		await Task.Delay(Sambar.api!.WINDOW_CAPTURE_DURATION);
 		if (!Sambar.api.capturedWindows.Select(_msg => _msg.className).Contains(msg.className))
 		{
 			Logger.Log($"Closing menu by losing focus to non-menu item: {msg.name}, {msg.className}");

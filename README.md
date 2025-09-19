@@ -32,13 +32,21 @@ positions and colors are <ins>fully customizable</ins>. [dive in?](https://githu
 ## Requirements
 
  1. Windows 11 build 26100+
+ 2. .NET 9 Desktop Runtime (if you aren't running the self-contained version), download and install it from [here](https://dotnet.microsoft.com/en-us/download/dotnet/9.0/runtime)
 
 ## Building
 
  1. Download and Install .NET 9 SDK
  2. `git clone https://github.com/TheAjaykrishnanR/sambar`
  3. `cd Src`
- 4. `dotnet run`
+ 4. `dotnet build`
+
+### To publish a self contained executable:
+
+ 1. `cd Src`
+ 2. `dotnet publish -r win-x64 -p:PublishSingleFile=true --self-contained -c Release`
+
+You can find the executable at `bin\Release\net*\win-x64\publish`
 
 ## Documentation
 
