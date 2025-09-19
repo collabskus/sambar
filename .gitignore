@@ -11,3 +11,4 @@
 *.log
 *.zip
 *.tar*
+/builds

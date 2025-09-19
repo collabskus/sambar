@@ -1,4 +1,12 @@
+mkdir builds
 cd Src
-dotnet publish -r win-x64 -p:PublishSingleFile=true --self-contained -c Release
-cp Src\WidgetPacks Src\bin\Release\net*\win-x64\publish
-Compress-Archive -Path Src\bin\Release\net*\win-x64\publish -DestinationPath Sambar-0.1.zip
+
+# light
+dotnet publish -r win-x64
+cp -r WidgetPacks\* bin\Release\net9.0-windows10.0.26100.0\win-x64\publish\WidgetPacks
+Compress-Archive -Path bin\Release\net9.0-windows10.0.26100.0\win-x64\publish\* -DestinationPath ..\builds\Sambar-0.1.zip
+
+# self-contained
+# dotnet publish -r win-x64 -p:PublishSingleFile=true --self-contained -c Release
+# Compress-Archive -Path bin\Release\net9.0-windows10.0.26100.0\win-x64\publish\* -DestinationPath ..\builds\Sambar-0.1-self-contained.zip
+
