@@ -24,18 +24,21 @@ public partial class Api
 		x = x < Sambar.api.config.marginXLeft ? Sambar.api.config.marginXLeft : x;
 		int y = Sambar.api.config.marginYTop + Sambar.api.config.height + 5;
 
+		x = (int)(x / Sambar.scale);
+		y = (int)(y / Sambar.scale);
+
 		Menu menu = new(x, y, width, height);
 		return menu;
 	}
-	
+
 	// context menu with menubuttons
-	public Menu CreateContextMenu(List<MenuButton> items) 
+	public Menu CreateContextMenu(List<MenuButton> items)
 	{
 		User32.GetCursorPos(out POINT pt);
-		ContextMenu menu = new(pt.X, pt.Y, 100, items.Count*30);
+		ContextMenu menu = new((int)(pt.X / Sambar.scale), (int)(pt.Y / Sambar.scale), 100, items.Count * 30);
 		StackPanel panel = new();
 		panel.Orientation = Orientation.Vertical;
-		foreach(var item in items)
+		foreach (var item in items)
 		{
 			panel.Children.Add(item);
 		}
@@ -75,10 +78,10 @@ public class Menu : Window
 
 		Task.Run(async () =>
 		{
-            Sambar.api.bar.Dispatcher.Invoke(() => this.Show());
-            await Task.Delay(200);
-            Api.FOCUS_CHANGED_EVENT += MenuFocusChangedHandler;
-        });
+			Sambar.api.bar.Dispatcher.Invoke(() => this.Show());
+			await Task.Delay(200);
+			Api.FOCUS_CHANGED_EVENT += MenuFocusChangedHandler;
+		});
 	}
 
 	public bool isClosing = false;
@@ -122,26 +125,26 @@ public class Menu : Window
 	public void CustomClose()
 	{
 		isClosing = true;
-        this.Close(); 
+		this.Close();
 	}
 }
 
 public class ContextMenu : Menu
 {
-    public ContextMenu(int x, int y, int width, int height) : base(x, y, width, height)
-    {
-    }
+	public ContextMenu(int x, int y, int width, int height) : base(x, y, width, height)
+	{
+	}
 
-	public override async void MenuFocusChangedHandler(FocusChangedMessage msg) 
+	public override async void MenuFocusChangedHandler(FocusChangedMessage msg)
 	{
 		if (isClosing) return;
 
-        if(msg.name != "SambarContextMenu") Sambar.api.bar.Dispatcher.Invoke(() => CustomClose());
+		if (msg.name != "SambarContextMenu") Sambar.api.bar.Dispatcher.Invoke(() => CustomClose());
 		Logger.Log($"overriden focushandler, closing due to: {msg.name}");
 	}
 }
 
-public class MenuButton: RoundedButton
+public class MenuButton : RoundedButton
 {
 	public MenuButton(string text)
 	{

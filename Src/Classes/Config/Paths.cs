@@ -15,17 +15,20 @@ public class Paths
 	public static readonly string dllFolder = Path.Join(rootFolder, "_.dll");
 	public static readonly string configDll = Path.Join(dllFolder, ".config.dll");
 	public static readonly string hashesFile = Path.Join(dllFolder, "hashes.json");
+	public static readonly string logFile = Path.Join(rootFolder, "sambar.log");
 
 	// need to be set by once widgetPack is determined 
-	public static string assetsFolder { 
-		get 
+	public static string assetsFolder
+	{
+		get
 		{
 			return Path.Combine(widgetPacksFolder, Sambar.api!.bar.widgetPackName, "assets");
-		} 
+		}
 	}
 
-	internal static void CreateIfAbsent() {
-		if(!File.Exists(widgetPacksFolder)) Directory.CreateDirectory(widgetPacksFolder);
-		if(!File.Exists(dllFolder)) Directory.CreateDirectory(dllFolder);
+	internal static void CreateIfAbsent()
+	{
+		if (!File.Exists(widgetPacksFolder)) Directory.CreateDirectory(widgetPacksFolder);
+		if (!File.Exists(dllFolder)) Directory.CreateDirectory(dllFolder);
 	}
 }

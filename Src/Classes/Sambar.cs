@@ -38,7 +38,7 @@ public partial class Sambar : Window
 	internal Sambar(string widgetPackName, Config config)
 	{
 		// Initialize the following in order
-        // 1. window 
+		// 1. window 
 		// 2. api
 		// 3. widgets
 
@@ -49,26 +49,27 @@ public partial class Sambar : Window
 		this.widgetPackName = widgetPackName;
 		this.config = config;
 
-        // WPF event sequence
-        // https://memories3615.wordpress.com/2017/03/24/wpf-window-events-sequence/
-        SourceInitialized += (s, e) =>
+		// WPF event sequence
+		// https://memories3615.wordpress.com/2017/03/24/wpf-window-events-sequence/
+		SourceInitialized += (s, e) =>
 		{
 			hWnd = new WindowInteropHelper(this).Handle;
 			WindowInit(); // needs hWnd
 		};
 
-		Activated += (s, e) => 
-		{ 
-			if(firstShow)
+		Activated += (s, e) =>
+		{
+			if (firstShow)
 			{
-                api = new(this);
-                api.config = config; //setting a copy of the config to the API 
-                AddWidgets();
+				api = new(this);
+				api.config = config; //setting a copy of the config to the API 
+				AddWidgets();
 				firstShow = false;
-            }
-        };
+			}
+		};
 	}
 
+	public static double scale;
 	bool barTransparent = false;
 	public void WindowInit()
 	{
@@ -76,7 +77,7 @@ public partial class Sambar : Window
 		int screenHeight = User32.GetSystemMetrics(1);
 
 		// get the scalefactor of the primary monitor
-		double scale = Utils.GetDisplayScaling();
+		scale = Utils.GetDisplayScaling();
 		Logger.Log($"Scale factor: {scale}");
 		screenWidth = (int)(screenWidth / scale);
 		screenHeight = (int)(screenHeight / scale);
@@ -85,7 +86,7 @@ public partial class Sambar : Window
 
 		this.Background = Utils.BrushFromHex(config.backgroundColor);
 		if (this.Background.Equals(Colors.Transparent)) { barTransparent = true; }
-		
+
 		// Make bar a toolwindow (appear always on top)
 		// TODO: loses topmost to other windows when task manager is open
 		uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
@@ -102,7 +103,7 @@ public partial class Sambar : Window
 		Logger.Log($"this.Width: {config.width}");
 
 		int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
-		if (!barTransparent && config.roundedCorners) 
+		if (!barTransparent && config.roundedCorners)
 			Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
 	}
 
