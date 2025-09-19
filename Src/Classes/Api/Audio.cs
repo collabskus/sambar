@@ -61,7 +61,7 @@ public partial class Api
 				systemAudioCapture.DataAvailable += SystemAudioCapture_DataAvailable;
 				systemAudioCapture.StartRecording();
 			}
-			Logger.Log($"Audio Playing ... ");
+			//Logger.Log($"Audio Playing ... ");
 		}
 		else
 		{
@@ -70,7 +70,7 @@ public partial class Api
 				systemAudioCapture.StopRecording();
 				systemAudioCapture.DataAvailable -= SystemAudioCapture_DataAvailable;
 			}
-			Logger.Log($"Audio Stopped... ");
+			//Logger.Log($"Audio Stopped... ");
 		}
 	}
 
