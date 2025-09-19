@@ -38,6 +38,7 @@ public partial class Api
 	// initialized in CreateAudioVisualizer()
 	WpfPlot audioVisPlot;
 	FilledSignal audioSignal;
+	//Signal audioSignal;
 	private void AudioInit()
 	{
 		systemAudioCapture.WaveFormat = waveFormat;
@@ -98,7 +99,8 @@ public partial class Api
 		//plot.Plot.Axes.AutoScale();
 		UpdateScottPlot(frequencyWeights, signalPeriod);
 	}
-
+	// FIX_TODO: When audio is already playing when sambar starts, scottplot signal
+	// plot appears shrunk
 	bool firstRender = true;
 	List<double> signalData = new();
 	private void UpdateScottPlot(double[] signalData, double signalPeriod)
@@ -115,12 +117,12 @@ public partial class Api
 			{
 				//audioSignal = audioVisPlot.Plot.Add.Signal(this.signalData, signalPeriod);
 				audioSignal = FilledSignal.AddFilledSignalToPlot(audioVisPlot, this.signalData, signalPeriod);
-            }
-            else
+			}
+			else
 			{
-                audioSignal.Data.Period = signalPeriod;
-            }
-        }
+				audioSignal.Data.Period = signalPeriod;
+			}
+		}
 		audioVisPlot?.Refresh();
 	}
 
@@ -190,9 +192,9 @@ public class FilledSignal : Signal
 		sKPath.Close();
 		using SKPaint sKPaint = new SKPaint();
 		LineStyle.ApplyToPaint(sKPaint);
-		
+
 		// draw fill
-		FillStyle FillStyle = new() { IsVisible = true, Color = new(System.Drawing.Color.Blue) };	
+		FillStyle FillStyle = new() { IsVisible = true, Color = new(System.Drawing.Color.Blue) };
 		PixelRect pixelRect = new();
 		FillStyle.ApplyToPaint(sKPaint, pixelRect);
 		rp.Canvas.DrawPath(sKPath, sKPaint);
@@ -207,17 +209,17 @@ public class FilledSignal : Signal
 			return new CoordinateRange(coordinateX2, coordinateX);
 		}
 		return new CoordinateRange(coordinateX, coordinateX2);
-	}	
+	}
 
 	public static FilledSignal AddFilledSignalToPlot(WpfPlot audioVisPlot, List<double> signalData, double? signalPeriod = null)
 	{
 		SignalSourceDouble signalSource;
-		if(signalPeriod == null)
+		if (signalPeriod == null)
 			signalSource = new(signalData, 1);
 		else
 			signalSource = new(signalData, (double)signalPeriod);
 		FilledSignal audioSignal = new(signalSource);
-        audioVisPlot.Plot.PlottableList.Add(audioSignal);
+		audioVisPlot.Plot.PlottableList.Add(audioSignal);
 		return audioSignal;
 	}
 }
