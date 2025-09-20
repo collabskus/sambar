@@ -71,10 +71,12 @@ public partial class Sambar : Window
 
 	public static double scale;
 	bool barTransparent = false;
+	public static int screenWidth;
+	public static int screenHeight;
 	public void WindowInit()
 	{
-		int screenWidth = User32.GetSystemMetrics(0);
-		int screenHeight = User32.GetSystemMetrics(1);
+		screenWidth = User32.GetSystemMetrics(0);
+		screenHeight = User32.GetSystemMetrics(1);
 
 		// get the scalefactor of the primary monitor
 		scale = Utils.GetDisplayScaling();

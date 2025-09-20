@@ -29,12 +29,18 @@ public partial class Api
 	}
 
 	public (ThreadWindow, WpfPlot, FilledSignal) CreateAudioVisualizer(
-		Action<Window>? init = null,
+		int x = 100,
+		int y = 100,
 		int width = 400,
-		int height = 200
+		int height = 200,
+		bool centerOffset = false,
+		Action<Window>? init = null
 	)
 	{
-		ThreadWindow threadWnd = new(init, width, height);
+		if (centerOffset)
+			(x, y) = GetCenteredCoords(x, y, width, height);
+
+		ThreadWindow threadWnd = new(x, y, width, height, init);
 		threadWnd.Run(() =>
 		{
 			audioVisPlot = new();
@@ -48,8 +54,11 @@ public partial class Api
 		return (threadWnd, audioVisPlot, audioSignal);
 	}
 
-	public Window CreateWidgetWindow(int x, int y, int width, int height)
+	public Window CreateWidgetWindow(int x, int y, int width, int height, bool centerOffset = false)
 	{
+		if (centerOffset)
+			(x, y) = GetCenteredCoords(x, y, width, height);
+
 		WidgetWindow wnd = new()
 		{
 			Title = "sambarWidgetWindow",
@@ -60,6 +69,13 @@ public partial class Api
 			Height = height,
 		};
 		return wnd;
+	}
+
+	public (int, int) GetCenteredCoords(int offsetX, int offsetY, int width, int height)
+	{
+		offsetX += (Sambar.screenWidth - width) / 2;
+		offsetY += (Sambar.screenHeight - height) / 2;
+		return (offsetX, offsetY);
 	}
 }
 
@@ -121,15 +137,19 @@ public class ThreadWindow
 	public FrameworkElement? content;
 	bool initialized = false;
 	internal ThreadWindow(
-		Action<Window>? init = null,
+		int x = 100,
+		int y = 100,
 		int width = 800,
-		int height = 400
+		int height = 400,
+		Action<Window>? init = null
 	)
 	{
 		Thread thread = new(() =>
 		{
 			wnd = new();
 			wnd.Title = "sambarThreadedWindow";
+			wnd.Left = x;
+			wnd.Top = y;
 			wnd.Width = width;
 			wnd.Height = height;
 			// just do this before show()

@@ -64,7 +64,10 @@ public partial class Api
 	public delegate void MediaStoppedEventHandler();
 	public event MediaStoppedEventHandler MEDIA_STOPPED_EVENT = () => { };
 
-	readonly double GIBBERISH_OFFSET = 0.0001;
+	// FIX_TODO: When audio gets quiet while a track is playing, instead of 
+	// cleaning or vanishing to 0, some garbage signal is plotted, cant understand
+	// why naudio is generating those, or if thats whats causing it at all
+	readonly double GIBBERISH_OFFSET = 0.01;
 	private void AudioTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
 	{
 		if (audioMeterInformation?.MasterPeakValue > GIBBERISH_OFFSET)
@@ -138,8 +141,6 @@ public partial class Api
 		}
 	}
 
-	// FIX_TODO: When audio is already playing when sambar starts, scottplot signal
-	// plot appears shrunk
 	bool firstRender = true;
 	List<double> signalData = new();
 	private void UpdateScottPlot(double[] signalData, double signalPeriod)
@@ -163,9 +164,9 @@ public partial class Api
 				audioSignal.Data.Period = signalPeriod;
 			}
 		}
+		//audioVisPlot?.Plot.Axes.SetLimitsX(0, 20000);
 		audioVisPlot?.Plot.Axes.AutoScaleX();
 		audioVisPlot?.Plot.Axes.SetLimitsY(0, 1);
-		//audioVisPlot?.Plot.Axes.SetLimitsX(0, 20000);
 
 		audioVisPlot?.Refresh();
 	}

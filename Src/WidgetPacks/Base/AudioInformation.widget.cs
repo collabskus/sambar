@@ -6,13 +6,15 @@ public class AudioInformation : Widget
 		textBlock.Foreground = new SolidColorBrush(System.Windows.Media.Colors.Black);
 		textBlock.FontFamily = Theme.FONT_FAMILY;
 		textBlock.TextWrapping = TextWrapping.Wrap;
+		textBlock.TextAlignment = TextAlignment.Right;
+		//textBlock.FontWeight = FontWeights.Bold;
 
 		Border border = new();
-		border.BorderBrush = new SolidColorBrush(Colors.Red);
-		border.BorderThickness = new(2);
+		//border.BorderBrush = new SolidColorBrush(Colors.Red);
+		//border.BorderThickness = new(2);
 		border.Child = textBlock;
 
-		Window wnd = Sambar.api.CreateWidgetWindow(200, 200, 200, 200);
+		Window wnd = Sambar.api.CreateWidgetWindow(425, -210, 400, 50, centerOffset: true);
 		wnd.Background = new SolidColorBrush(System.Windows.Media.Colors.Transparent);
 		wnd.Content = border;
 		wnd.Show();

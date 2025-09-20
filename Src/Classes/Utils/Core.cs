@@ -383,6 +383,19 @@ public partial class Utils
 		uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
 		User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, (int)(exStyles | (uint)WINDOWSTYLE.WS_EX_NOACTIVATE));
 	}
+
+	/// <summary>
+	/// Get the scaled display resolution of the screen
+	/// </summary>
+	public static (int, int) GetScreenSize()
+	{
+		double scale = Utils.GetDisplayScaling();
+		int screenWidth = User32.GetSystemMetrics(0);
+		int screenHeight = User32.GetSystemMetrics(1);
+		screenWidth = (int)(screenWidth / scale);
+		screenHeight = (int)(screenHeight / scale);
+		return (screenWidth, screenHeight);
+	}
 }
 
 public class _Window
