@@ -8,10 +8,12 @@ public class AudioInformation : Widget
 		textBlock.TextWrapping = TextWrapping.Wrap;
 
 		Border border = new();
+		border.BorderBrush = new SolidColorBrush(Colors.Red);
+		border.BorderThickness = new(2);
 		border.Child = textBlock;
 
-		Window wnd = Sambar.api.CreateWidgetWindow(200, 400, 200, 200);
-		//wnd.Background = new SolidColorBrush(System.Windows.Media.Colors.Transparent);
+		Window wnd = Sambar.api.CreateWidgetWindow(200, 200, 200, 200);
+		wnd.Background = new SolidColorBrush(System.Windows.Media.Colors.Transparent);
 		wnd.Content = border;
 		wnd.Show();
 

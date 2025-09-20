@@ -64,9 +64,10 @@ public partial class Api
 	public delegate void MediaStoppedEventHandler();
 	public event MediaStoppedEventHandler MEDIA_STOPPED_EVENT = () => { };
 
+	readonly double GIBBERISH_OFFSET = 0.0001;
 	private void AudioTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
 	{
-		if (audioMeterInformation?.MasterPeakValue > 0)
+		if (audioMeterInformation?.MasterPeakValue > GIBBERISH_OFFSET)
 		{
 			if (systemAudioCapture.CaptureState == CaptureState.Stopped)
 			{
@@ -74,7 +75,7 @@ public partial class Api
 				systemAudioCapture.StartRecording();
 			}
 			MEDIA_INFO_EVENT(GetMediaInfo().Result);
-			Logger.Log($"Audio Playing ... {GetMediaInfo().Result.Title}");
+			Logger.Log($"Audio Playing ... {audioMeterInformation?.MasterPeakValue}");
 		}
 		else
 		{
@@ -84,7 +85,8 @@ public partial class Api
 				systemAudioCapture.DataAvailable -= SystemAudioCapture_DataAvailable;
 			}
 			MEDIA_STOPPED_EVENT();
-			//Logger.Log($"Audio Stopped... ");
+			CleanScottPlot();
+			Logger.Log($"Audio Stopped... {audioMeterInformation?.MasterPeakValue}");
 		}
 	}
 
@@ -108,23 +110,31 @@ public partial class Api
 
 		// frequency plot
 		double signalPeriod = 1.0f / ((double)frequencyWeights.Length / SAMPLE_RATE);
-		audioVisPlot?.Plot.Axes.SetLimitsY(0, 0.3);
-		audioVisPlot?.Plot.Axes.SetLimitsX(0, 20000);
-		//plot.Plot.Axes.AutoScale();
 		UpdateScottPlot(frequencyWeights, signalPeriod);
 	}
 	// Scale signal so that it looks good on ScottPlot
 	void ScaleSignal(double[] arr)
 	{
-		double filter(double x)
-		{
-			return 5 * Math.Sin(1.6 * x) + 0.5;
-		}
-
+		double min = arr.Min();
+		double max = arr.Max();
+		double range = max - min;
+		double clip = 0.6; // 0 < clip < 1
+		double compressor = 0.2; // 0 < compressor < 1
+		double gain = 1.5; // 1 < gain < inf
+		double offset = 0.08;
+		if (range == 0) return;
 		for (int i = 0; i < arr.Length; i++)
 		{
-			double x = (double)i / arr.Length;
-			arr[i] *= filter(x);
+			// normalize
+			arr[i] = (arr[i] - min) / range;
+			// clip
+			if (arr[i] > clip)
+				arr[i] *= compressor;
+			// add gain
+			else
+				arr[i] *= gain;
+			// shift by offset
+			arr[i] += offset;
 		}
 	}
 
@@ -153,6 +163,10 @@ public partial class Api
 				audioSignal.Data.Period = signalPeriod;
 			}
 		}
+		audioVisPlot?.Plot.Axes.AutoScaleX();
+		audioVisPlot?.Plot.Axes.SetLimitsY(0, 1);
+		//audioVisPlot?.Plot.Axes.SetLimitsX(0, 20000);
+
 		audioVisPlot?.Refresh();
 	}
 
@@ -197,6 +211,16 @@ public partial class Api
 			Title = mediaProperties.Title,
 			Artist = mediaProperties.Artist,
 		};
+	}
+
+	private async void CleanScottPlot()
+	{
+		await Task.Delay(10);
+		for (int i = 0; i < this.signalData.Count; i++)
+		{
+			this.signalData[i] = 0;
+		}
+		audioVisPlot?.Refresh();
 	}
 }
 

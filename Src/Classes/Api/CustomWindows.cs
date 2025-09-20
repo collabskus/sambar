@@ -111,6 +111,9 @@ public class WidgetWindow : Window
 	}
 }
 
+/// <summary>
+/// A wrapper for a window that runs on a separate thread.
+/// </summary>
 public class ThreadWindow
 {
 	public WidgetWindow? wnd;
@@ -160,5 +163,3 @@ public class ThreadWindow
 		while (!finished) Thread.Sleep(1);
 	}
 }
-
-

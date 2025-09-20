@@ -7,8 +7,8 @@
 			{
 				wnd.Left = 20;
 				wnd.Top = 20;
-				wnd.Height = 100;
 				wnd.Width = 200;
+				wnd.Height = 60;
 				wnd.Background = new SolidColorBrush(Colors.Transparent);
 			}
 		);
@@ -19,6 +19,8 @@
 
 			signal.LineWidth = 2;
 			signal.fillColor = System.Drawing.Color.Black;
+			plt.Width = 200;
+			plt.Height = 60;
 			plt.Plot.Layout.Frameless();
 			plt.Plot.FigureBackground = new() { Color = ScottColors.Transparent };
 			plt.Plot.Axes.Color(ScottColors.Transparent);
