@@ -2,7 +2,7 @@
 {
 	public AudioVisualizer(WidgetEnv ENV) : base(ENV)
 	{
-		(ThreadWindow t_wnd, WpfPlot plt, Signal signal) = Sambar.api.CreateAudioVisualizer(
+		(ThreadWindow t_wnd, WpfPlot plt, FilledSignal signal) = Sambar.api.CreateAudioVisualizer(
 			init: wnd =>
 			{
 				wnd.Height = 400;
@@ -19,14 +19,15 @@
 			Border pltBorder = new();
 
 			signal.LineWidth = 2;
+			signal.fillColor = System.Drawing.Color.Black;
 			plt.Plot.Layout.Frameless();
 			plt.Plot.FigureBackground = new() { Color = ScottColors.Transparent };
 			plt.Plot.Axes.Color(ScottColors.Transparent);
 			plt.Plot.Axes.FrameColor(ScottColors.Transparent);
 			plt.Plot.Grid.LineColor = ScottColors.Transparent;
 
-			pltBorder.BorderBrush = new SolidColorBrush(Colors.Red);
-			pltBorder.BorderThickness = new(2);
+			//pltBorder.BorderBrush = new SolidColorBrush(Colors.Red);
+			//pltBorder.BorderThickness = new(2);
 
 			pltBorder.Child = plt;
 			panel.Children.Add(pltBorder);

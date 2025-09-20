@@ -337,12 +337,12 @@ public partial class Utils
 		thread.Join();
 	}
 
-    public static void CompileStringToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null)
-    {
-        Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName, additionalDllsAndUsings));
-        thread.Start();
-        thread.Join();
-    }
+	public static void CompileStringToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null)
+	{
+		Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName, additionalDllsAndUsings));
+		thread.Start();
+		thread.Join();
+	}
 
 	public static double GetDisplayScaling()
 	{
@@ -350,7 +350,7 @@ public partial class Utils
 		Shcore.GetDpiForMonitor(hMon, MONITOR_DPI_TYPE.MDT_EFFECTIVE_DPI, out uint dpiX, out uint dpiY);
 		return dpiX / 96.0f;
 	}
-	
+
 	/// <summary>
 	/// Hides window in the alt-tab window by (ADDING the WS_EX_TOOLWINDOW) and 
 	/// (REMOVING the WS_EX_APPWINDOW) extended Styles
@@ -360,11 +360,24 @@ public partial class Utils
 	public static int HideWindowInAltTab(nint hWnd)
 	{
 		uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
-        return User32.SetWindowLong(
-			hWnd, 
-			(int)GETWINDOWLONG.GWL_EXSTYLE, 
+		return User32.SetWindowLong(
+			hWnd,
+			(int)GETWINDOWLONG.GWL_EXSTYLE,
 			(int)((exStyles | (uint)WINDOWSTYLE.WS_EX_TOOLWINDOW) & ~(uint)WINDOWSTYLE.WS_EX_APPWINDOW)
 		);
+	}
+
+	/// <summary>
+	/// Make a window bottom most and stick to desktop by making it unfocusable
+	/// This is required especially for creating widget windows that need to 
+	/// always be on the background and never recieve focus
+	/// </summary>
+	public static void MakeWindowStickToDesktop(nint hWnd)
+	{
+		Utils.HideWindowInAltTab(hWnd);
+		User32.SetWindowPos(hWnd, (nint)(SWPZORDER.HWND_BOTTOM), 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE);
+		uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
+		User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, (int)(exStyles | (uint)WINDOWSTYLE.WS_EX_NOACTIVATE));
 	}
 }
 

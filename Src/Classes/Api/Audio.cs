@@ -18,6 +18,8 @@ using ScottPlot.Plottables;
 using SkiaSharp;
 using ScottPlot.DataSources;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Drawing;
+using Windows.Media.Control;
 
 namespace sambar;
 
@@ -39,7 +41,9 @@ public partial class Api
 	WpfPlot audioVisPlot;
 	FilledSignal audioSignal;
 	//Signal audioSignal;
-	private void AudioInit()
+
+	GlobalSystemMediaTransportControlsSessionManager gsmtcsm;
+	private async void AudioInit()
 	{
 		systemAudioCapture.WaveFormat = waveFormat;
 
@@ -50,7 +54,15 @@ public partial class Api
 		System.Timers.Timer audioTimer = new(TIME_SLICE);
 		audioTimer.Elapsed += AudioTimer_Elapsed;
 		audioTimer.Start();
+
+		// Track info
+		gsmtcsm = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
 	}
+
+	public delegate void MediaInfoEventHandler(MediaInfo mediaInfo);
+	public event MediaInfoEventHandler MEDIA_INFO_EVENT = (info) => { };
+	public delegate void MediaStoppedEventHandler();
+	public event MediaStoppedEventHandler MEDIA_STOPPED_EVENT = () => { };
 
 	private void AudioTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
 	{
@@ -61,7 +73,8 @@ public partial class Api
 				systemAudioCapture.DataAvailable += SystemAudioCapture_DataAvailable;
 				systemAudioCapture.StartRecording();
 			}
-			//Logger.Log($"Audio Playing ... ");
+			MEDIA_INFO_EVENT(GetMediaInfo().Result);
+			Logger.Log($"Audio Playing ... {GetMediaInfo().Result.Title}");
 		}
 		else
 		{
@@ -70,6 +83,7 @@ public partial class Api
 				systemAudioCapture.StopRecording();
 				systemAudioCapture.DataAvailable -= SystemAudioCapture_DataAvailable;
 			}
+			MEDIA_STOPPED_EVENT();
 			//Logger.Log($"Audio Stopped... ");
 		}
 	}
@@ -99,12 +113,28 @@ public partial class Api
 		//plot.Plot.Axes.AutoScale();
 		UpdateScottPlot(frequencyWeights, signalPeriod);
 	}
+	// Scale signal so that it looks good on ScottPlot
+	void ScaleSignal(double[] arr)
+	{
+		double filter(double x)
+		{
+			return 5 * Math.Sin(1.6 * x) + 0.5;
+		}
+
+		for (int i = 0; i < arr.Length; i++)
+		{
+			double x = (double)i / arr.Length;
+			arr[i] *= filter(x);
+		}
+	}
+
 	// FIX_TODO: When audio is already playing when sambar starts, scottplot signal
 	// plot appears shrunk
 	bool firstRender = true;
 	List<double> signalData = new();
 	private void UpdateScottPlot(double[] signalData, double signalPeriod)
 	{
+		ScaleSignal(signalData);
 		// WpfPlot holds a reference to "this.signalData", so just update it
 		WriteArrayToListAndTrim<double>(signalData, this.signalData);
 		if (firstRender)
@@ -158,12 +188,23 @@ public partial class Api
 
 		return samples;
 	}
+
+	private async Task<MediaInfo> GetMediaInfo()
+	{
+		var mediaProperties = await gsmtcsm.GetCurrentSession().TryGetMediaPropertiesAsync();
+		return new MediaInfo()
+		{
+			Title = mediaProperties.Title,
+			Artist = mediaProperties.Artist,
+		};
+	}
 }
 
 // custom ScottPlot.Plottables.Signal class that supports filling the insides of the 
 // signal plot
 public class FilledSignal : Signal
 {
+	public System.Drawing.Color fillColor = System.Drawing.Color.Blue;
 	public FilledSignal(ISignalSource data) : base(data) { }
 	public override void Render(RenderPack rp)
 	{
@@ -194,7 +235,7 @@ public class FilledSignal : Signal
 		LineStyle.ApplyToPaint(sKPaint);
 
 		// draw fill
-		FillStyle FillStyle = new() { IsVisible = true, Color = new(System.Drawing.Color.Blue) };
+		FillStyle FillStyle = new() { IsVisible = true, Color = new(fillColor) };
 		PixelRect pixelRect = new();
 		FillStyle.ApplyToPaint(sKPaint, pixelRect);
 		rp.Canvas.DrawPath(sKPath, sKPaint);
@@ -222,4 +263,10 @@ public class FilledSignal : Signal
 		audioVisPlot.Plot.PlottableList.Add(audioSignal);
 		return audioSignal;
 	}
+}
+
+public class MediaInfo
+{
+	public string Title;
+	public string Artist;
 }

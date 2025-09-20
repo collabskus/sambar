@@ -17,6 +17,7 @@ using ScottPlot;
 using ScottPlot.WPF;
 using WinRT;
 using ScottPlot.Plottables;
+using FlaUI.Core.WindowsAPI;
 
 namespace sambar;
 
@@ -27,7 +28,7 @@ public partial class Api
 
 	}
 
-	public (ThreadWindow, WpfPlot, Signal) CreateAudioVisualizer(
+	public (ThreadWindow, WpfPlot, FilledSignal) CreateAudioVisualizer(
 		Action<Window>? init = null,
 		int width = 400,
 		int height = 200
@@ -49,6 +50,25 @@ public partial class Api
 		Utils.HideWindowInAltTab(threadWnd.EnsureInitialized().hWnd);
 		while (!initialized) Thread.Sleep(1);
 		return (threadWnd, audioVisPlot, audioSignal);
+	}
+
+	public Window CreateWidgetWindow(int x, int y, int width, int height)
+	{
+		Window wnd = new()
+		{
+			WindowStyle = WindowStyle.None,
+			AllowsTransparency = true,
+			ResizeMode = ResizeMode.NoResize,
+			Background = new SolidColorBrush(System.Windows.Media.Colors.Black),
+			Left = x,
+			Top = y,
+			Width = width,
+			Height = height,
+			ShowActivated = false
+		};
+		nint hWnd = new WindowInteropHelper(wnd).EnsureHandle();
+		Utils.MakeWindowStickToDesktop(hWnd);
+		return wnd;
 	}
 }
 

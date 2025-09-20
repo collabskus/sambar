@@ -178,6 +178,14 @@ public enum SETWINDOWPOS : uint
 
 }
 
+public enum SWPZORDER : int
+{
+	HWND_BOTTOM = 1,
+	HWND_NOTOPMOST = -2,
+	HWND_TOP = 0,
+	HWND_TOPMOST = -1
+}
+
 public enum GETWINDOWLONG : int
 {
 	GWL_STYLE = -16,
@@ -732,18 +740,4 @@ public enum MONITOR_DPI_TYPE
 	MDT_RAW_DPI = 2,
 	MDT_DEFAULT
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

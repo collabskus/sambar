@@ -33,7 +33,7 @@ internal class WidgetLoader
 
 	Dictionary<string, string> widgetToDllMap = new();
 
-    WidgetImports? imports = null;
+	WidgetImports? imports = null;
 	public WidgetLoader()
 	{
 		string? widgetPackName = Sambar.api?.bar.widgetPackName;
@@ -47,11 +47,11 @@ internal class WidgetLoader
 		if (Path.Exists(importsFile))
 		{
 			imports = GetObjectFromScript<WidgetImports>(importsFile);
-            if (!Directory.Exists(Path.Join(Paths.widgetPacksFolder, imports?.importsPack))) throw new Exception($"{imports?.importsPack} does not exist");
-            imports?.widgets.ForEach(_widget => widgetFiles.Add(new(Path.Join(Paths.widgetPacksFolder, imports.importsPack, _widget + ".widget.cs"))));
-        }
+			if (!Directory.Exists(Path.Join(Paths.widgetPacksFolder, imports?.importsPack))) throw new Exception($"{imports?.importsPack} does not exist");
+			imports?.widgets.ForEach(_widget => widgetFiles.Add(new(Path.Join(Paths.widgetPacksFolder, imports.importsPack, _widget + ".widget.cs"))));
+		}
 
-        Logger.Log(imports == null ? "No .imports.cs file found!" : $".imports.cs, pack: {imports.importsPack}");
+		Logger.Log(imports == null ? "No .imports.cs file found!" : $".imports.cs, pack: {imports.importsPack}");
 
 		// verify hashes and figure out which widgets to compile		
 		List<FileInfo> widgetFilesToCompile = new();
@@ -66,19 +66,19 @@ internal class WidgetLoader
 			widgetFiles
 				.ForEach(
 				file =>
-                {
-                    string hash = ComputeWidgetSriptHash(File.ReadAllText(file.FullName));
+				{
+					string hash = ComputeWidgetSriptHash(File.ReadAllText(file.FullName));
 
-                    // new script added
-                    if (!widgetToHash.ContainsKey(file.Name))
-                    {
-                        widgetFilesToCompile.Add(file);
-                    }
-                    else if (widgetToHash[file.Name] != hash)
-                    {
-                        widgetFilesToCompile.Add(file);
-                    }
-                });
+					// new script added
+					if (!widgetToHash.ContainsKey(file.Name))
+					{
+						widgetFilesToCompile.Add(file);
+					}
+					else if (widgetToHash[file.Name] != hash)
+					{
+						widgetFilesToCompile.Add(file);
+					}
+				});
 		}
 
 		// add script to compile list if dll is missing
@@ -98,14 +98,15 @@ internal class WidgetLoader
 		var themesFile = files.Where(file => file.Name == ".theme.cs").FirstOrDefault();
 		string? widgetsPrefix = null;
 		//bool compileWithThemes = false;
-		if(themesFile != null) {
+		if (themesFile != null)
+		{
 			//compileWithThemes = true;
 			//widgetsPrefix = File.ReadAllText(themesFile.FullName);
 			Utils.CompileFileToDll(themesFile.FullName, ".theme");
 		}
 
 		var layoutFile = files.Where(file => file.Name == ".layout.cs").FirstOrDefault();
-		if(layoutFile == null) throw new Exception($".layout.cs missing in {widgetPackName}");
+		if (layoutFile == null) throw new Exception($".layout.cs missing in {widgetPackName}");
 		Utils.CompileFileToDll(layoutFile.FullName, ".layout");
 
 		var layoutAssembly = Assembly.LoadFile(Path.Join(Paths.dllFolder, ".layout.dll"));
@@ -134,10 +135,10 @@ internal class WidgetLoader
 		Logger.Log("Loading compiled dlls...");
 		// add _.dll to dependency search path so that if widgets contain dependency dlls
 		// such as .theme.dll they are loaded
-		AssemblyLoadContext.Default.Resolving += (assemblyLoadContext, name) => 
+		AssemblyLoadContext.Default.Resolving += (assemblyLoadContext, name) =>
 		{
 			string _assemblyPath = Path.Join(Paths.dllFolder, name.Name);
-			if(File.Exists(_assemblyPath)) return Assembly.LoadFrom(_assemblyPath);
+			if (File.Exists(_assemblyPath)) return Assembly.LoadFrom(_assemblyPath);
 			return null;
 		};
 		foreach (var widgetName in widgetToDllMap)
@@ -160,13 +161,13 @@ internal class WidgetLoader
 			{
 				//layout.WidgetToContainerMap[widget.GetType().Name].Child = widget;
 				Border? border = layout?.WidgetToContainerMap.GetValueOrDefault(widget.GetType().Name);
-				if(border != null) border.Child = widget;
+				if (border != null) border.Child = widget;
 			}
 		);
 
 		GC.Collect();
 	}
-	
+
 	/// <summary>
 	/// compiles code (primarily classes) into dlls. Used to compile widgets, themes, layouts etc
 	/// Since assembly cache is not unloaded automatically this must be run on a separate thread
@@ -199,11 +200,12 @@ internal class WidgetLoader
 			MetadataReference.CreateFromFile(typeof(DrawingAttributes).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(WpfPlot).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(ScottPlot.Colors).Assembly.Location),
+			MetadataReference.CreateFromFile(typeof(System.Drawing.Color).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(ScottPlot.Plottables.Signal).Assembly.Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 		];
-        
+
 		string usingsPrefix =
 """
 using sambar;
@@ -226,16 +228,16 @@ using ScottColors = ScottPlot.Colors;
 using ScottPlot.Plottables;
 """;
 
-        if(additionalDllsAndUsings != null)
+		if (additionalDllsAndUsings != null)
 		{
-			additionalDllsAndUsings	
+			additionalDllsAndUsings
 				.ForEach(dllAndUsing =>
-                {
-                    references.Add(MetadataReference.CreateFromFile(dllAndUsing.Item1));
-					if(dllAndUsing.Item2 != null) usingsPrefix += "\n" + $"using {dllAndUsing.Item2}";
-                }
+				{
+					references.Add(MetadataReference.CreateFromFile(dllAndUsing.Item1));
+					if (dllAndUsing.Item2 != null) usingsPrefix += "\n" + $"using {dllAndUsing.Item2}";
+				}
 			);
-        }
+		}
 
 		string code = usingsPrefix + classCode;
 		CSharpParseOptions parseOptions = new(LanguageVersion.Preview);
@@ -293,7 +295,7 @@ using ScottPlot.Plottables;
 	/// </summary>
 	public static T? GetObjectFromScript<T>(string scriptPath)
 	{
-        if (!File.Exists(scriptPath))
+		if (!File.Exists(scriptPath))
 		{
 			Logger.Log($"{scriptPath} does not exist, exiting...");
 			return default(T);
@@ -323,17 +325,17 @@ using ScottPlot.Plottables;
 	public WidgetEnv PrepareEnvVarsForWidget(string widgetName)
 	{
 		WidgetEnv env = new();
-		if(imports == null)
+		if (imports == null)
 		{
 			env.ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, Sambar.api!.bar.widgetPackName, "assets");
-            return env;
+			return env;
 		}
-		if(imports!.widgets.Contains(widgetName))
+		if (imports!.widgets.Contains(widgetName))
 		{
 			env.ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, imports.importsPack, "assets");
-        }
-        return env;
-    }
+		}
+		return env;
+	}
 
 }
 
