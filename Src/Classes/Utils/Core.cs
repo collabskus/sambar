@@ -370,11 +370,15 @@ public partial class Utils
 	/// <summary>
 	/// Make a window bottom most and stick to desktop by making it unfocusable
 	/// This is required especially for creating widget windows that need to 
-	/// always be on the background and never recieve focus
+	/// always be on the background and never recieve focus. This is done by 
+	/// adding the WS_EX_NOACTIVATE style.
+	///
+	/// Still can flicker at activation and gain focus from alt tab selection,
+	/// if the window is hidden in alt tab this shouldnt be a concern, however
+	/// to avoid these problems sambar.WidgetWindow exists.
 	/// </summary>
-	public static void MakeWindowStickToDesktop(nint hWnd)
+	public static void StickWindowToBottom(nint hWnd)
 	{
-		Utils.HideWindowInAltTab(hWnd);
 		User32.SetWindowPos(hWnd, (nint)(SWPZORDER.HWND_BOTTOM), 0, 0, 0, 0, SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOACTIVATE);
 		uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
 		User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, (int)(exStyles | (uint)WINDOWSTYLE.WS_EX_NOACTIVATE));

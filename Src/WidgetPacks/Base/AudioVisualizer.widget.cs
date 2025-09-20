@@ -5,12 +5,11 @@
 		(ThreadWindow t_wnd, WpfPlot plt, FilledSignal signal) = Sambar.api.CreateAudioVisualizer(
 			init: wnd =>
 			{
-				wnd.Height = 400;
+				wnd.Left = 20;
+				wnd.Top = 20;
+				wnd.Height = 100;
 				wnd.Width = 200;
-				wnd.WindowStyle = WindowStyle.None;
-				wnd.AllowsTransparency = true;
 				wnd.Background = new SolidColorBrush(Colors.Transparent);
-				wnd.ResizeMode = ResizeMode.NoResize;
 			}
 		);
 		t_wnd.Run(() =>
@@ -26,13 +25,14 @@
 			plt.Plot.Axes.FrameColor(ScottColors.Transparent);
 			plt.Plot.Grid.LineColor = ScottColors.Transparent;
 
-			//pltBorder.BorderBrush = new SolidColorBrush(Colors.Red);
-			//pltBorder.BorderThickness = new(2);
+			pltBorder.BorderBrush = new SolidColorBrush(Colors.Red);
+			pltBorder.BorderThickness = new(2);
 
 			pltBorder.Child = plt;
 			panel.Children.Add(pltBorder);
 
-			t_wnd.EnsureInitialized().wnd.Content = panel;
+			t_wnd.wnd.Content = panel;
+			t_wnd.wnd.Show();
 		});
 	}
 }

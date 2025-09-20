@@ -18,7 +18,7 @@ public partial class Api
 	GlazeClient client;
 	public async void GlazeInit()
 	{
-		// The order is important, when sending subscription notification to glaze the event 
+		// The order is important, when sending subscription notification to glaze, the event 
 		// handler must already be attached inorder to capture the response. We are processing 
 		// this response  in GlazeEventHandler but we need all the active glaze workspaces 
 		// to do so, therfore before sending the subscription run GetAllWorkspaces()
@@ -93,14 +93,14 @@ public partial class Api
 			Message? replyMessage = JsonConvert.DeserializeObject<Message>(reply);
 			Logger.Log($"subscriptionId: {replyMessage?.data.subscriptionId}");
 		}
-		catch (Exception ex) 
+		catch (Exception ex)
 		{
-			Logger.Log($"[ JSON ERROR ]: {ex.Message}");	
+			Logger.Log($"[ JSON ERROR ]: {ex.Message}");
 		}
 
-    }
+	}
 
-    public async Task ChangeWorkspace(Workspace newWorkspace)
+	public async Task ChangeWorkspace(Workspace newWorkspace)
 	{
 		string message = $"command focus --workspace {newWorkspace.name}";
 		await client.SendCommand(message);

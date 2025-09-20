@@ -17,6 +17,7 @@ public class TaskbarApps : Widget
 	List<RunningApp> apps = new();
 	public void UpdateTaskbarApps(List<RunningApp> apps)
 	{
+		Sambar.api.Print($"UpdateTaskbarApps fired!");
 		this.Thread.Invoke(() =>
 		{
 			panel.Children.Clear();

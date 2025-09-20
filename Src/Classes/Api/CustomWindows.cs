@@ -35,7 +35,6 @@ public partial class Api
 	)
 	{
 		ThreadWindow threadWnd = new(init, width, height);
-		bool initialized = false;
 		threadWnd.Run(() =>
 		{
 			audioVisPlot = new();
@@ -45,36 +44,76 @@ public partial class Api
 			// stackpanel or border, therefore width and height must be set manually
 			audioVisPlot.Height = 100;
 			audioVisPlot.Width = 200;
-			initialized = true;
 		});
-		Utils.HideWindowInAltTab(threadWnd.EnsureInitialized().hWnd);
-		while (!initialized) Thread.Sleep(1);
 		return (threadWnd, audioVisPlot, audioSignal);
 	}
 
 	public Window CreateWidgetWindow(int x, int y, int width, int height)
 	{
-		Window wnd = new()
+		WidgetWindow wnd = new()
 		{
-			WindowStyle = WindowStyle.None,
-			AllowsTransparency = true,
-			ResizeMode = ResizeMode.NoResize,
+			Title = "sambarWidgetWindow",
 			Background = new SolidColorBrush(System.Windows.Media.Colors.Black),
 			Left = x,
 			Top = y,
 			Width = width,
 			Height = height,
-			ShowActivated = false
 		};
-		nint hWnd = new WindowInteropHelper(wnd).EnsureHandle();
-		Utils.MakeWindowStickToDesktop(hWnd);
 		return wnd;
+	}
+}
+
+/// <summary>
+/// Non focusable window that always remains bottom most (also hidden in alt-tab).
+/// </summary>
+public class WidgetWindow : Window
+{
+	public nint hWnd;
+	internal WidgetWindow()
+	{
+		this.ShowActivated = false;
+		this.AllowsTransparency = true;
+		this.WindowStyle = WindowStyle.None;
+		this.ResizeMode = ResizeMode.NoResize;
+
+		hWnd = new WindowInteropHelper(this).EnsureHandle();
+		Utils.HideWindowInAltTab(hWnd);
+		SetBottom();
+
+		HwndSource hWndSrc = HwndSource.FromHwnd(hWnd);
+		HwndSourceHook hook = new(WndProc);
+		hWndSrc.AddHook(hook);
+		this.Closing += (s, e) =>
+		{
+			hWndSrc.RemoveHook(hook);
+		};
+	}
+
+	private nint WndProc(nint hWnd, int msg, nint wparam, nint lparam, ref bool handled)
+	{
+		if (msg == (int)WINDOWMESSAGE.WM_SETFOCUS ||
+			msg == (int)WINDOWMESSAGE.WM_ACTIVATE ||
+			msg == (int)WINDOWMESSAGE.WM_MOUSEACTIVATE ||
+			msg == (int)WINDOWMESSAGE.WM_WINDOWPOSCHANGING ||
+			msg == (int)WINDOWMESSAGE.WM_ACTIVATEAPP
+		)
+		{
+			SetBottom();
+			handled = true;
+		}
+
+		return 0;
+	}
+
+	private void SetBottom()
+	{
+		User32.SetWindowPos(hWnd, (nint)SWPZORDER.HWND_BOTTOM, 0, 0, 0, 0, SETWINDOWPOS.SWP_NOSIZE | SETWINDOWPOS.SWP_NOMOVE | SETWINDOWPOS.SWP_NOACTIVATE);
 	}
 }
 
 public class ThreadWindow
 {
-	public Window? wnd;
+	public WidgetWindow? wnd;
 	public nint hWnd;
 	public FrameworkElement? content;
 	bool initialized = false;
@@ -87,16 +126,14 @@ public class ThreadWindow
 		Thread thread = new(() =>
 		{
 			wnd = new();
+			wnd.Title = "sambarThreadedWindow";
 			wnd.Width = width;
 			wnd.Height = height;
+			// just do this before show()
 			init?.Invoke(wnd);
-			wnd.SourceInitialized += (s, e) =>
-			{
-				hWnd = new WindowInteropHelper(wnd).EnsureHandle();
-				initialized = true;
-			};
+			hWnd = new WindowInteropHelper(wnd).EnsureHandle();
+			initialized = true;
 
-			wnd.Show();
 			// make thread a "UI Thread" by starting the message pump
 			System.Windows.Threading.Dispatcher.Run();
 		});
@@ -114,10 +151,13 @@ public class ThreadWindow
 	public void Run(Action runLambda)
 	{
 		while (!initialized) Thread.Sleep(1);
+		bool finished = false;
 		wnd?.Dispatcher.Invoke(() =>
 		{
 			runLambda();
+			finished = true;
 		});
+		while (!finished) Thread.Sleep(1);
 	}
 }
 

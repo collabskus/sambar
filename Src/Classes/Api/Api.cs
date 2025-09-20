@@ -30,7 +30,7 @@ public partial class Api
 		TaskbarInterceptorInit();
 		ClockInit();
 		CountersInit();
-		initTasks.Add(Task.Run(GlazeInit));
+		//initTasks.Add(Task.Run(GlazeInit));
 		initTasks.Add(Task.Run(AudioInit));
 	}
 

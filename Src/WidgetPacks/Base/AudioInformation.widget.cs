@@ -1,11 +1,18 @@
 public class AudioInformation : Widget
 {
-	Window wnd;
-	TextBlock textBlock = new();
 	public AudioInformation(WidgetEnv ENV) : base(ENV)
 	{
-		wnd = Sambar.api.CreateWidgetWindow(600, 600, 200, 200);
-		wnd.Content = textBlock;
+		TextBlock textBlock = new();
+		textBlock.Foreground = new SolidColorBrush(System.Windows.Media.Colors.Black);
+		textBlock.FontFamily = Theme.FONT_FAMILY;
+		textBlock.TextWrapping = TextWrapping.Wrap;
+
+		Border border = new();
+		border.Child = textBlock;
+
+		Window wnd = Sambar.api.CreateWidgetWindow(200, 400, 200, 200);
+		//wnd.Background = new SolidColorBrush(System.Windows.Media.Colors.Transparent);
+		wnd.Content = border;
 		wnd.Show();
 
 		Sambar.api.MEDIA_INFO_EVENT += (MediaInfo info) =>

@@ -73,6 +73,7 @@ public partial class Api
 	/// Live task for constantly monitoring current taskbar apps
 	/// </summary>
 	List<RunningApp> _old_runningApps = new();
+	bool updateRequired = false;
 	public void MonitorTaskbarApps()
 	{
 		Task.Run(async () =>
@@ -82,15 +83,23 @@ public partial class Api
 				RefreshRunningApps();
 				// wpf ui rendering is expensive, therefore only fire when new apps actually 
 				// have appeared
-				if (runningApps != null && runningApps.Count != _old_runningApps.Count)
+				if (runningApps != null && runningApps.Count != _old_runningApps.Count || updateRequired)
 				{
-                    TASKBAR_APPS_EVENT(runningApps);
-                    _old_runningApps = runningApps.ToList();
-                }
-                await Task.Delay(100);
-				//Logger.Log($"MONITORING TASKBAR APPS");
+					Logger.Log("MONITOR APPS TRUE");
+					TASKBAR_APPS_EVENT(runningApps);
+					_old_runningApps = runningApps.ToList();
+				}
+				Logger.Log($"MONITORING TASKBAR APPS: {runningApps.Count}, {_old_runningApps.Count}");
+				await Task.Delay(100);
 			}
 		}, _mta_cts.Token);
+	}
+
+	public async void FlushEvents()
+	{
+		updateRequired = true;
+		await Task.Delay(200);
+		updateRequired = false;
 	}
 }
 
@@ -126,10 +135,10 @@ public class RunningApp
 		Logger.Log($"App requested focus");
 		User32.SetForegroundWindow(hWnd);
 	}
-    public void Kill()
-    {
+	public void Kill()
+	{
 		//Process.GetProcessById((int)processId).Kill();
 		User32.SendMessage(hWnd, (uint)WINDOWMESSAGE.WM_CLOSE, 0, 0);
-    }
+	}
 }
 
