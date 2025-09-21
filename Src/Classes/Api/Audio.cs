@@ -78,7 +78,7 @@ public partial class Api
 				systemAudioCapture.StartRecording();
 			}
 			MEDIA_INFO_EVENT(GetMediaInfo().Result);
-			Logger.Log($"Audio Playing ... {audioMeterInformation?.MasterPeakValue}");
+			Logger.Log($"Audio Playing ... {audioMeterInformation?.MasterPeakValue}", file: false);
 		}
 		else
 		{
@@ -89,7 +89,7 @@ public partial class Api
 			}
 			MEDIA_STOPPED_EVENT();
 			CleanScottPlot();
-			Logger.Log($"Audio Stopped... {audioMeterInformation?.MasterPeakValue}");
+			Logger.Log($"Audio Stopped... {audioMeterInformation?.MasterPeakValue}", file: false);
 		}
 	}
 

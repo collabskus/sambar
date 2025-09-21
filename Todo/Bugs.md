@@ -1,3 +1,4 @@
  - right clicking taskbar items sometimes crashes the app
  - audio visualizer showing garbage during low volume parts of a track
  - action center stuck after launch and requires focus to disappear
+ - discord sometimes crashes the app

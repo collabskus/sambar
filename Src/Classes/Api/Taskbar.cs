@@ -281,11 +281,17 @@ public class TrayIcon
 		this.nid = nid;
 		this.className = Utils.GetClassNameFromHWND((nint)nid.hWnd);
 		this.exePath = Utils.GetExePathFromHWND((nint)nid.hWnd);
-		User32.GetWindowThreadProcessId((nint)nid.hWnd, out processId);
 
-		// get actual icon from hIcon
-		this.icon = Imaging.CreateBitmapSourceFromHIcon((nint)nid.hIcon, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-		this.icon.Freeze();
+		// could fail for all kinds of reasons since nid is essentially something
+		// given to us and we have no control over it, for eq nid.hIcon could be null
+		try
+		{
+			User32.GetWindowThreadProcessId((nint)nid.hWnd, out processId);
+			// get actual icon from hIcon
+			this.icon = Imaging.CreateBitmapSourceFromHIcon((nint)nid.hIcon, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+			this.icon.Freeze();
+		}
+		catch (Exception ex) { Logger.Log(ex.Message); }
 	}
 
 	public void ContextMenu()

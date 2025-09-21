@@ -19,11 +19,11 @@ public class Logger
 	public static FileStream logFile = File.Open(Paths.logFile, FileMode.OpenOrCreate);
 	public static StreamWriter logFileWriter = new(logFile);
 
-	public static void Log(string? text)
+	public static void Log(string? text, bool debug = true, bool console = true, bool file = true)
 	{
-		if (DEBUG) Debug.WriteLine(text);
-		if (CONSOLE) Console.WriteLine(text);
-		if (FILE) logFileWriter.WriteLine(text);
+		if (DEBUG && debug) Debug.WriteLine(text);
+		if (CONSOLE && console) Console.WriteLine(text);
+		if (FILE && file) logFileWriter.WriteLine(text);
 	}
 
 	public static void Log(List<string> array)
