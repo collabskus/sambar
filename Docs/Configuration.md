@@ -15,9 +15,12 @@ Code and configuration are the same. Everything configurable in Sambar are prese
    └───Plain1
        .config.cs
        .layout.cs
+       .imports.cs
        .theme.cs
    .init.cs
 ```
+
+A widgetpack is a the fundamental unit composed of a collection of widgets and configuration files necessary for a fully functional bar with a certain style/theme.
 
 Each widget pack contains a set of widgets (ending with `.widget.cs` extensions) and a set of configuration files (or dotfiles): `.config.cs`, `.layout.cs`, `.theme.cs`
 
@@ -48,8 +51,22 @@ string widgetPack = "Base";
 
 ### `.layout.cs`: 
 
+This file basically defines the layout of all the widgets in the sambar bar. Their positioning, sizes, everything. Refer to [constructing the widgets layout]() for a detailed look into creating or changing the layout of sambar.
+
 ### `.theme.cs`: 
 
+This file contains a static class called `Theme` which can hold global variables for common use by your widgets. Say `TEXT_COLOR` for example and you need a common text color in all your widgetsfor creating a particular theme. Then you can make that as a variable in here. They can be called from the widgets easily as `Theme.TEXT_COLOR`.
+
 ### `.init.cs`:
+
+contains a single return statement
+
+```
+return "<WIDGETPACKNAME>";
+```
+
+### `imports.cs`:
+
+Notice in `Plain1` widgetpack there's another file called `.imports.cs`. Well `Plain1` is just a slight modification of the `Base` widgetpack and therefore "imports" the default widgets from BAse without any modification to the widgets themselves. This is so that you dont have to copy unmodified `.widget.cs` files if all you need is to have them as it is in your new widgetpack/theme.
 
 
