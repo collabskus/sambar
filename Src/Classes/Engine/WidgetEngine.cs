@@ -24,6 +24,9 @@ using System.Text.Json;
 using System.Net.Http;
 using Windows.UI.Composition;
 using ScottPlot.WPF;
+using SkiaSharp;
+using SkiaSharp.Views.WPF;
+using SkiaSharp.Views.Desktop;
 
 namespace sambar;
 
@@ -202,6 +205,9 @@ internal class WidgetLoader
 			MetadataReference.CreateFromFile(typeof(ScottPlot.Colors).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(System.Drawing.Color).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(ScottPlot.Plottables.Signal).Assembly.Location),
+			MetadataReference.CreateFromFile(typeof(SKSurface).Assembly.Location),
+			MetadataReference.CreateFromFile(typeof(SKElement).Assembly.Location),
+			MetadataReference.CreateFromFile(typeof(SKPaintSurfaceEventArgs).Assembly.Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 		];
@@ -226,6 +232,8 @@ using Newtonsoft.Json;
 using ScottPlot.WPF;
 using ScottColors = ScottPlot.Colors;
 using ScottPlot.Plottables;
+using SkiaSharp;
+using SkiaSharp.Views.WPF;
 """;
 
 		if (additionalDllsAndUsings != null)

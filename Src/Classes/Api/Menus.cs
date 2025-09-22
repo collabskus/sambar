@@ -17,9 +17,23 @@ public partial class Api
 	{
 
 	}
+
+	// internal menu tracker, so that only one menu is open at a time
+	// All createmenu functions must assign to this property
+	private Menu _menu;
+	public Menu activeMenu
+	{
+		get { return _menu; }
+		set
+		{
+			_menu?.CustomClose();
+			_menu = value;
+		}
+	}
+
+	// when menus that are automatically oriented relative to the calling user element
 	public Menu CreateMenu(UserControl callingElement, int width = 100, int height = 100)
 	{
-
 		int x = (int)callingElement.PointToScreen(new Point(callingElement.Width / 2, callingElement.Height / 2)).X - (width / 2);
 		x = x < Sambar.api.config.marginXLeft ? Sambar.api.config.marginXLeft : x;
 		int y = Sambar.api.config.marginYTop + Sambar.api.config.height + 5;
@@ -27,23 +41,31 @@ public partial class Api
 		x = (int)(x / Sambar.scale);
 		//y = (int)(y / Sambar.scale);
 
-		Menu menu = new(x, y, width, height);
-		return menu;
+		activeMenu = new Menu(x, y, width, height);
+		return activeMenu;
+	}
+
+	public Menu CreateMenu(int x, int y, int width, int height, bool centerOffset = false)
+	{
+		if (centerOffset)
+			(x, y) = GetCenteredCoords(x, y, width, height);
+		activeMenu = new Menu(x, y, width, height);
+		return activeMenu;
 	}
 
 	// context menu with menubuttons
 	public Menu CreateContextMenu(List<MenuButton> items)
 	{
 		User32.GetCursorPos(out POINT pt);
-		ContextMenu menu = new((int)(pt.X / Sambar.scale), (int)(pt.Y / Sambar.scale), 100, items.Count * 30);
+		activeMenu = new ContextMenu((int)(pt.X / Sambar.scale), (int)(pt.Y / Sambar.scale), 100, items.Count * 30);
 		StackPanel panel = new();
 		panel.Orientation = Orientation.Vertical;
 		foreach (var item in items)
 		{
 			panel.Children.Add(item);
 		}
-		menu.Content = panel;
-		return menu;
+		activeMenu.Content = panel;
+		return activeMenu;
 	}
 }
 
@@ -95,7 +117,7 @@ public class Menu : Window
 			msg.className == "Progman"
 		)
 		{
-			Sambar.api.bar.Dispatcher.Invoke(() => CustomClose());
+			CustomClose();
 			return;
 		}
 		// if cursor inside menu
@@ -121,18 +143,18 @@ public class Menu : Window
 		if (!Sambar.api.capturedWindows.Select(_msg => _msg.className).Contains(msg.className))
 		{
 			Logger.Log($"Closing menu by losing focus to non-menu item: {msg.name}, {msg.className}");
-			Sambar.api.bar.Dispatcher.Invoke(() => CustomClose());
+			CustomClose();
 		}
 	}
 
 	public void CustomShow()
 	{
-		this.Show();
+		Sambar.api?.bar.Dispatcher.Invoke(() => this.Show());
 	}
 	public void CustomClose()
 	{
 		isClosing = true;
-		this.Close();
+		Sambar.api?.bar.Dispatcher.Invoke(() => this.Close());
 	}
 }
 

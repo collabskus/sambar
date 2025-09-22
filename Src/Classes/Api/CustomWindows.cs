@@ -18,6 +18,8 @@ using ScottPlot.WPF;
 using WinRT;
 using ScottPlot.Plottables;
 using FlaUI.Core.WindowsAPI;
+using SkiaSharp;
+using SkiaSharp.Views.WPF;
 
 namespace sambar;
 
@@ -76,6 +78,30 @@ public partial class Api
 		offsetX += (Sambar.screenWidth - width) / 2;
 		offsetY += (Sambar.screenHeight - height) / 2;
 		return (offsetX, offsetY);
+	}
+
+	private Window _overlayWnd;
+	public Window activeOverlayWnd
+	{
+		get { return _overlayWnd; }
+		set
+		{
+			_overlayWnd?.Close();
+			_overlayWnd = value;
+		}
+	}
+	public Window CreateDesktopOverlay()
+	{
+		activeOverlayWnd = new WidgetWindow()
+		{
+			Title = "sambarDesktopOverlaly",
+			Background = new SolidColorBrush(System.Windows.Media.Colors.Black),
+			Left = 0,
+			Top = 0,
+			Width = Sambar.screenWidth,
+			Height = Sambar.screenHeight,
+		};
+		return activeOverlayWnd;
 	}
 }
 

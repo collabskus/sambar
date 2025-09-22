@@ -17,5 +17,15 @@ public class Wallpapers : Widget
 	}
 	public void ButtonMouseDown(object? sender, MouseEventArgs e)
 	{
+		//Sambar.api.CreateMenu(0, 0, 300, 300, centerOffset: true);
+		Window wnd = Sambar.api.CreateDesktopOverlay();
+		SKElement skElement = new();
+		skElement.PaintSurface += (s, e) =>
+		{
+			var canvas = e.Surface.Canvas;
+			canvas.Clear(SKColors.White);
+		};
+		wnd.Content = skElement;
+		wnd.Show();
 	}
 }
