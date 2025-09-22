@@ -52,6 +52,8 @@ You can find the executable at `bin\Release\net*\win-x64\publish`
 
 Read the [docs](https://github.com/TheAjaykrishnanR/sambar/blob/master/Docs/Landing.md) here.
 
+PS: *docs currently under construction and therefore incomplete*
+
 ## Acknowledgements
 
 Sambar wouldnt have been possible without the existence of all the libraries it depends on.
