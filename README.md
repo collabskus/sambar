@@ -29,6 +29,10 @@ positions and colors are <ins>fully customizable</ins>. [dive in?](https://githu
  6. Performance counters (CPU, Memory, Network)
  7. Audio visualizer
 
+## Usage
+
+Download the latest release from [here](https://github.com/TheAjaykrishnanR/sambar/releases)
+
 ## Requirements
 
  1. Windows 11 build 26100+
