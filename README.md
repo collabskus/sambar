@@ -22,13 +22,16 @@ positions and colors are <ins>fully customizable</ins>. [dive in?](https://githu
 
  <ins>currently available widgets</ins>:
 
- 1. GlazeWM workspaces
+ 1. [GlazeWM](https://github.com/glzr-io/glazewm) workspaces
  2. Tray icons
  3. Taskbar apps
  4. Buttons (Start, Action Center)
  5. Toggle native taskbar
  6. Performance counters (CPU, Memory, Network)
  7. Audio visualizer
+ 8. Media playback information
+ 9. Network Manager (open actions center)
+ 10. Hide the default windows taskbar
 
 ## Usage
 

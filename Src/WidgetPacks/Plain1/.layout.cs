@@ -15,6 +15,7 @@ class BaseLayout : Layout
 	Border StartButton = new();
 	Border Counters = new();
 	Border TaskbarApps = new();
+	Border Wallpapers = new();
 
 	public BaseLayout()
 	{
@@ -72,6 +73,7 @@ class BaseLayout : Layout
 		systemTray.Add(Counters);
 		systemTray.Add(NetworkManager);
 		systemTray.Add(Tray);
+		systemTray.Add(Wallpapers);
 		//systemTray.Add(HideTaskbar);
 		//systemTray.Add(ScribblePad);
 		systemTray.ForEach(border =>

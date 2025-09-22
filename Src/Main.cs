@@ -21,7 +21,7 @@ public class Program
 		Kernel32.AttachConsole(-1);
 
 		// check for already running instances 
-		if (Process.GetProcessesByName("sambar").Length > 0)
+		if (Process.GetProcessesByName("sambar").Length > 1)
 		{
 			Logger.Log("An instance is already running, exiting ...");
 			return;
