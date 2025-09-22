@@ -32,7 +32,7 @@ Lets have a look at these files in depth:
 
 Configure the primary properties of the bar window that are necessary during launch, these (and their default values) are:
 
-```
+```cs
 int height = 40;
 int width = 0;
 int marginXLeft = 10;
@@ -61,7 +61,7 @@ This file contains a static class called `Theme` which can hold global variables
 
 contains a single return statement
 
-```
+```cs
 return "<WIDGETPACKNAME>";
 ```
 
