@@ -38,6 +38,12 @@ Download the latest release from [here](https://github.com/TheAjaykrishnanR/samb
  1. Windows 11 build 26100+
  2. .NET 9 Desktop Runtime (if you aren't running the self-contained version), download and install it from [here](https://dotnet.microsoft.com/en-us/download/dotnet/9.0/runtime)
 
+ ## Documentation and Tutorials
+
+Read the [docs](https://github.com/TheAjaykrishnanR/sambar/blob/master/Docs/Landing.md) here.
+
+PS: *docs currently under construction and therefore incomplete*
+
 ## Building
 
  1. Download and Install .NET 9 SDK
@@ -51,12 +57,6 @@ Download the latest release from [here](https://github.com/TheAjaykrishnanR/samb
  2. `dotnet publish -r win-x64 -p:PublishSingleFile=true --self-contained -c Release`
 
 You can find the executable at `bin\Release\net*\win-x64\publish`
-
-## Documentation
-
-Read the [docs](https://github.com/TheAjaykrishnanR/sambar/blob/master/Docs/Landing.md) here.
-
-PS: *docs currently under construction and therefore incomplete*
 
 ## Acknowledgements
 
