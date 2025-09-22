@@ -18,3 +18,38 @@ Code and configuration are the same. Everything configurable in Sambar are prese
        .theme.cs
    .init.cs
 ```
+
+Each widget pack contains a set of widgets (ending with `.widget.cs` extensions) and a set of configuration files (or dotfiles): `.config.cs`, `.layout.cs`, `.theme.cs`
+
+The root WidgetPacks folder contains an `.init.cs` file. Sambar will use the widgetpack returned from this file.
+
+Lets have a look at these files in depth: 
+
+### `.config.cs` : 
+
+Configure the primary properties of the bar window that are necessary during launch, these (and their default values) are:
+
+```
+int height = 40;
+int width = 0;
+int marginXLeft = 10;
+int marginXRight = 10;
+int marginYTop = 10;
+int paddingXLeft = 0;
+int paddingXRight = 0;
+int paddingYTop = 0;
+int paddingYDown = 0;
+string backgroundColor = "";
+bool roundedCorners = true;
+string borderColor = "";
+int borderThickness = 0;
+string widgetPack = "Base";
+```
+
+### `.layout.cs`: 
+
+### `.theme.cs`: 
+
+### `.init.cs`:
+
+
