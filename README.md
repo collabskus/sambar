@@ -1,7 +1,7 @@
 # Sambar
 
 ![showcase_1](https://github.com/TheAjaykrishnanR/sambar/blob/master/Imgs/explorer_fi1Oz9MPqd.gif)
-
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/TheAjaykrishnanR/sambar/total)
 > **A native status bar for Windows 11 written in C# (.NET) with love ❤️. Utilizes the WPF technology and native interop to 
 provide a rich set of functionalities which can be consumed through widgets. You can write your own widgets utilizing
 the functions and events provided throug the API to spare yourself from reinventing the wheel everytime. Or you can even 

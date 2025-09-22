@@ -20,6 +20,13 @@ public class Program
 		// for logger
 		Kernel32.AttachConsole(-1);
 
+		// check for already running instances 
+		if (Process.GetProcessesByName("sambar").Length > 0)
+		{
+			Logger.Log("An instance is already running, exiting ...");
+			return;
+		}
+
 		Paths.CreateIfAbsent();
 
 		// evaluate the .init.cs to get the widget pack name
