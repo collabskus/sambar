@@ -24,4 +24,4 @@ Each widget pack is folder in the `WidgetPacks` folder. To create your own widge
 
 But your newly created widgetpack is empty. So you need to create some widgets. If your merely want to modify existing widgets, modifying them in `Base` is enough. But if you want to create a new layout or a layout with different colors, its better to create a new widget pack.
 
-[Creating a new widget]()
+To start hacking with sambar have a go at [Tutorials](https://github.com/TheAjaykrishnanR/sambar/blob/master/Docs/Tutorials/Landing.md)
