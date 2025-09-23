@@ -22,6 +22,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Drawing;
 using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace sambar;
 
@@ -107,6 +108,11 @@ public partial class Sambar : Window
 		int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
 		if (!barTransparent && config.roundedCorners)
 			Dwmapi.DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerPreference, sizeof(int));
+
+		// bar right click context menu
+		this.SetContextMenu([
+			("Exit", (s, e) => { Exit(); }),
+		]);
 	}
 
 	public async void AddWidgets()
@@ -117,5 +123,11 @@ public partial class Sambar : Window
 		// since the api starts much earlier than the widgets, fire events to update state once
 		// widgets are loaded
 		Sambar.api.FlushEvents();
+	}
+
+	// cleanup and exit
+	public void Exit()
+	{
+		_Main.app.Shutdown();
 	}
 }

@@ -23,7 +23,8 @@ public class Wallpapers : Widget
 		skElement.PaintSurface += (s, e) =>
 		{
 			var canvas = e.Surface.Canvas;
-			canvas.Clear(SKColors.White);
+			//canvas.Clear(SKColors.White);
+			canvas.DrawImage(SKImage.FromEncodedData(@"C:\Users\Jayakuttan\Pictures\Wallpapers\shibainu.jpeg"), new SKPoint(0, 0));
 		};
 		wnd.Content = skElement;
 		wnd.Show();

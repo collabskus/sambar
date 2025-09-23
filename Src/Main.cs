@@ -12,8 +12,10 @@ using System.Reflection;
 
 namespace sambar;
 
-public class Program
+public class _Main
 {
+	public static Application app;
+
 	[STAThread]
 	static void Main(string[] args)
 	{
@@ -46,7 +48,7 @@ public class Program
 		Config config = (Config)Activator.CreateInstance(configType);
 
 		// start the wpf bar window
-		Application app = new();
+		app = new();
 		Sambar sambar = new(widgetPackName, config);
 		app.Run(sambar);
 	}
