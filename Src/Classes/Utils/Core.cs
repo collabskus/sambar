@@ -396,6 +396,8 @@ public partial class Utils
 		screenHeight = (int)(screenHeight / scale);
 		return (screenWidth, screenHeight);
 	}
+
+
 }
 
 public class _Window

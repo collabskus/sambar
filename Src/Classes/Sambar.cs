@@ -128,6 +128,7 @@ public partial class Sambar : Window
 	// cleanup and exit
 	public void Exit()
 	{
+		Sambar.api?.Cleanup();
 		_Main.app.Shutdown();
 	}
 }

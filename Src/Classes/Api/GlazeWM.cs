@@ -16,8 +16,10 @@ public partial class Api
 	// initialization, GlazeClient waits on reply, so init in separate thread or async 
 	// function
 	GlazeClient client;
-	public async void GlazeInit()
+	private async void GlazeInit()
 	{
+		if (Process.GetProcessesByName("glazewm").Length < 1) return;
+
 		// The order is important, when sending subscription notification to glaze, the event 
 		// handler must already be attached inorder to capture the response. We are processing 
 		// this response  in GlazeEventHandler but we need all the active glaze workspaces 
@@ -35,7 +37,7 @@ public partial class Api
 	public Workspace currentWorkspace = new();
 	public List<Workspace> workspaces = new();
 
-	public async Task GetAllWorkspaces()
+	private async Task GetAllWorkspaces()
 	{
 		string message = "query workspaces";
 		Logger.Log("querying all workspaces");
@@ -61,7 +63,7 @@ public partial class Api
 		}
 	}
 
-	public void GlazeEventHandler(string message)
+	private void GlazeEventHandler(string message)
 	{
 		Logger.Log("glaze_event: " + message);
 		Message msg = JsonConvert.DeserializeObject<Message>(message);
@@ -83,7 +85,8 @@ public partial class Api
 		}
 	}
 
-	public async Task SubscribeToGlazeWMEvents()
+	string? glazeSubscriptionId;
+	private async Task SubscribeToGlazeWMEvents()
 	{
 		string command = $"sub --events focus_changed";
 		string reply = await client.SendCommand(command);
@@ -91,19 +94,31 @@ public partial class Api
 		try
 		{
 			Message? replyMessage = JsonConvert.DeserializeObject<Message>(reply);
-			Logger.Log($"subscriptionId: {replyMessage?.data.subscriptionId}");
+			glazeSubscriptionId = replyMessage?.data.subscriptionId;
+			Logger.Log($"subscriptionId: {glazeSubscriptionId}");
 		}
 		catch (Exception ex)
 		{
 			Logger.Log($"[ JSON ERROR ]: {ex.Message}");
 		}
+	}
 
+	internal async Task UnsubToGlazeWMEvents()
+	{
+		string command = $"unsub --id {glazeSubscriptionId}";
+		string reply = await client.SendCommand(command);
+		Logger.Log($"unsub reply: {reply}");
 	}
 
 	public async Task ChangeWorkspace(Workspace newWorkspace)
 	{
 		string message = $"command focus --workspace {newWorkspace.name}";
 		await client.SendCommand(message);
+	}
+
+	private async void GlazeCleanup()
+	{
+		await UnsubToGlazeWMEvents();
 	}
 }
 

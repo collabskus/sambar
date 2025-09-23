@@ -32,8 +32,8 @@ public partial class Api
 		CountersInit();
 		initTasks.AddRange([
 			Task.Run(GlazeInit),
-			Task.Run(AudioInit)]
-		);
+			Task.Run(AudioInit)
+		]);
 	}
 
 	public void Print(string text)
@@ -49,5 +49,10 @@ public partial class Api
 
 	// IUIAutomation
 	CUIAutomation ui = new();
+
+	internal void Cleanup()
+	{
+		GlazeCleanup();
+	}
 }
 

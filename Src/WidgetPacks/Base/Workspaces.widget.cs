@@ -2,7 +2,7 @@ public class Workspaces : Widget
 {
 	List<Workspace> workspaces = new();
 	List<RoundedButton> buttons = new();
-	public Workspaces(WidgetEnv ENV): base(ENV)
+	public Workspaces(WidgetEnv ENV) : base(ENV)
 	{
 		workspaces = Sambar.api.workspaces;
 
@@ -30,7 +30,8 @@ public class Workspaces : Widget
 			panel.Add(btn);
 		}
 		Sambar.api.Print($"workspaces: {workspaces.Count}, buttons: {buttons.Count}, index: {Sambar.api.currentWorkspace.index}");
-		buttons[Sambar.api.currentWorkspace.index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
+		if (buttons.Count > 0)
+			buttons[Sambar.api.currentWorkspace.index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
 		Sambar.api.GLAZE_WORKSPACE_CHANGED += (workspace) =>
 		{
 			RedrawButtons(workspace.index);
@@ -60,7 +61,7 @@ public class Workspaces : Widget
 		string clickedBtnName = Convert.ToString(btn.Text);
 		Workspace clickedWorkspace = workspaces.Where(wksp => wksp.name == clickedBtnName).First();
 		int clickedBtnIndex = clickedWorkspace.index;
-        RedrawButtons(clickedBtnIndex);
+		RedrawButtons(clickedBtnIndex);
 		Task.Run(async () =>
 		{
 			await Sambar.api.ChangeWorkspace(clickedWorkspace);
