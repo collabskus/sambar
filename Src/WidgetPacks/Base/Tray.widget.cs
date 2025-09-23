@@ -8,7 +8,7 @@ public class Tray : Widget
 		//UpdateTrayPanel();
 
 		RoundedButton btn = new();
-		btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "arrow_down.svg"); 
+		btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "arrow_down.svg");
 		btn.IconHeight = Theme.ICON_HEIGHT;
 		btn.IconWidth = Theme.ICON_WIDTH;
 		btn.Height = Theme.BUTTON_HEIGHT;
@@ -67,7 +67,15 @@ public class Tray : Widget
 				iconBtn.Margin = new(10, 10, 0, 0);
 				iconBtn.MouseDown += (s, e) =>
 				{
-					trayIcon.ContextMenu();
+					switch (e.ChangedButton)
+					{
+						case MouseButton.Right:
+							trayIcon.ContextMenu();
+							break;
+						case MouseButton.Left:
+							trayIcon.Click();
+							break;
+					}
 				};
 				panel.Children.Add(iconBtn);
 			}

@@ -24,11 +24,12 @@ public partial class Api
 	Dictionary<ICONACTION, List<WINDOWMESSAGE>> ICONACTION_MAP_V0_3 = new()
 	{
 		{ ICONACTION.RIGHT_CLICK, [ WINDOWMESSAGE.WM_RBUTTONDOWN, WINDOWMESSAGE.WM_RBUTTONUP ] },
+		{ ICONACTION.LEFT_CLICK, [ WINDOWMESSAGE.WM_LBUTTONDOWN, WINDOWMESSAGE.WM_LBUTTONUP ] },
 	};
 	Dictionary<ICONACTION, List<WINDOWMESSAGE>> ICONACTION_MAP_V3 = new()
 	{
 		{ ICONACTION.RIGHT_CLICK, [ WINDOWMESSAGE.WM_CONTEXTMENU ] },
-
+		{ ICONACTION.LEFT_CLICK, [ WINDOWMESSAGE.WM_LBUTTONDOWN, WINDOWMESSAGE.WM_LBUTTONUP ] },
 	};
 
 	/// <summary>
@@ -294,7 +295,7 @@ public class TrayIcon
 		catch (Exception ex) { Logger.Log(ex.Message); }
 	}
 
-	public void ContextMenu()
+	public NOTIFYICONDATA ValidateNid(NOTIFYICONDATA nid)
 	{
 		NOTIFYICONDATA validatedNid = nid;
 
@@ -324,9 +325,22 @@ public class TrayIcon
 			validatedNid.uTimeoutOrVersion.uVersion = 4;
 		}
 
+		return validatedNid;
+	}
+
+	public void ContextMenu()
+	{
+		NOTIFYICONDATA validatedNid = ValidateNid(nid);
 		//RightClick, class: tray_icon_app, exe: C:\Program Files\glzr.io\GlazeWM\glazewm.exe, hWnd: 3802056, uVersion: 0, callback: 6002 
 		Logger.Log($"RightClick, class: {className}, exe: {exePath}, hWnd: {validatedNid.hWnd}, uid: {validatedNid.uID}, uVersion: {validatedNid.uTimeoutOrVersion.uVersion}, callback: {validatedNid.uCallbackMessage}, callbackValid: {(validatedNid.uFlags & 0x00000001) != 0},  old_uid: {old_uVersion}");
 		Sambar.api.ImpersonateTrayEvent(validatedNid, ICONACTION.RIGHT_CLICK);
+	}
+
+	public void Click()
+	{
+		NOTIFYICONDATA validatedNid = ValidateNid(nid);
+		Logger.Log($"LeftClick, class: {className}, exe: {exePath}, hWnd: {validatedNid.hWnd}, uid: {validatedNid.uID}, uVersion: {validatedNid.uTimeoutOrVersion.uVersion}, callback: {validatedNid.uCallbackMessage}, callbackValid: {(validatedNid.uFlags & 0x00000001) != 0},  old_uid: {old_uVersion}");
+		Sambar.api.ImpersonateTrayEvent(validatedNid, ICONACTION.LEFT_CLICK);
 	}
 }
 
@@ -431,6 +445,7 @@ public class TrayIconsManager
 
 public enum ICONACTION
 {
-	RIGHT_CLICK
+	RIGHT_CLICK,
+	LEFT_CLICK,
 }
 
