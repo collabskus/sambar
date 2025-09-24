@@ -397,7 +397,16 @@ public partial class Utils
 		return (screenWidth, screenHeight);
 	}
 
-
+	/// <summary>
+	/// Scale an image so that it fills the target rect (width*height) completely
+	/// </summary>
+	public static void ScaleImage(System.Windows.Controls.Image img, int width, int height)
+	{
+		if (width > height)
+			img.Width = width;
+		else
+			img.Height = height;
+	}
 }
 
 public class _Window

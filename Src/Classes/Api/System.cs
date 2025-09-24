@@ -5,6 +5,11 @@
 
 using System.Diagnostics;
 using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Media.Animation;
 
 namespace sambar;
 
@@ -26,14 +31,83 @@ public partial class Api
 		return str.ToString();
 	}
 
-	public void SetWallPaper(string imageFile)
-	{
-		activeDesktop?.SetWallpaper(imageFile, imageFile.Length);
-	}
+	//public void SetWallPaper(string imageFile)
+	//{
+	//	activeDesktop?.SetWallpaper(imageFile, imageFile.Length);
+	//}
 
-	public void SetWallpaper(string imageFile, WallpaperAnimation animation, int duration)
+	//public void SetWallpaper(string imageFile, WallpaperAnimation animation, int duration)
+	public void SetWallpaper()
 	{
+		Window? wnd = Sambar.api?.CreateDesktopOverlay();
+		Canvas canvas = new();
 
+		Image img1 = new() { Source = new BitmapImage(new Uri(@"C:\Users\Jayakuttan\Pictures\Wallpapers\green-girl.jpg")) };
+		Image img2 = new() { Source = new BitmapImage(new Uri(@"C:\Users\Jayakuttan\Pictures\Wallpapers\1360350.png")) };
+
+		Utils.ScaleImage(img1, (int)wnd.Width, (int)wnd.Height);
+		Utils.ScaleImage(img2, (int)wnd.Width, (int)wnd.Height);
+
+		double final_radius = Math.Max(wnd.Width, wnd.Height);
+		final_radius += 0.25 * final_radius;
+
+		double radiusX_initial = 0, radiusX_final = final_radius;
+		double radiusY_initial = 0, radiusY_final = final_radius;
+
+		EllipseGeometry ellipse = new(new Point(0, 0), radiusX_initial, radiusY_initial);
+		// register a name for the ellipse so it can be targetted for animations
+		NameScope.SetNameScope(wnd, new NameScope());
+		string ellipseName = "ellipse";
+		wnd!.RegisterName(ellipseName, ellipse);
+
+		GeometryDrawing geometryDrawing = new() { Geometry = ellipse, Brush = new SolidColorBrush(Colors.Black) };
+
+		//https://stackoverflow.com/questions/14283528/positioning-an-opacitymask-in-wpf
+		DrawingBrush drawingBrush = new()
+		{
+			Drawing = geometryDrawing,
+			Stretch = Stretch.None,
+			ViewboxUnits = BrushMappingMode.Absolute,
+			AlignmentX = AlignmentX.Left,
+			AlignmentY = AlignmentY.Top
+		};
+
+		img2.OpacityMask = drawingBrush;
+
+		// Animation
+		DoubleAnimation doubleAnimationX = new()
+		{
+			From = radiusX_initial,
+			To = radiusX_final,
+			Duration = TimeSpan.FromSeconds(2),
+			AutoReverse = false
+		};
+		DoubleAnimation doubleAnimationY = new()
+		{
+			From = radiusX_initial,
+			To = radiusY_final,
+			Duration = TimeSpan.FromSeconds(2),
+			AutoReverse = false
+		};
+		Storyboard storyboard = new();
+
+		Storyboard.SetTargetName(doubleAnimationX, ellipseName);
+		Storyboard.SetTargetProperty(doubleAnimationX, new PropertyPath(EllipseGeometry.RadiusXProperty));
+
+		Storyboard.SetTargetName(doubleAnimationY, ellipseName);
+		Storyboard.SetTargetProperty(doubleAnimationY, new PropertyPath(EllipseGeometry.RadiusYProperty));
+
+		storyboard.Children.Add(doubleAnimationX);
+		storyboard.Children.Add(doubleAnimationY);
+
+		// triggers animation at window load
+		wnd.Loaded += (s, e) => { storyboard.Begin(wnd); };
+		canvas.Children.Add(img1);
+		canvas.Children.Add(img2);
+
+		//
+		wnd!.Content = canvas;
+		wnd.Show();
 	}
 }
 

@@ -14,7 +14,9 @@ The logfile `sambar.log` can be found alongside the executable which will be cre
 
 ## Exiting
 
-You can kill `sambar.exe` from the task manager or by running `taskkill /IM sambar.exe` from cmd/pwsh. Even while running the terminal, since the bar window runs on its own UI thread the `Main()` returns immediately, so `Ctrl-C` wont work to kill sambar.
+Right clicking anywhere on the bar will open a context menu containing the option to exit.
+
+You can also kill `sambar.exe` from the task manager or by running `taskkill /IM sambar.exe` from cmd/pwsh. Even while running the terminal, since the bar window runs on its own UI thread the `Main()` returns immediately, so `Ctrl-C` wont work to kill sambar.
 
 # Widgets
 

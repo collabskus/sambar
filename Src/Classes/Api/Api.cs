@@ -52,6 +52,7 @@ public partial class Api
 
 	internal void Cleanup()
 	{
+		ToggleTaskbarCleanup();
 		GlazeCleanup();
 	}
 }

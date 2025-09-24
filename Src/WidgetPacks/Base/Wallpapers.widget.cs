@@ -20,5 +20,6 @@ public class Wallpapers : Widget
 		//Sambar.api.CreateMenu(0, 0, 300, 300, centerOffset: true);
 		//Window wnd = Sambar.api.CreateDesktopOverlay();
 		//wnd.Show();
+		Sambar.api.SetWallpaper();
 	}
 }
