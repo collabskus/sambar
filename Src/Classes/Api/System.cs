@@ -36,17 +36,17 @@ public partial class Api
 	//	activeDesktop?.SetWallpaper(imageFile, imageFile.Length);
 	//}
 
-	//public void SetWallpaper(string imageFile, WallpaperAnimation animation, int duration)
-	public void SetWallpaper()
+	public void SetWallpaper(string imageFile, WallpaperAnimation animation, int duration = 2)
 	{
 		Window? wnd = Sambar.api?.CreateDesktopOverlay();
+		wnd!.Background = new SolidColorBrush(System.Windows.Media.Colors.Transparent);
 		Canvas canvas = new();
 
-		Image img1 = new() { Source = new BitmapImage(new Uri(@"C:\Users\Jayakuttan\Pictures\Wallpapers\green-girl.jpg")) };
-		Image img2 = new() { Source = new BitmapImage(new Uri(@"C:\Users\Jayakuttan\Pictures\Wallpapers\1360350.png")) };
+		Image img = new() { Source = GetImageSource(imageFile) };
+		//Image img2 = new() { Source = new BitmapImage(new Uri(@"C:\Users\Jayakuttan\Pictures\Wallpapers\1360350.png")) };
 
-		Utils.ScaleImage(img1, (int)wnd.Width, (int)wnd.Height);
-		Utils.ScaleImage(img2, (int)wnd.Width, (int)wnd.Height);
+		Utils.ScaleImage(img, (int)wnd.Width, (int)wnd.Height);
+		//Utils.ScaleImage(img2, (int)wnd.Width, (int)wnd.Height);
 
 		double final_radius = Math.Max(wnd.Width, wnd.Height);
 		final_radius += 0.25 * final_radius;
@@ -72,21 +72,21 @@ public partial class Api
 			AlignmentY = AlignmentY.Top
 		};
 
-		img2.OpacityMask = drawingBrush;
+		img.OpacityMask = drawingBrush;
 
 		// Animation
 		DoubleAnimation doubleAnimationX = new()
 		{
 			From = radiusX_initial,
 			To = radiusX_final,
-			Duration = TimeSpan.FromSeconds(2),
+			Duration = TimeSpan.FromSeconds(duration),
 			AutoReverse = false
 		};
 		DoubleAnimation doubleAnimationY = new()
 		{
 			From = radiusX_initial,
 			To = radiusY_final,
-			Duration = TimeSpan.FromSeconds(2),
+			Duration = TimeSpan.FromSeconds(duration),
 			AutoReverse = false
 		};
 		Storyboard storyboard = new();
@@ -99,11 +99,13 @@ public partial class Api
 
 		storyboard.Children.Add(doubleAnimationX);
 		storyboard.Children.Add(doubleAnimationY);
+		storyboard.Completed += (s, e) => wnd.Close();
 
 		// triggers animation at window load
 		wnd.Loaded += (s, e) => { storyboard.Begin(wnd); };
-		canvas.Children.Add(img1);
-		canvas.Children.Add(img2);
+		canvas.Children.Add(img);
+
+		//canvas.Children.Add(img2);
 
 		//
 		wnd!.Content = canvas;

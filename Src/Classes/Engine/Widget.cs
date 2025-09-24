@@ -6,6 +6,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using System.IO;
 
 namespace sambar;
 
@@ -25,7 +26,7 @@ public class Widget : Border
 	}
 
 	Config config;
-	WidgetEnv ENV;
+	public WidgetEnv ENV;
 	protected Widget(WidgetEnv ENV)
 	{
 		this.HorizontalAlignment = HorizontalAlignment.Left;
@@ -38,4 +39,5 @@ public class Widget : Border
 public class WidgetEnv
 {
 	public string ASSETS_FOLDER;
-} 
+	public string HOME = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+}

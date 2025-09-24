@@ -336,7 +336,6 @@ using SkiaSharp.Views.WPF;
 		if (imports == null)
 		{
 			env.ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, Sambar.api!.bar.widgetPackName, "assets");
-			return env;
 		}
 		if (imports!.widgets.Contains(widgetName))
 		{
