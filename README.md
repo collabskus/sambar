@@ -32,6 +32,7 @@ positions and colors are <ins>fully customizable</ins>. [dive in?](https://githu
  8. Media playback information
  9. Network Manager (open actions center)
  10. Hide the default windows taskbar
+ 11. Animated Wallpaper changer
 
 ## Usage
 
