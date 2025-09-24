@@ -29,6 +29,7 @@ public class Wallpapers : Widget
 			)
 		);
 		imageSelector.IMAGE_SELECTED += (imgFile) => Sambar.api.SetWallpaper(imgFile, WallpaperAnimation.NONE);
+		//imageSelector.IMAGE_SELECTED += (imgFile) => Sambar.api.SetWallpaper(imgFile);
 
 		menu.KeyDown += (s, e) => { if (e.Key == Key.Escape) menu.Close(); };
 		menu.Content = imageSelector;

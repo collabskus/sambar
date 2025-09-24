@@ -85,11 +85,11 @@ public partial class Api
 				// have appeared
 				if (runningApps != null && runningApps.Count != _old_runningApps.Count || updateRequired)
 				{
-					Logger.Log("MONITOR APPS TRUE", file: false);
+					//Logger.Log("MONITOR APPS TRUE", file: false);
 					TASKBAR_APPS_EVENT(runningApps);
 					_old_runningApps = runningApps.ToList();
 				}
-				Logger.Log($"MONITORING TASKBAR APPS: {runningApps.Count}, {_old_runningApps.Count}", file: false);
+				//Logger.Log($"MONITORING TASKBAR APPS: {runningApps.Count}, {_old_runningApps.Count}", file: false);
 				await Task.Delay(100);
 			}
 		}, _mta_cts.Token);

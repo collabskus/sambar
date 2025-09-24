@@ -55,3 +55,10 @@ public enum DtiAddUI : int
 	DISPSUBWIZARD = 0x00000001,
 	POSITIONITEM = 0x00000002,
 }
+
+public enum AD_GETWP : uint
+{
+	BMP = 0x00000000,
+	IMAGE = 0x00000001,
+	LAST_APPLIED = 0x00000002
+}

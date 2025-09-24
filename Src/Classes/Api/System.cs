@@ -21,20 +21,23 @@ public partial class Api
 	{
 		Type? activeDesktopClass = Type.GetTypeFromCLSID(CLSID.ActiveDesktop);
 		activeDesktop = (IActiveDesktop)Activator.CreateInstance(activeDesktopClass);
+		Logger.Log($"ad_class_null: {activeDesktopClass == null}, ad_null: {activeDesktop == null}");
 	}
 
 	public string GetWallpaper()
 	{
 		StringBuilder str = new(512);
-		activeDesktop?.GetWallpaper(str, str.Capacity, 0x00000001);
+		activeDesktop?.GetWallpaper(str, str.Capacity, (int)AD_GETWP.IMAGE);
 		Logger.Log($"the wallpaper is {str.ToString()}");
 		return str.ToString();
 	}
 
-	//public void SetWallPaper(string imageFile)
-	//{
-	//	activeDesktop?.SetWallpaper(imageFile, imageFile.Length);
-	//}
+	public void SetWallpaper(string imageFile)
+	{
+		int? res = activeDesktop?.SetWallpaper(imageFile, 0 /* dwReserved = 0 */);
+		Logger.Log($"Setting Wallpaper: {imageFile}, res: {res}, iadnull: {activeDesktop == null}");
+		activeDesktop?.ApplyChanges(AD_Apply.ALL);
+	}
 
 	public void SetWallpaper(string imageFile, WallpaperAnimation animation, int duration = 2)
 	{
@@ -99,13 +102,17 @@ public partial class Api
 
 		storyboard.Children.Add(doubleAnimationX);
 		storyboard.Children.Add(doubleAnimationY);
-		storyboard.Completed += (s, e) => wnd.Close();
 
 		// triggers animation at window load
 		wnd.Loaded += (s, e) => { storyboard.Begin(wnd); };
 		canvas.Children.Add(img);
 
-		//canvas.Children.Add(img2);
+		// close the window once animation is complete and wallpaper is set
+		storyboard.Completed += (s, e) =>
+		{
+			SetWallpaper(imageFile);
+			wnd.Close();
+		};
 
 		//
 		wnd!.Content = canvas;
