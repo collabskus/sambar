@@ -4,12 +4,17 @@
 */
 
 using System.IO;
+using System.Reflection;
 
 namespace sambar;
 
 public class Paths
 {
+#if DEBUG
 	public static readonly string rootFolder = Directory.GetCurrentDirectory();
+#else
+	public static readonly string rootFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!;
+#endif
 	public static readonly string widgetPacksFolder = Path.Join(rootFolder, "WidgetPacks");
 	public static readonly string initCsFile = Path.Join(widgetPacksFolder, ".init.cs");
 	public static readonly string dllFolder = Path.Join(rootFolder, "_.dll");
