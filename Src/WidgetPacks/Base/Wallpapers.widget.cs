@@ -108,11 +108,13 @@ public class ImageSelector : Grid
 
 	public void Forward()
 	{
+		if (index == this.imgFiles.Length - 1) return;
 		index++;
 		SetState(index);
 	}
 	public void Backward()
 	{
+		if (index == 0) return;
 		index--;
 		SetState(index);
 	}
