@@ -1,7 +1,7 @@
 ﻿
 ===============================================================================
 sambar PROJECT EXPORT
-Generated: 09/25/2025 15:35:53
+Generated: 09/25/2025 16:05:55
 Project Path: D:\DEV\sambar
 ===============================================================================
 
@@ -215,114 +215,376 @@ To start hacking with sambar have a go at [Tutorials](https://github.com/TheAjay
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\claude.md
-SIZE: 3.58 KB
-MODIFIED: 09/25/2025 15:34:16
+SIZE: 10.02 KB
+MODIFIED: 09/25/2025 16:03:17
 ================================================================================
 
-Here's my code review of the Sambar project:
+# Comprehensive Code Review: Sambar Project
 
-## Architecture & Design
+## Executive Summary
 
-**Strengths:**
-- Clean separation of concerns with the widget system
-- Modular design allowing theme/layout customization
-- Smart use of Win32 interception for taskbar replacement
-
-**Issues:**
-- **Heavy coupling to static API instance** - `Sambar.api` is accessed globally throughout widgets, making testing difficult and creating tight coupling
-- **Mixed responsibilities** - The `Api` class is massive (15+ files) and handles everything from audio to windowing to system monitoring
-- **Unsafe threading** - Many UI updates use `Dispatcher.Invoke` without proper error handling
+Sambar is an ambitious Windows 11 taskbar replacement written in C# using WPF. While the project demonstrates impressive Windows API integration and creative solutions for system-level functionality, it contains critical architectural flaws, security vulnerabilities, and resource management issues that could lead to system instability, security breaches, and memory leaks.
 
 ## Critical Issues
 
-**Memory Management:**
+### 1. Security Vulnerabilities
+
+#### **Arbitrary Code Execution Risk**
+The widget loading system compiles and executes user-provided C# code without proper sandboxing:
+
 ```csharp
+// WidgetEngine.cs
+public static T? GetObjectFromScript<T>(string scriptPath)
+{
+    string script = File.ReadAllText(scriptPath);
+    ScriptOptions options = ScriptOptions.Default
+        .AddReferences(typeof(Sambar).Assembly)
+        .WithImports("sambar");
+    
+    // Direct execution of untrusted code!
+    obj = await CSharpScript.EvaluateAsync<T>(script, options: options);
+}
+```
+
+**Risk**: Any `.cs` file in the WidgetPacks folder can execute arbitrary code with full system privileges. A malicious widget could:
+- Access sensitive files
+- Install malware
+- Modify system settings
+- Exfiltrate data
+
+**Recommendation**: Implement proper sandboxing using AppDomains or process isolation:
+
+```csharp
+// Suggested approach
+public class SecureWidgetLoader
+{
+    private AppDomain CreateSandboxedDomain()
+    {
+        var setup = new AppDomainSetup
+        {
+            ApplicationBase = AppDomain.CurrentDomain.BaseDirectory
+        };
+        
+        var permissions = new PermissionSet(PermissionState.None);
+        permissions.AddPermission(new SecurityPermission(SecurityPermissionFlag.Execution));
+        permissions.AddPermission(new FileIOPermission(FileIOPermissionAccess.Read, widgetPath));
+        
+        return AppDomain.CreateDomain("WidgetSandbox", null, setup, permissions);
+    }
+}
+```
+
+### 2. Resource Management Disasters
+
+#### **Static File Handles Never Disposed**
+```csharp
+// Logger.cs
 public static FileStream logFile = File.Open(Paths.logFile, FileMode.OpenOrCreate);
 public static StreamWriter logFileWriter = new(logFile);
-```
-These static resources are never disposed, causing resource leaks.
-
-**Security:**
-```csharp
-ScriptOptions options = ScriptOptions.Default
-    .AddReferences(typeof(Sambar).Assembly)
-    .WithImports("sambar");
-obj = await CSharpScript.EvaluateAsync<T>(script, options: options);
-```
-Runtime compilation of user scripts without sandboxing poses security risks.
-
-**Error Handling:**
-Most Win32 API calls lack proper error checking:
-```csharp
-User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, (int)(exStyles | (uint)WINDOWSTYLE.WS_EX_TOOLWINDOW));
-// No check of return value or GetLastError()
+// These are NEVER disposed!
 ```
 
-## Performance Concerns
+**Impact**: Permanent file handle leak, potential data loss, file locking issues.
 
-**Inefficient Updates:**
+**Fix**:
 ```csharp
+public class Logger : IDisposable
+{
+    private readonly FileStream _logFile;
+    private readonly StreamWriter _logFileWriter;
+    private bool _disposed;
+    
+    public Logger()
+    {
+        _logFile = File.Open(Paths.logFile, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+        _logFileWriter = new StreamWriter(_logFile) { AutoFlush = true };
+    }
+    
+    public void Dispose()
+    {
+        if (!_disposed)
+        {
+            _logFileWriter?.Dispose();
+            _logFile?.Dispose();
+            _disposed = true;
+        }
+    }
+}
+```
+
+#### **Infinite Loops Without Cancellation**
+Multiple widgets create infinite loops without cancellation support:
+
+```csharp
+// Counters.widget.cs
 public void UpdateText()
 {
     Task.Run(async () =>
     {
-        while (true)
+        while (true)  // No way to stop this!
         {
-            // UI update every second in background thread
-            this.Thread.Invoke(() => { textBlock.Text = text; });
+            // ... update logic
             await Task.Delay(1000);
         }
     });
 }
 ```
-Creates long-running tasks that never clean up.
 
-**Resource-Heavy Audio Processing:**
-The audio visualization creates multiple threads and continuous FFT processing without throttling or resource limits.
+**Fix**:
+```csharp
+private CancellationTokenSource _cts = new();
 
-## Code Quality Issues
+public void UpdateText()
+{
+    Task.Run(async () =>
+    {
+        while (!_cts.Token.IsCancellationRequested)
+        {
+            // ... update logic
+            await Task.Delay(1000, _cts.Token);
+        }
+    }, _cts.Token);
+}
 
-**Magic Numbers:**
+public void Dispose()
+{
+    _cts?.Cancel();
+    _cts?.Dispose();
+}
+```
+
+### 3. Thread Safety Violations
+
+#### **Cross-Thread UI Access Without Synchronization**
+```csharp
+// Multiple locations
+this.Thread.Invoke(() => { textBlock.Text = text; });
+```
+
+No checking if the dispatcher is still alive or if the control still exists.
+
+**Fix**:
+```csharp
+private void SafeInvoke(Action action)
+{
+    if (!Dispatcher.HasShutdownStarted && !Dispatcher.HasShutdownFinished)
+    {
+        Dispatcher.BeginInvoke(action, DispatcherPriority.Normal);
+    }
+}
+```
+
+### 4. Win32 API Misuse
+
+#### **No Error Checking for Critical Win32 Calls**
+```csharp
+// Throughout the codebase
+User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, newStyle);
+// No check of return value or GetLastError()
+```
+
+**Fix**:
+```csharp
+public static void SafeSetWindowLong(IntPtr hWnd, int index, int newLong)
+{
+    SetLastError(0);
+    int result = SetWindowLong(hWnd, index, newLong);
+    
+    if (result == 0)
+    {
+        int error = Marshal.GetLastWin32Error();
+        if (error != 0)
+        {
+            throw new Win32Exception(error);
+        }
+    }
+}
+```
+
+#### **Race Condition in Taskbar Interception**
+```csharp
+// TaskbarInterceptor constructor
+originalTray_hWnd = User32.FindWindow("Shell_TrayWnd", null);
+// ... other code ...
+// Then creates window with same class name
+```
+
+If Windows recreates the taskbar between these calls, the interceptor fails catastrophically.
+
+### 5. Architecture Problems
+
+#### **God Object Anti-Pattern**
+The `Api` class is split across 15+ files and handles everything:
+
+```csharp
+public partial class Api
+{
+    // Audio.cs - 300+ lines
+    // SystemTray.cs - 200+ lines  
+    // Taskbar.cs - 400+ lines
+    // Events.cs - 150+ lines
+    // ... and 10 more files
+}
+```
+
+This violates Single Responsibility Principle severely.
+
+**Recommendation**: Refactor into focused services:
+```csharp
+public interface IAudioService { /* audio methods */ }
+public interface ISystemTrayService { /* tray methods */ }
+public interface ITaskbarService { /* taskbar methods */ }
+
+public class ServiceContainer
+{
+    public IAudioService Audio { get; }
+    public ISystemTrayService SystemTray { get; }
+    public ITaskbarService Taskbar { get; }
+}
+```
+
+#### **Static Coupling Everywhere**
+```csharp
+// Used throughout all widgets
+Sambar.api.someMethod();
+```
+
+Makes testing impossible and creates brittle dependencies.
+
+### 6. Performance Issues
+
+#### **Excessive Polling**
+```csharp
+// WindowTracker.cs - MonitorTaskbarApps()
+while (true)
+{
+    RefreshRunningApps();
+    // ... 
+    await Task.Delay(100); // Polling every 100ms!
+}
+```
+
+This creates unnecessary CPU usage. Should use Windows events instead:
+
+```csharp
+// Use Shell Hook instead
+private void RegisterShellHook()
+{
+    User32.RegisterShellHookWindow(hWnd);
+    uint shellHookMessage = User32.RegisterWindowMessage("SHELLHOOK");
+    // Handle in WndProc
+}
+```
+
+#### **Memory Leaks in Event Handlers**
+```csharp
+// Multiple places
+Sambar.api.SOME_EVENT += HandlerMethod;
+// Never unsubscribed!
+```
+
+### 7. Data Structure Issues
+
+#### **Unsafe Collection Modifications**
+```csharp
+// TrayIconsManager.cs
+public List<TrayIcon> icons = new();  // Public mutable list!
+```
+
+**Fix**:
+```csharp
+private readonly ConcurrentBag<TrayIcon> _icons = new();
+public IReadOnlyCollection<TrayIcon> Icons => _icons.ToList().AsReadOnly();
+```
+
+## Medium Priority Issues
+
+### Poor Exception Handling
+```csharp
+try
+{
+    // ... code
+}
+catch (Exception ex) 
+{ 
+    Logger.Log(ex.Message);  // Loses stack trace!
+}
+```
+
+Should log full exception: `Logger.Log(ex.ToString());`
+
+### Magic Numbers
 ```csharp
 const int SAMPLE_RATE = 44100;
 const int BITS = 16;
 const int CHANNELS = 2;
 ```
-Should be configurable or at least documented why these specific values.
+No documentation explaining these audio constants.
 
-**Inconsistent Naming:**
-Mix of PascalCase, camelCase, and SCREAMING_CASE without clear conventions.
-
-**Poor Separation of Concerns:**
+### Inconsistent Async Patterns
+Mixing `async void`, `Task.Run`, and blocking waits:
 ```csharp
-public partial class Api // Split across 14 files
+public async void GlazeInit()  // async void is dangerous!
+{
+    await GetAllWorkspaces();
+}
 ```
-This god class violates SRP badly.
-
-## Specific Recommendations
-
-1. **Implement proper DI container** instead of static `Sambar.api`
-2. **Add comprehensive error handling** for all Win32 calls
-3. **Implement IDisposable** for resource cleanup
-4. **Sandbox script execution** or validate inputs
-5. **Use CancellationTokens** for proper task cleanup
-6. **Split the API class** into focused services
-7. **Add unit tests** - currently there are none
-8. **Implement proper logging** instead of static file handles
 
 ## Positive Aspects
 
-- Clever taskbar interception approach
-- Comprehensive Windows API integration  
-- Flexible widget system design
-- Good use of WPF for UI rendering
-- Solid audio processing implementation
+Despite the issues, the project shows:
 
-## Overall Assessment
+1. **Deep Windows API Knowledge**: Impressive use of undocumented APIs like `NtQuerySystemInformation`
+2. **Creative Solutions**: The taskbar interception mechanism is clever
+3. **Feature-Rich**: Audio visualization, workspace management, system monitoring
+4. **Extensible Design**: The widget system concept is solid
+5. **Modern C# Features**: Uses recent language features appropriately
 
-This is an ambitious project with some clever solutions, but it needs significant refactoring for production use. The core concepts are sound, but execution has serious issues around resource management, error handling, and code organization that could cause crashes and security vulnerabilities.
+## Immediate Action Items
 
-The biggest wins would come from breaking up the monolithic API class and implementing proper resource cleanup patterns.
+1. **CRITICAL**: Add proper disposal patterns everywhere
+2. **CRITICAL**: Sandbox the widget compilation/execution
+3. **HIGH**: Implement comprehensive error handling for Win32 calls
+4. **HIGH**: Add CancellationToken support to all async operations
+5. **HIGH**: Break up the Api god class
+6. **MEDIUM**: Replace polling with event-driven patterns
+7. **MEDIUM**: Add unit tests (currently zero tests)
+8. **LOW**: Document magic numbers and algorithms
+
+## Refactoring Roadmap
+
+### Phase 1: Stabilization (1-2 weeks)
+- Implement IDisposable pattern throughout
+- Add error handling to all Win32 calls
+- Fix resource leaks
+
+### Phase 2: Security (1 week)
+- Sandbox widget execution
+- Validate all external inputs
+- Remove static file handles
+
+### Phase 3: Architecture (2-3 weeks)
+- Break up Api class into services
+- Implement dependency injection
+- Remove static coupling
+
+### Phase 4: Performance (1 week)
+- Replace polling with events
+- Optimize collection usage
+- Implement proper async patterns
+
+## Conclusion
+
+Sambar is an impressive technical achievement that demonstrates deep Windows internals knowledge. However, it requires significant refactoring before it's ready for production use. The most critical issues are resource management, security vulnerabilities in the widget system, and the monolithic architecture. With proper refactoring following the roadmap above, this could become a robust and maintainable taskbar replacement.
+
+The project would benefit greatly from:
+- Comprehensive unit and integration tests
+- CI/CD pipeline with code analysis
+- Security audit of the widget compilation system
+- Performance profiling to identify bottlenecks
+- Documentation of the Win32 interop layer
+
+Despite these issues, the core concept is sound and the feature set is impressive. With focused refactoring efforts, Sambar could become a professional-grade Windows customization tool.
 
 
 
@@ -429,14 +691,14 @@ new plugins the Sambar Api is incredibly useful, see the Api reference here.
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\project_export.txt
-SIZE: 14.96 KB
-MODIFIED: 09/25/2025 15:35:54
+SIZE: 21.41 KB
+MODIFIED: 09/25/2025 16:05:55
 ================================================================================
 
 
 ===============================================================================
 sambar PROJECT EXPORT
-Generated: 09/25/2025 15:35:53
+Generated: 09/25/2025 16:05:55
 Project Path: D:\DEV\sambar
 ===============================================================================
 
@@ -650,114 +912,376 @@ To start hacking with sambar have a go at [Tutorials](https://github.com/TheAjay
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\claude.md
-SIZE: 3.58 KB
-MODIFIED: 09/25/2025 15:34:16
+SIZE: 10.02 KB
+MODIFIED: 09/25/2025 16:03:17
 ================================================================================
 
-Here's my code review of the Sambar project:
+# Comprehensive Code Review: Sambar Project
 
-## Architecture & Design
+## Executive Summary
 
-**Strengths:**
-- Clean separation of concerns with the widget system
-- Modular design allowing theme/layout customization
-- Smart use of Win32 interception for taskbar replacement
-
-**Issues:**
-- **Heavy coupling to static API instance** - `Sambar.api` is accessed globally throughout widgets, making testing difficult and creating tight coupling
-- **Mixed responsibilities** - The `Api` class is massive (15+ files) and handles everything from audio to windowing to system monitoring
-- **Unsafe threading** - Many UI updates use `Dispatcher.Invoke` without proper error handling
+Sambar is an ambitious Windows 11 taskbar replacement written in C# using WPF. While the project demonstrates impressive Windows API integration and creative solutions for system-level functionality, it contains critical architectural flaws, security vulnerabilities, and resource management issues that could lead to system instability, security breaches, and memory leaks.
 
 ## Critical Issues
 
-**Memory Management:**
+### 1. Security Vulnerabilities
+
+#### **Arbitrary Code Execution Risk**
+The widget loading system compiles and executes user-provided C# code without proper sandboxing:
+
 ```csharp
+// WidgetEngine.cs
+public static T? GetObjectFromScript<T>(string scriptPath)
+{
+    string script = File.ReadAllText(scriptPath);
+    ScriptOptions options = ScriptOptions.Default
+        .AddReferences(typeof(Sambar).Assembly)
+        .WithImports("sambar");
+    
+    // Direct execution of untrusted code!
+    obj = await CSharpScript.EvaluateAsync<T>(script, options: options);
+}
+```
+
+**Risk**: Any `.cs` file in the WidgetPacks folder can execute arbitrary code with full system privileges. A malicious widget could:
+- Access sensitive files
+- Install malware
+- Modify system settings
+- Exfiltrate data
+
+**Recommendation**: Implement proper sandboxing using AppDomains or process isolation:
+
+```csharp
+// Suggested approach
+public class SecureWidgetLoader
+{
+    private AppDomain CreateSandboxedDomain()
+    {
+        var setup = new AppDomainSetup
+        {
+            ApplicationBase = AppDomain.CurrentDomain.BaseDirectory
+        };
+        
+        var permissions = new PermissionSet(PermissionState.None);
+        permissions.AddPermission(new SecurityPermission(SecurityPermissionFlag.Execution));
+        permissions.AddPermission(new FileIOPermission(FileIOPermissionAccess.Read, widgetPath));
+        
+        return AppDomain.CreateDomain("WidgetSandbox", null, setup, permissions);
+    }
+}
+```
+
+### 2. Resource Management Disasters
+
+#### **Static File Handles Never Disposed**
+```csharp
+// Logger.cs
 public static FileStream logFile = File.Open(Paths.logFile, FileMode.OpenOrCreate);
 public static StreamWriter logFileWriter = new(logFile);
-```
-These static resources are never disposed, causing resource leaks.
-
-**Security:**
-```csharp
-ScriptOptions options = ScriptOptions.Default
-    .AddReferences(typeof(Sambar).Assembly)
-    .WithImports("sambar");
-obj = await CSharpScript.EvaluateAsync<T>(script, options: options);
-```
-Runtime compilation of user scripts without sandboxing poses security risks.
-
-**Error Handling:**
-Most Win32 API calls lack proper error checking:
-```csharp
-User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, (int)(exStyles | (uint)WINDOWSTYLE.WS_EX_TOOLWINDOW));
-// No check of return value or GetLastError()
+// These are NEVER disposed!
 ```
 
-## Performance Concerns
+**Impact**: Permanent file handle leak, potential data loss, file locking issues.
 
-**Inefficient Updates:**
+**Fix**:
 ```csharp
+public class Logger : IDisposable
+{
+    private readonly FileStream _logFile;
+    private readonly StreamWriter _logFileWriter;
+    private bool _disposed;
+    
+    public Logger()
+    {
+        _logFile = File.Open(Paths.logFile, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+        _logFileWriter = new StreamWriter(_logFile) { AutoFlush = true };
+    }
+    
+    public void Dispose()
+    {
+        if (!_disposed)
+        {
+            _logFileWriter?.Dispose();
+            _logFile?.Dispose();
+            _disposed = true;
+        }
+    }
+}
+```
+
+#### **Infinite Loops Without Cancellation**
+Multiple widgets create infinite loops without cancellation support:
+
+```csharp
+// Counters.widget.cs
 public void UpdateText()
 {
     Task.Run(async () =>
     {
-        while (true)
+        while (true)  // No way to stop this!
         {
-            // UI update every second in background thread
-            this.Thread.Invoke(() => { textBlock.Text = text; });
+            // ... update logic
             await Task.Delay(1000);
         }
     });
 }
 ```
-Creates long-running tasks that never clean up.
 
-**Resource-Heavy Audio Processing:**
-The audio visualization creates multiple threads and continuous FFT processing without throttling or resource limits.
+**Fix**:
+```csharp
+private CancellationTokenSource _cts = new();
 
-## Code Quality Issues
+public void UpdateText()
+{
+    Task.Run(async () =>
+    {
+        while (!_cts.Token.IsCancellationRequested)
+        {
+            // ... update logic
+            await Task.Delay(1000, _cts.Token);
+        }
+    }, _cts.Token);
+}
 
-**Magic Numbers:**
+public void Dispose()
+{
+    _cts?.Cancel();
+    _cts?.Dispose();
+}
+```
+
+### 3. Thread Safety Violations
+
+#### **Cross-Thread UI Access Without Synchronization**
+```csharp
+// Multiple locations
+this.Thread.Invoke(() => { textBlock.Text = text; });
+```
+
+No checking if the dispatcher is still alive or if the control still exists.
+
+**Fix**:
+```csharp
+private void SafeInvoke(Action action)
+{
+    if (!Dispatcher.HasShutdownStarted && !Dispatcher.HasShutdownFinished)
+    {
+        Dispatcher.BeginInvoke(action, DispatcherPriority.Normal);
+    }
+}
+```
+
+### 4. Win32 API Misuse
+
+#### **No Error Checking for Critical Win32 Calls**
+```csharp
+// Throughout the codebase
+User32.SetWindowLong(hWnd, (int)GETWINDOWLONG.GWL_EXSTYLE, newStyle);
+// No check of return value or GetLastError()
+```
+
+**Fix**:
+```csharp
+public static void SafeSetWindowLong(IntPtr hWnd, int index, int newLong)
+{
+    SetLastError(0);
+    int result = SetWindowLong(hWnd, index, newLong);
+    
+    if (result == 0)
+    {
+        int error = Marshal.GetLastWin32Error();
+        if (error != 0)
+        {
+            throw new Win32Exception(error);
+        }
+    }
+}
+```
+
+#### **Race Condition in Taskbar Interception**
+```csharp
+// TaskbarInterceptor constructor
+originalTray_hWnd = User32.FindWindow("Shell_TrayWnd", null);
+// ... other code ...
+// Then creates window with same class name
+```
+
+If Windows recreates the taskbar between these calls, the interceptor fails catastrophically.
+
+### 5. Architecture Problems
+
+#### **God Object Anti-Pattern**
+The `Api` class is split across 15+ files and handles everything:
+
+```csharp
+public partial class Api
+{
+    // Audio.cs - 300+ lines
+    // SystemTray.cs - 200+ lines  
+    // Taskbar.cs - 400+ lines
+    // Events.cs - 150+ lines
+    // ... and 10 more files
+}
+```
+
+This violates Single Responsibility Principle severely.
+
+**Recommendation**: Refactor into focused services:
+```csharp
+public interface IAudioService { /* audio methods */ }
+public interface ISystemTrayService { /* tray methods */ }
+public interface ITaskbarService { /* taskbar methods */ }
+
+public class ServiceContainer
+{
+    public IAudioService Audio { get; }
+    public ISystemTrayService SystemTray { get; }
+    public ITaskbarService Taskbar { get; }
+}
+```
+
+#### **Static Coupling Everywhere**
+```csharp
+// Used throughout all widgets
+Sambar.api.someMethod();
+```
+
+Makes testing impossible and creates brittle dependencies.
+
+### 6. Performance Issues
+
+#### **Excessive Polling**
+```csharp
+// WindowTracker.cs - MonitorTaskbarApps()
+while (true)
+{
+    RefreshRunningApps();
+    // ... 
+    await Task.Delay(100); // Polling every 100ms!
+}
+```
+
+This creates unnecessary CPU usage. Should use Windows events instead:
+
+```csharp
+// Use Shell Hook instead
+private void RegisterShellHook()
+{
+    User32.RegisterShellHookWindow(hWnd);
+    uint shellHookMessage = User32.RegisterWindowMessage("SHELLHOOK");
+    // Handle in WndProc
+}
+```
+
+#### **Memory Leaks in Event Handlers**
+```csharp
+// Multiple places
+Sambar.api.SOME_EVENT += HandlerMethod;
+// Never unsubscribed!
+```
+
+### 7. Data Structure Issues
+
+#### **Unsafe Collection Modifications**
+```csharp
+// TrayIconsManager.cs
+public List<TrayIcon> icons = new();  // Public mutable list!
+```
+
+**Fix**:
+```csharp
+private readonly ConcurrentBag<TrayIcon> _icons = new();
+public IReadOnlyCollection<TrayIcon> Icons => _icons.ToList().AsReadOnly();
+```
+
+## Medium Priority Issues
+
+### Poor Exception Handling
+```csharp
+try
+{
+    // ... code
+}
+catch (Exception ex) 
+{ 
+    Logger.Log(ex.Message);  // Loses stack trace!
+}
+```
+
+Should log full exception: `Logger.Log(ex.ToString());`
+
+### Magic Numbers
 ```csharp
 const int SAMPLE_RATE = 44100;
 const int BITS = 16;
 const int CHANNELS = 2;
 ```
-Should be configurable or at least documented why these specific values.
+No documentation explaining these audio constants.
 
-**Inconsistent Naming:**
-Mix of PascalCase, camelCase, and SCREAMING_CASE without clear conventions.
-
-**Poor Separation of Concerns:**
+### Inconsistent Async Patterns
+Mixing `async void`, `Task.Run`, and blocking waits:
 ```csharp
-public partial class Api // Split across 14 files
+public async void GlazeInit()  // async void is dangerous!
+{
+    await GetAllWorkspaces();
+}
 ```
-This god class violates SRP badly.
-
-## Specific Recommendations
-
-1. **Implement proper DI container** instead of static `Sambar.api`
-2. **Add comprehensive error handling** for all Win32 calls
-3. **Implement IDisposable** for resource cleanup
-4. **Sandbox script execution** or validate inputs
-5. **Use CancellationTokens** for proper task cleanup
-6. **Split the API class** into focused services
-7. **Add unit tests** - currently there are none
-8. **Implement proper logging** instead of static file handles
 
 ## Positive Aspects
 
-- Clever taskbar interception approach
-- Comprehensive Windows API integration  
-- Flexible widget system design
-- Good use of WPF for UI rendering
-- Solid audio processing implementation
+Despite the issues, the project shows:
 
-## Overall Assessment
+1. **Deep Windows API Knowledge**: Impressive use of undocumented APIs like `NtQuerySystemInformation`
+2. **Creative Solutions**: The taskbar interception mechanism is clever
+3. **Feature-Rich**: Audio visualization, workspace management, system monitoring
+4. **Extensible Design**: The widget system concept is solid
+5. **Modern C# Features**: Uses recent language features appropriately
 
-This is an ambitious project with some clever solutions, but it needs significant refactoring for production use. The core concepts are sound, but execution has serious issues around resource management, error handling, and code organization that could cause crashes and security vulnerabilities.
+## Immediate Action Items
 
-The biggest wins would come from breaking up the monolithic API class and implementing proper resource cleanup patterns.
+1. **CRITICAL**: Add proper disposal patterns everywhere
+2. **CRITICAL**: Sandbox the widget compilation/execution
+3. **HIGH**: Implement comprehensive error handling for Win32 calls
+4. **HIGH**: Add CancellationToken support to all async operations
+5. **HIGH**: Break up the Api god class
+6. **MEDIUM**: Replace polling with event-driven patterns
+7. **MEDIUM**: Add unit tests (currently zero tests)
+8. **LOW**: Document magic numbers and algorithms
+
+## Refactoring Roadmap
+
+### Phase 1: Stabilization (1-2 weeks)
+- Implement IDisposable pattern throughout
+- Add error handling to all Win32 calls
+- Fix resource leaks
+
+### Phase 2: Security (1 week)
+- Sandbox widget execution
+- Validate all external inputs
+- Remove static file handles
+
+### Phase 3: Architecture (2-3 weeks)
+- Break up Api class into services
+- Implement dependency injection
+- Remove static coupling
+
+### Phase 4: Performance (1 week)
+- Replace polling with events
+- Optimize collection usage
+- Implement proper async patterns
+
+## Conclusion
+
+Sambar is an impressive technical achievement that demonstrates deep Windows internals knowledge. However, it requires significant refactoring before it's ready for production use. The most critical issues are resource management, security vulnerabilities in the widget system, and the monolithic architecture. With proper refactoring following the roadmap above, this could become a robust and maintainable taskbar replacement.
+
+The project would benefit greatly from:
+- Comprehensive unit and integration tests
+- CI/CD pipeline with code analysis
+- Security audit of the widget compilation system
+- Performance profiling to identify bottlenecks
+- Documentation of the Win32 interop layer
+
+Despite these issues, the core concept is sound and the feature set is impressive. With focused refactoring efforts, Sambar could become a professional-grade Windows customization tool.
 
 
 
@@ -864,8 +1388,8 @@ new plugins the Sambar Api is incredibly useful, see the Api reference here.
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\project_export.txt
-SIZE: 14.96 KB
-MODIFIED: 09/25/2025 15:35:54
+SIZE: 21.41 KB
+MODIFIED: 09/25/2025 16:05:55
 ================================================================================
 
 
@@ -9497,344 +10021,7 @@ MODIFIED: 09/25/2025 13:32:59
 
 
 ===============================================================================
-EXPORT COMPLETED: 09/25/2025 15:35:55
+EXPORT COMPLETED: 09/25/2025 16:05:56
 Total Files Exported: 80
 Output File: .\Docs\project_export.txt
 ===============================================================================
-
-
-
-
-
-
-
-Windows PowerShell
-Copyright (C) Microsoft Corporation. All rights reserved.
-
-Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
-
-PS C:\Users\kusha> Set-Location "D:\DEV\sambar"; git remote show origin; git status; Get-Content "D:\DEV\sambar\Scripts\Get-Contents.ps1"; D:\DEV\sambar\Scripts\Get-Contents.ps1; git add .; git commit --message "add all files"; git pull --rebase origin master --strategy-option=theirs; git push mine master;
-* remote origin
-  Fetch URL: https://github.com/TheAjaykrishnanR/sambar
-  Push  URL: https://github.com/TheAjaykrishnanR/sambar
-  HEAD branch: master
-  Remote branch:
-    master tracked
-  Local branch configured for 'git pull':
-    master merges with remote master
-  Local ref configured for 'git push':
-    master pushes to master (fast-forwardable)
-On branch master
-Your branch is ahead of 'origin/master' by 6 commits.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-        modified:   Scripts/Get-Contents.ps1
-
-no changes added to commit (use "git add" and/or "git commit -a")
-# Export Sambar Project Files to Single Text File
-# PowerShell 5 compatible script
-
-param(
-    [string]$ProjectPath = ".",
-    [string]$OutputFile = "Docs/project_export.txt"
-)
-
-# Define file extensions to include
-$IncludeExtensions = @(
-    "*.cs",           # C# files
-    "*.json",         # JSON configuration files
-    "*.md",           # Markdown files
-    "*.txt",          # Text files
-    "*.xml",          # XML files
-    "*.csproj",       # C# project files
-    "*.sln",          # Solution files
-    "*.config",       # Configuration files
-    "*.cshtml",       # Razor views
-    "*.razor",        # Razor components
-    "*.js",           # JavaScript files
-    "*.css",          # CSS files
-    "*.scss",         # SCSS files
-    "*.html",         # HTML files
-    "*.yml",          # YAML files
-    "*.yaml",         # YAML files
-    "*.sql"           # SQL files
-)
-
-# Directories to exclude
-$ExcludeDirectories = @(
-    "bin",
-    "obj",
-    ".vs",
-    ".git",
-    "node_modules",
-    "packages",
-    ".vscode",
-    ".idea"
-)
-
-# Files to exclude
-$ExcludeFiles = @(
-    "*.exe",
-    "*.dll",
-    "*.pdb",
-    "*.cache",
-    "*.log"
-)
-
-Write-Host "Starting project export..." -ForegroundColor Green
-Write-Host "Project Path: $ProjectPath" -ForegroundColor Yellow
-Write-Host "Output File: $OutputFile" -ForegroundColor Yellow
-
-# Initialize output file
-$OutputPath = Join-Path $ProjectPath $OutputFile
-"" | Out-File -FilePath $OutputPath -Encoding UTF8
-
-# Add header
-$Header = @"
-===============================================================================
-sambar PROJECT EXPORT
-Generated: $(Get-Date)
-Project Path: $((Resolve-Path $ProjectPath).Path)
-===============================================================================
-
-"@
-
-$Header | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-
-# Generate directory structure using tree command if available, otherwise use PowerShell
-Write-Host "Generating directory structure..." -ForegroundColor Cyan
-
-"DIRECTORY STRUCTURE:" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-"===================" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-"" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-
-# Try to use tree command first
-try {
-    $treeOutput = & tree $ProjectPath /F /A 2>$null
-    if ($LASTEXITCODE -eq 0) {
-        $treeOutput | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-    } else {
-        throw "Tree command failed"
-    }
-} catch {
-    # Fallback to PowerShell-based tree
-    Write-Host "Tree command not available, using PowerShell alternative..." -ForegroundColor Yellow
-
-    function Get-DirectoryTree {
-        param([string]$Path, [string]$Prefix = "")
-
-        $items = Get-ChildItem -Path $Path -Force | Where-Object {
-            $_.Name -notin $ExcludeDirectories
-        } | Sort-Object @{Expression={$_.PSIsContainer}; Descending=$true}, Name
-
-        for ($i = 0; $i -lt $items.Count; $i++) {
-            $item = $items[$i]
-            $isLast = ($i -eq $items.Count - 1)
-            $connector = if ($isLast) { "+-- " } else { "+-- " }
-
-            "$Prefix$connector$($item.Name)" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-
-            if ($item.PSIsContainer) {
-                $newPrefix = if ($isLast) { "$Prefix    " } else { "$Prefix|   " }
-                Get-DirectoryTree -Path $item.FullName -Prefix $newPrefix
-            }
-        }
-    }
-
-    (Split-Path $ProjectPath -Leaf) | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-    Get-DirectoryTree -Path $ProjectPath
-}
-
-"" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-"" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-
-# Get all relevant files
-Write-Host "Collecting files..." -ForegroundColor Cyan
-
-$AllFiles = @()
-foreach ($extension in $IncludeExtensions) {
-    $files = Get-ChildItem -Path $ProjectPath -Recurse -Include $extension -File | Where-Object {
-        $exclude = $false
-        foreach ($excludeDir in $ExcludeDirectories) {
-            if ($_.FullName -like "*\$excludeDir\*") {
-                $exclude = $true
-                break
-            }
-        }
-        -not $exclude
-    }
-    $AllFiles += $files
-}
-
-# Remove duplicates and sort
-$AllFiles = $AllFiles | Sort-Object FullName | Get-Unique -AsString
-
-Write-Host "Found $($AllFiles.Count) files to export" -ForegroundColor Green
-
-# Export each file
-"FILE CONTENTS:" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-"==============" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-"" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-
-$fileCount = 0
-foreach ($file in $AllFiles) {
-    $fileCount++
-    $relativePath = $file.FullName.Substring($ProjectPath.Length).TrimStart('\')
-
-    Write-Host "Processing ($fileCount/$($AllFiles.Count)): $relativePath" -ForegroundColor White
-
-    $separator = "=" * 80
-    $fileHeader = @"
-$separator
-FILE: $relativePath
-SIZE: $([math]::Round($file.Length / 1KB, 2)) KB
-MODIFIED: $($file.LastWriteTime)
-$separator
-
-"@
-
-    $fileHeader | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-
-    try {
-        # Read file content with error handling
-        $content = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
-        if ($content) {
-            $content | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-        } else {
-            "[EMPTY FILE]" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-        }
-    } catch {
-        "[ERROR READING FILE: $($_.Exception.Message)]" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-    }
-
-    "" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-    "" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-}
-
-# Add footer
-$Footer = @"
-===============================================================================
-EXPORT COMPLETED: $(Get-Date)
-Total Files Exported: $fileCount
-Output File: $OutputPath
-===============================================================================
-"@
-
-$Footer | Out-File -FilePath $OutputPath -Append -Encoding UTF8
-
-Write-Host "`nExport completed successfully!" -ForegroundColor Green
-Write-Host "Output file: $OutputPath" -ForegroundColor Yellow
-Write-Host "Total files exported: $fileCount" -ForegroundColor Green
-
-# Display file size
-$outputFileInfo = Get-Item $OutputPath
-Write-Host "Output file size: $([math]::Round($outputFileInfo.Length / 1MB, 2)) MB" -ForegroundColor Cyan
-Starting project export...
-Project Path: .
-Output File: Docs/project_export.txt
-Generating directory structure...
-Collecting files...
-Found 80 files to export
-Processing (1/80): :\DEV\sambar\Docs\Api.md
-Processing (2/80): :\DEV\sambar\Docs\Basics.md
-Processing (3/80): :\DEV\sambar\Docs\claude.md
-Processing (4/80): :\DEV\sambar\Docs\Configuration.md
-Processing (5/80): :\DEV\sambar\Docs\Landing.md
-Processing (6/80): :\DEV\sambar\Docs\project_export.txt
-Processing (7/80): :\DEV\sambar\Docs\Showcase\Landing.md
-Processing (8/80): :\DEV\sambar\Docs\Tutorials\Landing.md
-Processing (9/80): :\DEV\sambar\Docs\Tutorials\Layout.md
-Processing (10/80): :\DEV\sambar\Docs\Tutorials\Widgets.md
-Processing (11/80): :\DEV\sambar\README.md
-Processing (12/80): :\DEV\sambar\Src\AssemblyInfo.cs
-Processing (13/80): :\DEV\sambar\Src\Classes\Api\Api.cs
-Processing (14/80): :\DEV\sambar\Src\Classes\Api\Audio.cs
-Processing (15/80): :\DEV\sambar\Src\Classes\Api\Clocks.cs
-Processing (16/80): :\DEV\sambar\Src\Classes\Api\Counters.cs
-Processing (17/80): :\DEV\sambar\Src\Classes\Api\CustomWindows.cs
-Processing (18/80): :\DEV\sambar\Src\Classes\Api\Events.cs
-Processing (19/80): :\DEV\sambar\Src\Classes\Api\GlazeWM.cs
-Processing (20/80): :\DEV\sambar\Src\Classes\Api\LaunchApps.cs
-Processing (21/80): :\DEV\sambar\Src\Classes\Api\Menus.cs
-Processing (22/80): :\DEV\sambar\Src\Classes\Api\System.cs
-Processing (23/80): :\DEV\sambar\Src\Classes\Api\SystemTray.cs
-Processing (24/80): :\DEV\sambar\Src\Classes\Api\Taskbar.cs
-Processing (25/80): :\DEV\sambar\Src\Classes\Api\ToggleTaskbar.cs
-Processing (26/80): :\DEV\sambar\Src\Classes\Api\Utilities.cs
-Processing (27/80): :\DEV\sambar\Src\Classes\Api\WindowCatcher.cs
-Processing (28/80): :\DEV\sambar\Src\Classes\Api\WindowTracker.cs
-Processing (29/80): :\DEV\sambar\Src\Classes\Com\CLSID.cs
-Processing (30/80): :\DEV\sambar\Src\Classes\Com\Enums.cs
-Processing (31/80): :\DEV\sambar\Src\Classes\Com\Interfaces.cs
-Processing (32/80): :\DEV\sambar\Src\Classes\Com\Structs.cs
-Processing (33/80): :\DEV\sambar\Src\Classes\Config\Config.cs
-Processing (34/80): :\DEV\sambar\Src\Classes\Config\Layout.cs
-Processing (35/80): :\DEV\sambar\Src\Classes\Config\Paths.cs
-Processing (36/80): :\DEV\sambar\Src\Classes\Engine\Widget.cs
-Processing (37/80): :\DEV\sambar\Src\Classes\Engine\WidgetEngine.cs
-Processing (38/80): :\DEV\sambar\Src\Classes\Hooks\minhook\hooker.cs
-Processing (39/80): :\DEV\sambar\Src\Classes\Hooks\minhook\hookerInjector.cs
-Processing (40/80): :\DEV\sambar\Src\Classes\Hooks\minhook\target.cs
-Processing (41/80): :\DEV\sambar\Src\Classes\Sambar.cs
-Processing (42/80): :\DEV\sambar\Src\Classes\Schemas\GlazeSchemas.cs
-Processing (43/80): :\DEV\sambar\Src\Classes\Ui\ItemSelector.cs
-Processing (44/80): :\DEV\sambar\Src\Classes\Ui\RoundedButton.cs
-Processing (45/80): :\DEV\sambar\Src\Classes\Ui\StackPanel.cs
-Processing (46/80): :\DEV\sambar\Src\Classes\Utils\Core.cs
-Processing (47/80): :\DEV\sambar\Src\Classes\Utils\Extensions.cs
-Processing (48/80): :\DEV\sambar\Src\Classes\Utils\Logger.cs
-Processing (49/80): :\DEV\sambar\Src\Classes\Win32\Delegates.cs
-Processing (50/80): :\DEV\sambar\Src\Classes\Win32\Enums.cs
-Processing (51/80): :\DEV\sambar\Src\Classes\Win32\Functions.cs
-Processing (52/80): :\DEV\sambar\Src\Classes\Win32\Structs.cs
-Processing (53/80): :\DEV\sambar\Src\Main.cs
-Processing (54/80): :\DEV\sambar\Src\Properties\launchSettings.json
-Processing (55/80): :\DEV\sambar\Src\sambar.csproj
-Processing (56/80): :\DEV\sambar\Src\Tests\Interceptor.cs
-Processing (57/80): :\DEV\sambar\Src\Tests\QueryPdb.cs
-Processing (58/80): :\DEV\sambar\Src\Tests\QueryPdb.runtimeconfig.json
-Processing (59/80): :\DEV\sambar\Src\Tests\TaskbarWindows.cs
-Processing (60/80): :\DEV\sambar\Src\WidgetPacks\.init.cs
-Processing (61/80): :\DEV\sambar\Src\WidgetPacks\Base\.config.cs
-Processing (62/80): :\DEV\sambar\Src\WidgetPacks\Base\.layout.cs
-Processing (63/80): :\DEV\sambar\Src\WidgetPacks\Base\.theme.cs
-Processing (64/80): :\DEV\sambar\Src\WidgetPacks\Base\AudioInformation.widget.cs
-Processing (65/80): :\DEV\sambar\Src\WidgetPacks\Base\AudioVisualizer.widget.cs
-Processing (66/80): :\DEV\sambar\Src\WidgetPacks\Base\Clock.widget.cs
-Processing (67/80): :\DEV\sambar\Src\WidgetPacks\Base\Counters.widget.cs
-Processing (68/80): :\DEV\sambar\Src\WidgetPacks\Base\HideTaskbar.widget.cs
-Processing (69/80): :\DEV\sambar\Src\WidgetPacks\Base\NetworkManager.widget.cs
-Processing (70/80): :\DEV\sambar\Src\WidgetPacks\Base\ScribblePad.widget.cs
-Processing (71/80): :\DEV\sambar\Src\WidgetPacks\Base\StartButton.widget.cs
-Processing (72/80): :\DEV\sambar\Src\WidgetPacks\Base\TaskbarApps.widget.cs
-Processing (73/80): :\DEV\sambar\Src\WidgetPacks\Base\Tray.widget.cs
-Processing (74/80): :\DEV\sambar\Src\WidgetPacks\Base\Wallpapers.widget.cs
-Processing (75/80): :\DEV\sambar\Src\WidgetPacks\Base\Workspaces.widget.cs
-Processing (76/80): :\DEV\sambar\Src\WidgetPacks\Plain1\.config.cs
-Processing (77/80): :\DEV\sambar\Src\WidgetPacks\Plain1\.imports.cs
-Processing (78/80): :\DEV\sambar\Src\WidgetPacks\Plain1\.layout.cs
-Processing (79/80): :\DEV\sambar\Src\WidgetPacks\Plain1\.theme.cs
-Processing (80/80): :\DEV\sambar\Todo\Bugs.md
-
-Export completed successfully!
-Output file: .\Docs\project_export.txt
-Total files exported: 80
-Output file size: 0.28 MB
-[master 4b213e4] add all files
- 2 files changed, 240 insertions(+), 12 deletions(-)
-From https://github.com/TheAjaykrishnanR/sambar
- * branch            master     -> FETCH_HEAD
-Current branch master is up to date.
-Enumerating objects: 15, done.
-Counting objects: 100% (15/15), done.
-Delta compression using up to 8 threads
-Compressing objects: 100% (10/10), done.
-Writing objects: 100% (10/10), 4.42 KiB | 565.00 KiB/s, done.
-Total 10 (delta 6), reused 0 (delta 0), pack-reused 0 (from 0)
-remote: Resolving deltas: 100% (6/6), completed with 4 local objects.
-To https://github.com/collabskus/sambar.git
-   d759385..4b213e4  master -> master
-PS D:\DEV\sambar>
