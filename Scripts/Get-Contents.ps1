@@ -1,4 +1,4 @@
-# Export ASP.NET Project Files to Single Text File
+# Export Sambar Project Files to Single Text File
 # PowerShell 5 compatible script
 
 param(
@@ -59,7 +59,7 @@ $OutputPath = Join-Path $ProjectPath $OutputFile
 # Add header
 $Header = @"
 ===============================================================================
-ASP.NET PROJECT EXPORT
+sambar PROJECT EXPORT
 Generated: $(Get-Date)
 Project Path: $((Resolve-Path $ProjectPath).Path)
 ===============================================================================
