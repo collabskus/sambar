@@ -27,7 +27,6 @@ public partial class Api
 {
 	private void CustomWindowsInit()
 	{
-
 	}
 
 	public (ThreadWindow, WpfPlot, FilledSignal) CreateAudioVisualizer(
@@ -90,6 +89,10 @@ public partial class Api
 			_overlayWnd = value;
 		}
 	}
+
+	/// <summary>
+	/// Creates a background overlay window that fills the desktop
+	/// </summary>
 	public Window CreateDesktopOverlay()
 	{
 		activeOverlayWnd = new WidgetWindow()
@@ -102,6 +105,14 @@ public partial class Api
 			Height = Sambar.screenHeight,
 		};
 		return activeOverlayWnd;
+	}
+
+	/// <summary>
+	/// normal win32 messagebox
+	/// </summary>
+	public void MessageBox(string message)
+	{
+		Task.Run(() => User32.MessageBox(Sambar.api!.bar.hWnd, message, "SambarMessageWindow", 0));
 	}
 }
 

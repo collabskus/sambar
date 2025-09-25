@@ -329,17 +329,17 @@ public partial class Utils
 		return str.ToString();
 	}
 
-	public static void CompileFileToDll(string fileName, string dllName, List<(string, string?)>? additionalDllsAndUsings = null)
+	public static void CompileFileToDll(string fileName, string dllName, List<(string, string?)>? additionalDllsAndUsings = null, bool wrapInTryCatch = false)
 	{
 		string classCode = File.ReadAllText(fileName);
-		Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName, additionalDllsAndUsings));
+		Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName, additionalDllsAndUsings, wrapInTryCatch));
 		thread.Start();
 		thread.Join();
 	}
 
-	public static void CompileStringToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null)
+	public static void CompileStringToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null, bool wrapInTryCatch = false)
 	{
-		Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName, additionalDllsAndUsings));
+		Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName, additionalDllsAndUsings, wrapInTryCatch));
 		thread.Start();
 		thread.Join();
 	}

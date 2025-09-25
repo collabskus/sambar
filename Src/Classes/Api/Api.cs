@@ -29,6 +29,7 @@ public partial class Api
 		SystemInit();
 		SystemTrayInit();
 		TaskbarInterceptorInit();
+		CustomWindowsInit();
 		ClockInit();
 		CountersInit();
 		initTasks.AddRange([

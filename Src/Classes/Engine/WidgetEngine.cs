@@ -27,6 +27,7 @@ using ScottPlot.WPF;
 using SkiaSharp;
 using SkiaSharp.Views.WPF;
 using SkiaSharp.Views.Desktop;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace sambar;
 
@@ -127,7 +128,7 @@ internal class WidgetLoader
 					string fileContent = File.ReadAllText(file.FullName);
 					//string finalScript = widgetsPrefix + "\n" + fileContent;
 					string dllName = file.Name.Replace(".cs", "");
-					Utils.CompileStringToDll(fileContent, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)]);
+					Utils.CompileStringToDll(fileContent, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)], wrapInTryCatch: true);
 					widgetToDllMap[file.Name.Replace(".widget.cs", "")] = Path.Join(Paths.dllFolder, dllName + ".dll");
 				}
 			);
@@ -179,7 +180,7 @@ internal class WidgetLoader
 	/// <param name="classCode"></param>
 	/// <param name="dllName"></param>
 	/// <param name="additionalDllsAndUsings"></param>
-	public static void CompileToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null)
+	public static void CompileToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null, bool wrapInTryCatch = false)
 	{
 		List<MetadataReference> references =
 		[
@@ -250,6 +251,16 @@ using SkiaSharp.Views.WPF;
 		string code = usingsPrefix + classCode;
 		CSharpParseOptions parseOptions = new(LanguageVersion.Preview);
 		SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code, parseOptions);
+
+		// we do this so that every method in our widget class is wrapped inside a
+		// try catch block
+		if (wrapInTryCatch)
+		{
+			code = TryCatchAdder(code);
+			syntaxTree = CSharpSyntaxTree.ParseText(code);
+			Logger.Log($"[ WIDGET-COMPILE-STRING ]\n{code}");
+		}
+
 		CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
 
 		CSharpCompilation compilation = CSharpCompilation.Create(
@@ -344,5 +355,48 @@ using SkiaSharp.Views.WPF;
 		return env;
 	}
 
+	public static string TryCatchAdder(string classCode)
+	{
+		SyntaxTree tree = CSharpSyntaxTree.ParseText(classCode);
+
+		var methods = tree.GetRoot()
+						  .DescendantNodes()
+						  .OfType<MethodDeclarationSyntax>()
+						  .ToArray();
+
+		int charsAdded = 0;
+		foreach (var method in methods)
+		{
+			int startBrace = method.Body.OpenBraceToken.SpanStart + charsAdded;
+			int endBrace = method.Body.CloseBraceToken.SpanStart + charsAdded;
+			bool returnDefault = method.ReturnType.ToString() != "void";
+			string _classCode = AddTryCatchToFunctionBlock(classCode, startBrace, endBrace, returnDefault);
+			charsAdded += _classCode.Length - classCode.Length;
+			classCode = _classCode;
+		}
+
+		return classCode;
+	}
+
+	/// <summary>
+	///     | startBrace
+	/// try {
+	/// 	-- functionBody --
+	/// }
+	/// | endBrace
+	/// </summary>
+	public static string AddTryCatchToFunctionBlock(string classCode, int startBrace, int endBrace, bool returnDefault = false)
+	{
+		return
+		  new string(classCode.Take(startBrace + 1).ToArray())
+		+ "try {"
+		+ new string(classCode.Skip(startBrace + 1).Take(endBrace - startBrace - 1).ToArray())
+		+ "}"
+		+ "catch(Exception ex) {"
+		+ """Sambar.api.Print($"[ WIDGET-EXCEPTION ]\n{ex.Message}"); Sambar.api.MessageBox(ex.Message);"""
+		+ (returnDefault ? "return default;" : "return;")
+		+ "}"
+		+ new string(classCode.TakeLast(classCode.Length - endBrace).ToArray());
+	}
 }
 

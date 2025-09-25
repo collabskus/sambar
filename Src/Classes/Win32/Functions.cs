@@ -11,7 +11,9 @@ namespace sambar;
 
 public class User32
 {
-	// user32
+	[DllImport("user32.dll", SetLastError = true)]
+	public static extern int MessageBox(nint hWnd, string title, string message, uint type);
+
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern int SetWindowLong(nint hWnd, int nIndex, int dwNewLong);
 
@@ -175,8 +177,8 @@ public class User32
 	[DllImport("user32.dll", SetLastError = true)]
 	public extern static nint MonitorFromWindow(nint hWnd, uint dwFlags);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    public static extern nint SetParent(nint hWndChild, nint hWndNewParent);
+	[DllImport("user32.dll", SetLastError = true)]
+	public static extern nint SetParent(nint hWndChild, nint hWndNewParent);
 }
 
 public class Shell32

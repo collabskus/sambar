@@ -6,9 +6,7 @@
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Controls;
-using System.Diagnostics;
-using System.Windows.Threading;
-using Windows.ApplicationModel.VoiceCommands;
+using System.Windows.Input;
 
 namespace sambar;
 public partial class Api
@@ -31,7 +29,9 @@ public partial class Api
 		}
 	}
 
-	// when menus that are automatically oriented relative to the calling user element
+	/// <summary>
+	/// when menus that are automatically oriented relative to the calling user element
+	/// </summary>
 	public Menu CreateMenu(UserControl callingElement, int width = 100, int height = 100)
 	{
 		int x = (int)callingElement.PointToScreen(new Point(callingElement.Width / 2, callingElement.Height / 2)).X - (width / 2);
@@ -45,6 +45,9 @@ public partial class Api
 		return activeMenu;
 	}
 
+	/// <summary>
+	/// Menu at arbitrary location
+	/// <summary>
 	public Menu CreateMenu(int x, int y, int width, int height, bool centerOffset = false)
 	{
 		if (centerOffset)
@@ -53,7 +56,9 @@ public partial class Api
 		return activeMenu;
 	}
 
-	// context menu with menubuttons
+	/// <summary>
+	/// Right click context menu with menubuttons
+	/// <summary>
 	public Menu CreateContextMenu(List<MenuButton> items)
 	{
 		User32.GetCursorPos(out POINT pt);
@@ -85,6 +90,7 @@ public class Menu : Window
 		this.Left = x;
 		this.Top = y;
 		this.ShowActivated = true;
+		this.KeyDown += (s, e) => { if (e.Key == Key.Escape) CustomClose(); };
 
 		hWnd = new WindowInteropHelper(this).EnsureHandle();
 		uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
