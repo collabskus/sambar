@@ -71,4 +71,31 @@ class MyNewWidget: Widget
 
 Now thats it ! Provided that `MyNewWidget` has been added in the `.layout.cs` to specify where the widget should be on the bar, you should see "Hello, World!" next time you launch sambar.
 
+### Things to note about widgets
 
+Since widgets are `UIElements` that are added to the sambar they are ran on the main UIThread.
+This is necessary because WPF doesnt allow UI updation or even setting UIElements that arent owned/created on the main UIThread. Therefore it is totally possible to crash sambar from widgets.
+
+On hindsight this is a good thing since you precisely know what went wrong with your configuration or the action performed that led to the crash, but it can be annoying. Also it doesnt make sense to crash the entire bar just because one `Widget` had an `ArrayOutOfBounds` exception.
+
+Therefore to meet in the middle all methods of the `Widget` class will get automatically wrapped in a `try catch` block so that one widget crashing does not crash the other widgets. Also the widget is instantiated in a similar `try catch` block so that no funny things in its constructor can cause an abrupt crash. Any exceptions on these methods will be logged by the logger and a visual menu will be displayed that can be closed showing the exception message.
+
+It is still possible to crash the entire thing from a widget if you do something like subscribe to an event using an inline function that is not a method of your widget. This is because only class methods are automatically wrapped with try catch blocks not the anonymous lambdas.
+
+```cs
+public MyWidget() {
+    MY_EVENT += (arg) => {
+        /* do stuff */
+    }
+}
+```
+instrad of the above, create a method and subscribe
+
+```cs
+public MyWidget() {
+    MY_EVENT += MyEventHandler;
+}
+void MyEventHandler(string arg) {
+    /* do stuff */
+}
+```
