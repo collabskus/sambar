@@ -9501,3 +9501,340 @@ EXPORT COMPLETED: 09/25/2025 15:35:55
 Total Files Exported: 80
 Output File: .\Docs\project_export.txt
 ===============================================================================
+
+
+
+
+
+
+
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
+
+PS C:\Users\kusha> Set-Location "D:\DEV\sambar"; git remote show origin; git status; Get-Content "D:\DEV\sambar\Scripts\Get-Contents.ps1"; D:\DEV\sambar\Scripts\Get-Contents.ps1; git add .; git commit --message "add all files"; git pull --rebase origin master --strategy-option=theirs; git push mine master;
+* remote origin
+  Fetch URL: https://github.com/TheAjaykrishnanR/sambar
+  Push  URL: https://github.com/TheAjaykrishnanR/sambar
+  HEAD branch: master
+  Remote branch:
+    master tracked
+  Local branch configured for 'git pull':
+    master merges with remote master
+  Local ref configured for 'git push':
+    master pushes to master (fast-forwardable)
+On branch master
+Your branch is ahead of 'origin/master' by 6 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   Scripts/Get-Contents.ps1
+
+no changes added to commit (use "git add" and/or "git commit -a")
+# Export Sambar Project Files to Single Text File
+# PowerShell 5 compatible script
+
+param(
+    [string]$ProjectPath = ".",
+    [string]$OutputFile = "Docs/project_export.txt"
+)
+
+# Define file extensions to include
+$IncludeExtensions = @(
+    "*.cs",           # C# files
+    "*.json",         # JSON configuration files
+    "*.md",           # Markdown files
+    "*.txt",          # Text files
+    "*.xml",          # XML files
+    "*.csproj",       # C# project files
+    "*.sln",          # Solution files
+    "*.config",       # Configuration files
+    "*.cshtml",       # Razor views
+    "*.razor",        # Razor components
+    "*.js",           # JavaScript files
+    "*.css",          # CSS files
+    "*.scss",         # SCSS files
+    "*.html",         # HTML files
+    "*.yml",          # YAML files
+    "*.yaml",         # YAML files
+    "*.sql"           # SQL files
+)
+
+# Directories to exclude
+$ExcludeDirectories = @(
+    "bin",
+    "obj",
+    ".vs",
+    ".git",
+    "node_modules",
+    "packages",
+    ".vscode",
+    ".idea"
+)
+
+# Files to exclude
+$ExcludeFiles = @(
+    "*.exe",
+    "*.dll",
+    "*.pdb",
+    "*.cache",
+    "*.log"
+)
+
+Write-Host "Starting project export..." -ForegroundColor Green
+Write-Host "Project Path: $ProjectPath" -ForegroundColor Yellow
+Write-Host "Output File: $OutputFile" -ForegroundColor Yellow
+
+# Initialize output file
+$OutputPath = Join-Path $ProjectPath $OutputFile
+"" | Out-File -FilePath $OutputPath -Encoding UTF8
+
+# Add header
+$Header = @"
+===============================================================================
+sambar PROJECT EXPORT
+Generated: $(Get-Date)
+Project Path: $((Resolve-Path $ProjectPath).Path)
+===============================================================================
+
+"@
+
+$Header | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+
+# Generate directory structure using tree command if available, otherwise use PowerShell
+Write-Host "Generating directory structure..." -ForegroundColor Cyan
+
+"DIRECTORY STRUCTURE:" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+"===================" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+"" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+
+# Try to use tree command first
+try {
+    $treeOutput = & tree $ProjectPath /F /A 2>$null
+    if ($LASTEXITCODE -eq 0) {
+        $treeOutput | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+    } else {
+        throw "Tree command failed"
+    }
+} catch {
+    # Fallback to PowerShell-based tree
+    Write-Host "Tree command not available, using PowerShell alternative..." -ForegroundColor Yellow
+
+    function Get-DirectoryTree {
+        param([string]$Path, [string]$Prefix = "")
+
+        $items = Get-ChildItem -Path $Path -Force | Where-Object {
+            $_.Name -notin $ExcludeDirectories
+        } | Sort-Object @{Expression={$_.PSIsContainer}; Descending=$true}, Name
+
+        for ($i = 0; $i -lt $items.Count; $i++) {
+            $item = $items[$i]
+            $isLast = ($i -eq $items.Count - 1)
+            $connector = if ($isLast) { "+-- " } else { "+-- " }
+
+            "$Prefix$connector$($item.Name)" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+
+            if ($item.PSIsContainer) {
+                $newPrefix = if ($isLast) { "$Prefix    " } else { "$Prefix|   " }
+                Get-DirectoryTree -Path $item.FullName -Prefix $newPrefix
+            }
+        }
+    }
+
+    (Split-Path $ProjectPath -Leaf) | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+    Get-DirectoryTree -Path $ProjectPath
+}
+
+"" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+"" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+
+# Get all relevant files
+Write-Host "Collecting files..." -ForegroundColor Cyan
+
+$AllFiles = @()
+foreach ($extension in $IncludeExtensions) {
+    $files = Get-ChildItem -Path $ProjectPath -Recurse -Include $extension -File | Where-Object {
+        $exclude = $false
+        foreach ($excludeDir in $ExcludeDirectories) {
+            if ($_.FullName -like "*\$excludeDir\*") {
+                $exclude = $true
+                break
+            }
+        }
+        -not $exclude
+    }
+    $AllFiles += $files
+}
+
+# Remove duplicates and sort
+$AllFiles = $AllFiles | Sort-Object FullName | Get-Unique -AsString
+
+Write-Host "Found $($AllFiles.Count) files to export" -ForegroundColor Green
+
+# Export each file
+"FILE CONTENTS:" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+"==============" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+"" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+
+$fileCount = 0
+foreach ($file in $AllFiles) {
+    $fileCount++
+    $relativePath = $file.FullName.Substring($ProjectPath.Length).TrimStart('\')
+
+    Write-Host "Processing ($fileCount/$($AllFiles.Count)): $relativePath" -ForegroundColor White
+
+    $separator = "=" * 80
+    $fileHeader = @"
+$separator
+FILE: $relativePath
+SIZE: $([math]::Round($file.Length / 1KB, 2)) KB
+MODIFIED: $($file.LastWriteTime)
+$separator
+
+"@
+
+    $fileHeader | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+
+    try {
+        # Read file content with error handling
+        $content = Get-Content -Path $file.FullName -Raw -ErrorAction Stop
+        if ($content) {
+            $content | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+        } else {
+            "[EMPTY FILE]" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+        }
+    } catch {
+        "[ERROR READING FILE: $($_.Exception.Message)]" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+    }
+
+    "" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+    "" | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+}
+
+# Add footer
+$Footer = @"
+===============================================================================
+EXPORT COMPLETED: $(Get-Date)
+Total Files Exported: $fileCount
+Output File: $OutputPath
+===============================================================================
+"@
+
+$Footer | Out-File -FilePath $OutputPath -Append -Encoding UTF8
+
+Write-Host "`nExport completed successfully!" -ForegroundColor Green
+Write-Host "Output file: $OutputPath" -ForegroundColor Yellow
+Write-Host "Total files exported: $fileCount" -ForegroundColor Green
+
+# Display file size
+$outputFileInfo = Get-Item $OutputPath
+Write-Host "Output file size: $([math]::Round($outputFileInfo.Length / 1MB, 2)) MB" -ForegroundColor Cyan
+Starting project export...
+Project Path: .
+Output File: Docs/project_export.txt
+Generating directory structure...
+Collecting files...
+Found 80 files to export
+Processing (1/80): :\DEV\sambar\Docs\Api.md
+Processing (2/80): :\DEV\sambar\Docs\Basics.md
+Processing (3/80): :\DEV\sambar\Docs\claude.md
+Processing (4/80): :\DEV\sambar\Docs\Configuration.md
+Processing (5/80): :\DEV\sambar\Docs\Landing.md
+Processing (6/80): :\DEV\sambar\Docs\project_export.txt
+Processing (7/80): :\DEV\sambar\Docs\Showcase\Landing.md
+Processing (8/80): :\DEV\sambar\Docs\Tutorials\Landing.md
+Processing (9/80): :\DEV\sambar\Docs\Tutorials\Layout.md
+Processing (10/80): :\DEV\sambar\Docs\Tutorials\Widgets.md
+Processing (11/80): :\DEV\sambar\README.md
+Processing (12/80): :\DEV\sambar\Src\AssemblyInfo.cs
+Processing (13/80): :\DEV\sambar\Src\Classes\Api\Api.cs
+Processing (14/80): :\DEV\sambar\Src\Classes\Api\Audio.cs
+Processing (15/80): :\DEV\sambar\Src\Classes\Api\Clocks.cs
+Processing (16/80): :\DEV\sambar\Src\Classes\Api\Counters.cs
+Processing (17/80): :\DEV\sambar\Src\Classes\Api\CustomWindows.cs
+Processing (18/80): :\DEV\sambar\Src\Classes\Api\Events.cs
+Processing (19/80): :\DEV\sambar\Src\Classes\Api\GlazeWM.cs
+Processing (20/80): :\DEV\sambar\Src\Classes\Api\LaunchApps.cs
+Processing (21/80): :\DEV\sambar\Src\Classes\Api\Menus.cs
+Processing (22/80): :\DEV\sambar\Src\Classes\Api\System.cs
+Processing (23/80): :\DEV\sambar\Src\Classes\Api\SystemTray.cs
+Processing (24/80): :\DEV\sambar\Src\Classes\Api\Taskbar.cs
+Processing (25/80): :\DEV\sambar\Src\Classes\Api\ToggleTaskbar.cs
+Processing (26/80): :\DEV\sambar\Src\Classes\Api\Utilities.cs
+Processing (27/80): :\DEV\sambar\Src\Classes\Api\WindowCatcher.cs
+Processing (28/80): :\DEV\sambar\Src\Classes\Api\WindowTracker.cs
+Processing (29/80): :\DEV\sambar\Src\Classes\Com\CLSID.cs
+Processing (30/80): :\DEV\sambar\Src\Classes\Com\Enums.cs
+Processing (31/80): :\DEV\sambar\Src\Classes\Com\Interfaces.cs
+Processing (32/80): :\DEV\sambar\Src\Classes\Com\Structs.cs
+Processing (33/80): :\DEV\sambar\Src\Classes\Config\Config.cs
+Processing (34/80): :\DEV\sambar\Src\Classes\Config\Layout.cs
+Processing (35/80): :\DEV\sambar\Src\Classes\Config\Paths.cs
+Processing (36/80): :\DEV\sambar\Src\Classes\Engine\Widget.cs
+Processing (37/80): :\DEV\sambar\Src\Classes\Engine\WidgetEngine.cs
+Processing (38/80): :\DEV\sambar\Src\Classes\Hooks\minhook\hooker.cs
+Processing (39/80): :\DEV\sambar\Src\Classes\Hooks\minhook\hookerInjector.cs
+Processing (40/80): :\DEV\sambar\Src\Classes\Hooks\minhook\target.cs
+Processing (41/80): :\DEV\sambar\Src\Classes\Sambar.cs
+Processing (42/80): :\DEV\sambar\Src\Classes\Schemas\GlazeSchemas.cs
+Processing (43/80): :\DEV\sambar\Src\Classes\Ui\ItemSelector.cs
+Processing (44/80): :\DEV\sambar\Src\Classes\Ui\RoundedButton.cs
+Processing (45/80): :\DEV\sambar\Src\Classes\Ui\StackPanel.cs
+Processing (46/80): :\DEV\sambar\Src\Classes\Utils\Core.cs
+Processing (47/80): :\DEV\sambar\Src\Classes\Utils\Extensions.cs
+Processing (48/80): :\DEV\sambar\Src\Classes\Utils\Logger.cs
+Processing (49/80): :\DEV\sambar\Src\Classes\Win32\Delegates.cs
+Processing (50/80): :\DEV\sambar\Src\Classes\Win32\Enums.cs
+Processing (51/80): :\DEV\sambar\Src\Classes\Win32\Functions.cs
+Processing (52/80): :\DEV\sambar\Src\Classes\Win32\Structs.cs
+Processing (53/80): :\DEV\sambar\Src\Main.cs
+Processing (54/80): :\DEV\sambar\Src\Properties\launchSettings.json
+Processing (55/80): :\DEV\sambar\Src\sambar.csproj
+Processing (56/80): :\DEV\sambar\Src\Tests\Interceptor.cs
+Processing (57/80): :\DEV\sambar\Src\Tests\QueryPdb.cs
+Processing (58/80): :\DEV\sambar\Src\Tests\QueryPdb.runtimeconfig.json
+Processing (59/80): :\DEV\sambar\Src\Tests\TaskbarWindows.cs
+Processing (60/80): :\DEV\sambar\Src\WidgetPacks\.init.cs
+Processing (61/80): :\DEV\sambar\Src\WidgetPacks\Base\.config.cs
+Processing (62/80): :\DEV\sambar\Src\WidgetPacks\Base\.layout.cs
+Processing (63/80): :\DEV\sambar\Src\WidgetPacks\Base\.theme.cs
+Processing (64/80): :\DEV\sambar\Src\WidgetPacks\Base\AudioInformation.widget.cs
+Processing (65/80): :\DEV\sambar\Src\WidgetPacks\Base\AudioVisualizer.widget.cs
+Processing (66/80): :\DEV\sambar\Src\WidgetPacks\Base\Clock.widget.cs
+Processing (67/80): :\DEV\sambar\Src\WidgetPacks\Base\Counters.widget.cs
+Processing (68/80): :\DEV\sambar\Src\WidgetPacks\Base\HideTaskbar.widget.cs
+Processing (69/80): :\DEV\sambar\Src\WidgetPacks\Base\NetworkManager.widget.cs
+Processing (70/80): :\DEV\sambar\Src\WidgetPacks\Base\ScribblePad.widget.cs
+Processing (71/80): :\DEV\sambar\Src\WidgetPacks\Base\StartButton.widget.cs
+Processing (72/80): :\DEV\sambar\Src\WidgetPacks\Base\TaskbarApps.widget.cs
+Processing (73/80): :\DEV\sambar\Src\WidgetPacks\Base\Tray.widget.cs
+Processing (74/80): :\DEV\sambar\Src\WidgetPacks\Base\Wallpapers.widget.cs
+Processing (75/80): :\DEV\sambar\Src\WidgetPacks\Base\Workspaces.widget.cs
+Processing (76/80): :\DEV\sambar\Src\WidgetPacks\Plain1\.config.cs
+Processing (77/80): :\DEV\sambar\Src\WidgetPacks\Plain1\.imports.cs
+Processing (78/80): :\DEV\sambar\Src\WidgetPacks\Plain1\.layout.cs
+Processing (79/80): :\DEV\sambar\Src\WidgetPacks\Plain1\.theme.cs
+Processing (80/80): :\DEV\sambar\Todo\Bugs.md
+
+Export completed successfully!
+Output file: .\Docs\project_export.txt
+Total files exported: 80
+Output file size: 0.28 MB
+[master 4b213e4] add all files
+ 2 files changed, 240 insertions(+), 12 deletions(-)
+From https://github.com/TheAjaykrishnanR/sambar
+ * branch            master     -> FETCH_HEAD
+Current branch master is up to date.
+Enumerating objects: 15, done.
+Counting objects: 100% (15/15), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (10/10), done.
+Writing objects: 100% (10/10), 4.42 KiB | 565.00 KiB/s, done.
+Total 10 (delta 6), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (6/6), completed with 4 local objects.
+To https://github.com/collabskus/sambar.git
+   d759385..4b213e4  master -> master
+PS D:\DEV\sambar>
