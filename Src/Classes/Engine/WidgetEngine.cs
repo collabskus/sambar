@@ -151,7 +151,7 @@ internal class WidgetLoader
 			Type widgetType = typesInAssembly.Where(type => type.IsSubclassOf(typeof(Widget))).First();
 			// prepare the ENV VARS for widget
 			WidgetEnv env = PrepareEnvVarsForWidget(widgetName.Key);
-			Widget widget = (Widget)Activator.CreateInstance(widgetType, [env])!;
+			Widget widget = (Widget)Activator.CreateInstance(widgetType, [env])!; // where the widget actually runs
 			if (widget != null) { widgets.Add(widget); }
 		}
 
