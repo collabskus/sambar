@@ -3,12 +3,15 @@ using System.IO;
 public class Tray : Widget
 {
 	sambar.Menu? menu = null;
+
+	public RoundedButton btn = new();
+
 	public Tray(WidgetEnv ENV) : base(ENV)
 	{
 		//UpdateTrayPanel();
 
-		RoundedButton btn = new();
-		btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "arrow_down.svg");
+		if (!ENV.IS_IMPORTED) btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "arrow_down.svg");
+		else btn.ImageSrc = Path.Join(ENV.IMPORTS_ASSETS_FOLDER, "arrow_down.svg");
 		btn.IconHeight = Theme.ICON_HEIGHT;
 		btn.IconWidth = Theme.ICON_WIDTH;
 		btn.Height = Theme.BUTTON_HEIGHT;

@@ -6,7 +6,7 @@
 public class Theme
 {
 	public static Brush TEXT_COLOR = Utils.BrushFromHex("#000000");
-	public static FontFamily FONT_FAMILY = new("MS Sans Serif");
+	public static FontFamily FONT_FAMILY = new("JetBrains Mono");
 
 	public static Brush BUTTON_FOREGROUND = new SolidColorBrush(Colors.White);
 	public static Brush BUTTON_BACKGROUND = new SolidColorBrush(Colors.Transparent);

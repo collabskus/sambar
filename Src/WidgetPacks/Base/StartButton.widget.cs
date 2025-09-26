@@ -2,7 +2,7 @@
 
 public class StartButton : Widget
 {
-	public StartButton(WidgetEnv ENV): base(ENV)
+	public StartButton(WidgetEnv ENV) : base(ENV)
 	{
 		RoundedButton btn = new();
 		btn.Height = 16;
@@ -13,7 +13,8 @@ public class StartButton : Widget
 		btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
 		btn.FontFamily = Theme.FONT_FAMILY;
 		btn.HoverEffect = false;
-		btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "start.svg"); 
+		if (!ENV.IS_IMPORTED) btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "start.svg");
+		else btn.ImageSrc = Path.Join(ENV.IMPORTS_ASSETS_FOLDER, "start.svg");
 		btn.MouseDown += ButtonMouseDown;
 		this.Content = btn;
 	}

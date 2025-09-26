@@ -38,9 +38,12 @@ internal class WidgetLoader
 	Dictionary<string, string> widgetToDllMap = new();
 
 	WidgetImports? imports = null;
+
+	string? widgetPackName;
+
 	public WidgetLoader()
 	{
-		string? widgetPackName = Sambar.api?.bar.widgetPackName;
+		widgetPackName = Sambar.api?.bar.widgetPackName;
 
 		var files = new DirectoryInfo(Path.Join(Paths.widgetPacksFolder, widgetPackName)).GetFiles();
 		var widgetFiles = files.Where(file => file.Name.EndsWith(".widget.cs")).ToList();
@@ -161,14 +164,15 @@ internal class WidgetLoader
 				string modFile = Path.Join(Paths.widgetPacksFolder, widgetPackName, $"{widgetName.Key}.mod.cs");
 				if (File.Exists(modFile))
 				{
-					var modAction = GetObjectFromScript<Action<dynamic>>(modFile);
+					//                                         Widget,  WidgetEnv
+					var modAction = GetObjectFromScript<Action<dynamic, dynamic>>(modFile);
 					Logger.Log($"modFile exists: {modFile}, modActionNull: {modAction == null}");
-					modAction!(widget);
+					modAction!(widget, env);
 				}
 			}
 			catch (Exception ex)
 			{
-				Logger.Log($"[ WIDGET-LOADING/MOD-FAILED, {widgetName.Key} (exception at constructor) ]\n{ex.Message}");
+				Logger.Log($"[ WIDGET-LOADING/MOD-FAILED, {widgetName.Key} (exception at constructor) ]", ex: ex);
 			}
 			if (widget != null) { widgets.Add(widget); }
 		}
@@ -371,13 +375,11 @@ using SkiaSharp.Views.WPF;
 	public WidgetEnv PrepareEnvVarsForWidget(string widgetName)
 	{
 		WidgetEnv env = new();
-		if (imports == null)
-		{
-			env.ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, Sambar.api!.bar.widgetPackName, "assets");
-		}
+		env.ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, widgetPackName, "assets");
 		if (imports!.widgets.Contains(widgetName))
 		{
-			env.ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, imports.importsPack, "assets");
+			env.IS_IMPORTED = true;
+			env.IMPORTS_ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, imports.importsPack, "assets");
 		}
 		return env;
 	}

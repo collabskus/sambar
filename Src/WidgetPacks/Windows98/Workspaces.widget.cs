@@ -7,7 +7,7 @@ public class Workspaces : Widget
 		workspaces = Sambar.api.workspaces;
 
 		//this.CornerRadius = Theme.WIDGET_CORNER_RADIUS;
-		StackPanelWithGaps panel = new(0, workspaces.Count);
+		StackPanelWithGaps panel = new(2, workspaces.Count);
 		panel.Orientation = Orientation.Horizontal;
 		panel.VerticalAlignment = VerticalAlignment.Center;
 		panel.ClipToBounds = true;

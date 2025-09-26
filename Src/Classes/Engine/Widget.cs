@@ -39,5 +39,7 @@ public class Widget : Border
 public class WidgetEnv
 {
 	public string ASSETS_FOLDER;
+	public string IMPORTS_ASSETS_FOLDER;
+	public bool IS_IMPORTED = false;
 	public string HOME = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 }

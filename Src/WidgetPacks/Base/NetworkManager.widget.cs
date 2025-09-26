@@ -1,14 +1,16 @@
 ﻿public class NetworkManager : Widget
 {
-	public NetworkManager(WidgetEnv ENV): base(ENV)
+	public RoundedButton btn = new();
+
+	public NetworkManager(WidgetEnv ENV) : base(ENV)
 	{
-		RoundedButton btn = new();
 		//btn.Text = "W";
 		btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
 		btn.Margin = Theme.BUTTON_MARGIN;
 		btn.Height = Theme.BUTTON_HEIGHT;
 		btn.Width = Theme.BUTTON_WIDTH;
-		btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "wifi.svg");
+		if (!ENV.IS_IMPORTED) btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "wifi.svg");
+		else btn.ImageSrc = Path.Join(ENV.IMPORTS_ASSETS_FOLDER, "wifi.svg");
 		btn.IconWidth = 16;
 		btn.IconHeight = 16;
 		btn.FontFamily = Theme.FONT_FAMILY;

@@ -5,7 +5,7 @@
 using System.Windows;
 using System.Windows.Media;
 
-return (dynamic counters) =>
+return (dynamic counters, dynamic ENV) =>
 {
 	counters.textBlock.FontWeight = FontWeights.SemiBold;
 	counters.textBlock.SetValue(TextOptions.TextRenderingModeProperty, TextRenderingMode.Aliased);

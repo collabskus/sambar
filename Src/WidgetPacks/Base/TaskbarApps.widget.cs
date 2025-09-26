@@ -4,6 +4,21 @@ public class TaskbarApps : Widget
 	RunningApp focusedApp;
 	List<RoundedButton> btns = new();
 
+	/*
+	 * Made public so that they can be edited in a mod file (TaskbarApps.mod.cs)
+	 * */
+
+	public int BUTTON_HEIGHT = Theme.BUTTON_HEIGHT;
+	public int BUTTON_WIDTH = Theme.BUTTON_WIDTH;
+
+	public Brush BUTTON_BACKGROUND = Theme.BUTTON_BACKGROUND;
+	public Brush BUTTON_BORDER_COLOR = Theme.BUTTON_BORDER_COLOR;
+	public Thickness BUTTON_BORDER_THICKNESS = Theme.BUTTON_BORDER_THICKNESS;
+
+	public Brush BUTTON_PRESSED_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public Brush BUTTON_PRESSED_BORDER_COLOR = Utils.BrushFromHex("#22F803");
+	public Thickness BUTTON_PRESSED_BORDER_THICKNESS = new(0, 5, 0, 0);
+
 	public TaskbarApps(WidgetEnv ENV) : base(ENV)
 	{
 		panel.Orientation = Orientation.Horizontal;
@@ -29,8 +44,8 @@ public class TaskbarApps : Widget
 				btn.Icon = app.icon;
 				btn.Height = Sambar.api.config.height;
 				btn.Width = Sambar.api.config.height;
-				btn.IconHeight = Theme.BUTTON_HEIGHT;
-				btn.IconWidth = Theme.BUTTON_WIDTH;
+				btn.IconHeight = BUTTON_HEIGHT;
+				btn.IconWidth = BUTTON_WIDTH;
 				btn.Margin = new(0, 0, 5, 0);
 				btn.HoverEffect = false;
 				List<MenuButton> menuItems = new()
@@ -75,15 +90,15 @@ public class TaskbarApps : Widget
 			{
 				if (btn.Id == app.hWnd.ToString())
 				{
-					btn.Background = Theme.BUTTON_PRESSED_BACKGROUND;
-					btn.BorderBrush = Utils.BrushFromHex("#22F803");
-					btn.BorderThickness = new(0, 5, 0, 0);
+					btn.Background = BUTTON_PRESSED_BACKGROUND;
+					btn.BorderBrush = BUTTON_PRESSED_BORDER_COLOR;
+					btn.BorderThickness = BUTTON_PRESSED_BORDER_THICKNESS;
 				}
 				else
 				{
-					btn.Background = Theme.BUTTON_BACKGROUND;
-					btn.BorderBrush = Theme.BUTTON_BORDER_COLOR;
-					btn.BorderThickness = new(0);
+					btn.Background = BUTTON_BACKGROUND;
+					btn.BorderBrush = BUTTON_BORDER_COLOR;
+					btn.BorderThickness = BUTTON_BORDER_THICKNESS;
 				}
 			}
 		});

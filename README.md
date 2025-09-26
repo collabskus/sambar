@@ -43,6 +43,9 @@ Download the latest release from [here](https://github.com/TheAjaykrishnanR/samb
  1. Windows 11 build 26100+
  2. .NET 9 Desktop Runtime (if you aren't running the self-contained version), download and install it from [here](https://dotnet.microsoft.com/en-us/download/dotnet/9.0/runtime)
 
+### Optional
+ 1. JetBrains Mono Font
+
  ## Documentation and Tutorials
 
 Read the [docs](https://github.com/TheAjaykrishnanR/sambar/blob/master/Docs/Landing.md) here.

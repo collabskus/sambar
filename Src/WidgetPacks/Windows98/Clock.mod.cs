@@ -5,7 +5,7 @@
 using System.Windows;
 using System.Windows.Media;
 
-return (dynamic clock) =>
+return (dynamic clock, dynamic ENV) =>
 {
 	clock.textBlock.FontWeight = FontWeights.SemiBold;
 	clock.textBlock.SetValue(TextOptions.TextRenderingModeProperty, TextRenderingMode.Aliased);
