@@ -34,6 +34,12 @@ positions and colors are <ins>fully customizable</ins>. [dive in?](https://githu
  10. Hide the default windows taskbar
  11. Animated Wallpaper changer
 
+## Showcase
+
+ <ins>Autumn</ins>:
+
+![showcase_2](https://github.com/TheAjaykrishnanR/sambar/blob/master/Imgs/autumn.png)
+
 ## Usage
 
 Download the latest release from [here](https://github.com/TheAjaykrishnanR/sambar/releases)
