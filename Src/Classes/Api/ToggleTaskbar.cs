@@ -22,7 +22,7 @@ public partial class Api
 	}
 
 	nint taskbar_hWnd;
-	public bool taskbarVisible = true;
+	public bool taskbarVisible { get; private set; } = true;
 	public void ToggleTaskbar()
 	{
 		if (taskbar_hWnd == 0) return;
@@ -61,7 +61,7 @@ public partial class Api
 
 	private void ToggleTaskbarCleanup()
 	{
-		// TODO
+		if (!taskbarVisible) ToggleTaskbar();
 	}
 }
 
