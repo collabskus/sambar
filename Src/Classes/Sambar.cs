@@ -103,6 +103,9 @@ public partial class Sambar : Window
 		this.Left = config.marginXLeft;
 		this.Top = config.marginYTop;
 
+		this.BorderBrush = Utils.BrushFromHex(config.borderColor);
+		this.BorderThickness = config.borderThickness;
+
 		Logger.Log($"this.Width: {config.width}");
 
 		int cornerPreference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;

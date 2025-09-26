@@ -12,8 +12,8 @@
 		this.paddingYTop = 0;
 		this.paddingYDown = 0;
 		this.backgroundColor = "#c0c0c0";
-		this.borderColor = "#DFDFDF";
-		this.borderThickness = 1;
+		this.borderColor = "#ffffff";
+		this.borderThickness = new(0);
 		this.roundedCorners = false;
 	}
 }

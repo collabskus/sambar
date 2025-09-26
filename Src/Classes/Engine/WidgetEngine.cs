@@ -295,7 +295,7 @@ using SkiaSharp.Views.WPF;
 			Logger.Log($"COMPILATION FAILED: {dllName}");
 			foreach (Diagnostic err in result.Diagnostics)
 			{
-				Logger.Log(err.GetMessage());
+				Logger.Log($"{err.Location.SourceSpan}: {err.GetMessage()}");
 			}
 		}
 		ms.Seek(0, SeekOrigin.Begin);

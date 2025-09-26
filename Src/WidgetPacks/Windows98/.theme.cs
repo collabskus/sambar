@@ -17,8 +17,8 @@ public class Theme
 	public static Thickness BUTTON_MARGIN = new(0);
 	public static int ICON_WIDTH = 14;
 	public static int ICON_HEIGHT = 14;
-	public static int BUTTON_WIDTH = 20;
-	public static int BUTTON_HEIGHT = 20;
+	public static int BUTTON_WIDTH = 19;
+	public static int BUTTON_HEIGHT = 19;
 	public static Thickness BUTTON_BORDER_THICKNESS = new(0);
 
 	public static Brush WIDGET_BACKGROUND = new SolidColorBrush(Colors.Transparent);

@@ -13,7 +13,7 @@
 		this.paddingYDown = 0;
 		this.backgroundColor = "#1a1a1a";
 		this.borderColor = "#ffffff";
-		this.borderThickness = 0;
+		this.borderThickness = new(0);
 		this.roundedCorners = false;
 	}
 }

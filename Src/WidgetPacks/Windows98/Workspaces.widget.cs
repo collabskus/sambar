@@ -1,31 +1,26 @@
 public class Workspaces : Widget
 {
 	List<Workspace> workspaces = new();
-	public List<RoundedButton> buttons = new();
+	public List<Button> buttons = new();
 	public Workspaces(WidgetEnv ENV) : base(ENV)
 	{
 		workspaces = Sambar.api.workspaces;
 
 		//this.CornerRadius = Theme.WIDGET_CORNER_RADIUS;
-		StackPanelWithGaps panel = new(Theme.WIDGET_GAP, workspaces.Count);
+		StackPanelWithGaps panel = new(0, workspaces.Count);
 		panel.Orientation = Orientation.Horizontal;
 		panel.VerticalAlignment = VerticalAlignment.Center;
 		panel.ClipToBounds = true;
 		for (int i = 1; i <= workspaces.Count; i++)
 		{
-			RoundedButton btn = new();
-			btn.Text = $"{i}";
+			Button btn = new();
+			btn.Content = new TextBlock() { Text = $"{i}" };
 			btn.FontFamily = Theme.FONT_FAMILY;
-			btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
 			btn.Width = Theme.BUTTON_WIDTH;
 			btn.Height = Theme.BUTTON_HEIGHT;
-			btn.BorderThickness = Theme.BUTTON_BORDER_THICKNESS;
-			btn.BorderBrush = Theme.BUTTON_BORDER_COLOR;
 			btn.Foreground = Theme.TEXT_COLOR;
-			btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
 			btn.Background = Theme.BUTTON_BACKGROUND;
-			btn.HoverEffect = true;
-			btn.MouseDown += WorkspaceButtonClicked;
+			btn.Click += WorkspaceButtonClicked;
 			buttons.Add(btn);
 			panel.Add(btn);
 		}
@@ -45,10 +40,11 @@ public class Workspaces : Widget
 		{
 			foreach (var button in buttons)
 			{
+				button.Foreground = Theme.TEXT_COLOR;
 				button.Background = Theme.BUTTON_BACKGROUND;
 			}
+			buttons[index].Foreground = new SolidColorBrush(Colors.White);
 			buttons[index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
-			buttons[index].HoverEffect = false;
 		});
 	}
 
@@ -57,8 +53,9 @@ public class Workspaces : Widget
 	public void WorkspaceButtonClicked(object? sender, RoutedEventArgs e)
 	{
 		buttonRedrawing = true;
-		var btn = sender as RoundedButton;
-		string clickedBtnName = Convert.ToString(btn.Text);
+		var btn = sender as Button;
+		string clickedBtnName = (btn.Content as TextBlock).Text.ToString();
+		Sambar.api.Print($"clickedBtnName: {clickedBtnName}");
 		Workspace clickedWorkspace = workspaces.Where(wksp => wksp.name == clickedBtnName).First();
 		int clickedBtnIndex = clickedWorkspace.index;
 		RedrawButtons(clickedBtnIndex);

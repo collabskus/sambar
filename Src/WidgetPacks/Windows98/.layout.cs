@@ -94,6 +94,19 @@ class BaseLayout : Layout
 		/// Set the finished layout type as the container
 		/// <summary>
 		//this.Container = panel;
-		this.Container = grid;
+
+		Border border1 = new(); // inner border
+		Border border2 = new(); // outer border
+
+		border1.Margin = new(0, 0, 0, 1);
+		border1.BorderBrush = Utils.BrushFromHex("#dfdfdf");
+		border1.BorderThickness = new(0, 0, 0, 1);
+
+		border2.BorderBrush = Utils.BrushFromHex("#ffffff");
+		border2.BorderThickness = new(0);
+
+		border1.Child = grid;
+		border2.Child = border1;
+		this.Container = border2;
 	}
 }

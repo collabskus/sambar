@@ -4,6 +4,7 @@
 */
 
 using Newtonsoft.Json;
+using System.Windows;
 
 namespace sambar;
 
@@ -21,7 +22,7 @@ public class Config
 	public string backgroundColor = "";
 	public bool roundedCorners = true;
 	public string borderColor = "";
-	public int borderThickness = 0;
+	public Thickness borderThickness = new(0);
 	public string widgetPack = "Base";
 
 	[JsonConstructor]
@@ -38,9 +39,10 @@ public class Config
 		string? backgroundColor,
 		bool? roundedCorners,
 		string? borderColor,
-		int? borderThickness,
+		Thickness? borderThickness,
 		string? widgetPack
-	) {
+	)
+	{
 
 		this.height = height ?? 40;
 		this.width = width ?? 0;
@@ -53,12 +55,13 @@ public class Config
 		this.paddingYDown = paddingYDown ?? 0;
 		this.backgroundColor = backgroundColor ?? "#ffffff";
 		this.borderColor = borderColor ?? "#ffffff";
-		this.borderThickness = borderThickness ?? 0;
+		this.borderThickness = borderThickness ?? new(0);
 		this.widgetPack = widgetPack ?? "Base";
 	}
 
-	public Config(int screenWidth) {
-		width = screenWidth - (marginXLeft + marginXRight);	
+	public Config(int screenWidth)
+	{
+		width = screenWidth - (marginXLeft + marginXRight);
 	}
 
 	public Config() { }
