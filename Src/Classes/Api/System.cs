@@ -39,33 +39,24 @@ public partial class Api
 		activeDesktop?.ApplyChanges(AD_Apply.ALL);
 	}
 
-	public void SetWallpaper(string imageFile, WallpaperAnimation animation, int duration = 2)
+	public void SetWallpaper(string imageFile, WallpaperAnimation animation)
 	{
 		Window? wnd = Sambar.api?.CreateDesktopOverlay();
 		wnd!.Background = new SolidColorBrush(System.Windows.Media.Colors.Transparent);
 		Canvas canvas = new();
 
 		Image img = new() { Source = GetImageSource(imageFile) };
-		//Image img2 = new() { Source = new BitmapImage(new Uri(@"C:\Users\Jayakuttan\Pictures\Wallpapers\1360350.png")) };
 
 		(int imgWidth, int imgHeight) = Utils.GetImageDimensions(imageFile);
 		(img.Width, img.Height) = Utils.ScaleImage(imgWidth, imgHeight, (int)wnd.Width, (int)wnd.Height);
-		Logger.Log($"W: {img.Width}, H: {img.Height}, imgWidth: {imgWidth}, imgHeight: {imgHeight}");
-		//Utils.ScaleImage(img2, (int)wnd.Width, (int)wnd.Height);
 
-		double final_radius = Math.Max(wnd.Width, wnd.Height);
-		final_radius += 0.25 * final_radius;
+		Logger.Log($"img.Width: {img.Width}, img.Height: {img.Height}, actual => W: {imgWidth}, H: {imgHeight}");
 
-		double radiusX_initial = 0, radiusX_final = final_radius;
-		double radiusY_initial = 0, radiusY_final = final_radius;
-
-		EllipseGeometry ellipse = new(new Point(0, 0), radiusX_initial, radiusY_initial);
 		// register a name for the ellipse so it can be targetted for animations
 		NameScope.SetNameScope(wnd, new NameScope());
-		string ellipseName = "ellipse";
-		wnd!.RegisterName(ellipseName, ellipse);
+		wnd!.RegisterName(animation.maskShapeIdentifier, animation.maskShape);
 
-		GeometryDrawing geometryDrawing = new() { Geometry = ellipse, Brush = new SolidColorBrush(Colors.Black) };
+		GeometryDrawing geometryDrawing = new() { Geometry = animation.maskShape, Brush = new SolidColorBrush(Colors.Black) };
 
 		//https://stackoverflow.com/questions/14283528/positioning-an-opacitymask-in-wpf
 		DrawingBrush drawingBrush = new()
@@ -79,38 +70,12 @@ public partial class Api
 
 		img.OpacityMask = drawingBrush;
 
-		// Animation
-		DoubleAnimation doubleAnimationX = new()
-		{
-			From = radiusX_initial,
-			To = radiusX_final,
-			Duration = TimeSpan.FromSeconds(duration),
-			AutoReverse = false
-		};
-		DoubleAnimation doubleAnimationY = new()
-		{
-			From = radiusX_initial,
-			To = radiusY_final,
-			Duration = TimeSpan.FromSeconds(duration),
-			AutoReverse = false
-		};
-		Storyboard storyboard = new();
-
-		Storyboard.SetTargetName(doubleAnimationX, ellipseName);
-		Storyboard.SetTargetProperty(doubleAnimationX, new PropertyPath(EllipseGeometry.RadiusXProperty));
-
-		Storyboard.SetTargetName(doubleAnimationY, ellipseName);
-		Storyboard.SetTargetProperty(doubleAnimationY, new PropertyPath(EllipseGeometry.RadiusYProperty));
-
-		storyboard.Children.Add(doubleAnimationX);
-		storyboard.Children.Add(doubleAnimationY);
-
 		// triggers animation at window load
-		wnd.Loaded += (s, e) => { storyboard.Begin(wnd); };
+		wnd.Loaded += (s, e) => { animation.sequence.Begin(wnd); };
 		canvas.Children.Add(img);
 
 		// close the window once animation is complete and wallpaper is set
-		storyboard.Completed += (s, e) =>
+		animation.sequence.Completed += (s, e) =>
 		{
 			SetWallpaper(imageFile);
 			Thread.Sleep(500);
@@ -118,16 +83,15 @@ public partial class Api
 			wnd.Close();
 		};
 
-		//
 		wnd!.Content = canvas;
 		wnd.Show();
 	}
 }
 
-public enum WallpaperAnimation
+public class WallpaperAnimation
 {
-	CORNER_BLOOM,
-	NONE
+	public Geometry maskShape; // shape of the moving mask
+	public string maskShapeIdentifier = "maskShapeName"; // name of the mask
+	public Storyboard sequence = new(); // the actual movement
 }
-
 

@@ -28,6 +28,7 @@ using SkiaSharp;
 using SkiaSharp.Views.WPF;
 using SkiaSharp.Views.Desktop;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Windows.Media.Animation;
 
 namespace sambar;
 
@@ -230,6 +231,7 @@ internal class WidgetLoader
 			MetadataReference.CreateFromFile(typeof(SKSurface).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(SKElement).Assembly.Location),
 			MetadataReference.CreateFromFile(typeof(SKPaintSurfaceEventArgs).Assembly.Location),
+			MetadataReference.CreateFromFile(typeof(Storyboard).Assembly.Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
 			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
 		];
@@ -256,6 +258,7 @@ using ScottColors = ScottPlot.Colors;
 using ScottPlot.Plottables;
 using SkiaSharp;
 using SkiaSharp.Views.WPF;
+using System.Windows.Media.Animation;
 """;
 
 		if (additionalDllsAndUsings != null)

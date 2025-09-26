@@ -29,11 +29,48 @@ public class Wallpapers : Widget
 				imageSelector.Load(walls)
 			)
 		);
-		imageSelector.IMAGE_SELECTED += (imgFile) => Sambar.api.SetWallpaper(imgFile, WallpaperAnimation.NONE);
+		imageSelector.IMAGE_SELECTED += (imgFile) => Sambar.api.SetWallpaper(imgFile, CreateAnimation());
 		//imageSelector.IMAGE_SELECTED += (imgFile) => Sambar.api.SetWallpaper(imgFile);
 
 		menu.KeyDown += (s, e) => { if (e.Key == Key.Escape) menu.Close(); };
 		menu.Content = imageSelector;
+	}
+
+	public WallpaperAnimation CreateAnimation()
+	{
+		WallpaperAnimation animation = new();
+
+		double final_radius = Math.Max(Sambar.screenWidth, Sambar.screenHeight);
+		final_radius += 0.25 * final_radius;
+		double radiusX_initial = 0, radiusX_final = final_radius;
+		double radiusY_initial = 0, radiusY_final = final_radius;
+
+		int duration = 2;
+		DoubleAnimation doubleAnimationX = new()
+		{
+			From = radiusX_initial,
+			To = radiusX_final,
+			Duration = TimeSpan.FromSeconds(duration),
+			AutoReverse = false
+		};
+		DoubleAnimation doubleAnimationY = new()
+		{
+			From = radiusX_initial,
+			To = radiusY_final,
+			Duration = TimeSpan.FromSeconds(duration),
+			AutoReverse = false
+		};
+
+		Storyboard.SetTargetName(doubleAnimationX, animation.maskShapeIdentifier);
+		Storyboard.SetTargetProperty(doubleAnimationX, new PropertyPath(EllipseGeometry.RadiusXProperty));
+		Storyboard.SetTargetName(doubleAnimationY, animation.maskShapeIdentifier);
+		Storyboard.SetTargetProperty(doubleAnimationY, new PropertyPath(EllipseGeometry.RadiusYProperty));
+
+		animation.maskShape = new EllipseGeometry(new Point(0, 0), radiusX_initial, radiusY_initial);
+		animation.sequence.Children.Add(doubleAnimationX);
+		animation.sequence.Children.Add(doubleAnimationY);
+
+		return animation;
 	}
 }
 

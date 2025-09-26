@@ -400,21 +400,11 @@ public partial class Utils
 	/// <summary>
 	/// Scale an image so that it fills the target rect (width*height) completely
 	/// </summary>
-	public static (int, int) ScaleImage(int imageWidth, int imageHeight, int targetWidth, int targetHeight)
+	public static (int, int) ScaleImage(int imgWidth, int imgHeight, int targetWidth, int targetHeight)
 	{
-		double scaledWidth = 0, scaledHeight = 0;
-		if (imageWidth > imageHeight)
-		{
-			scaledHeight = targetHeight;
-			scaledWidth = (scaledHeight / imageHeight) * imageWidth;
-		}
-		else
-		{
-			scaledWidth = targetWidth;
-			scaledHeight = (scaledWidth / imageWidth) * imageHeight;
-		}
-
-		return ((int)scaledWidth, (int)scaledHeight);
+		string touchDimension = (imgWidth / targetWidth) > (imgHeight / targetHeight) ? "height" : "width";
+		double scale = touchDimension == "width" ? (double)targetWidth / imgWidth : (double)targetHeight / imgHeight;
+		return ((int)(scale * imgWidth), (int)(scale * imgHeight));
 	}
 
 	/// <summary>
