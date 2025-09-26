@@ -36,11 +36,11 @@ positions and colors are <ins>fully customizable</ins>. [dive in?](https://githu
 
 ## Showcase
 
- <ins>Autumn (WidgetPack: Plain1)</ins>:
+ <ins>Autumn (WidgetPack: Plain1)</ins>
 
 ![showcase_2](https://github.com/TheAjaykrishnanR/sambar/blob/master/Imgs/autumn.png)
 
- <ins>Nostalgia (WidgetPack: Windows98)</ins>:
+ <ins>Nostalgia (WidgetPack: Windows98)</ins>
 
 ![showcase_3](https://github.com/TheAjaykrishnanR/sambar/blob/master/Imgs/win98.png)
 

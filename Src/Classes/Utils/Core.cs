@@ -400,12 +400,30 @@ public partial class Utils
 	/// <summary>
 	/// Scale an image so that it fills the target rect (width*height) completely
 	/// </summary>
-	public static void ScaleImage(System.Windows.Controls.Image img, int width, int height)
+	public static (int, int) ScaleImage(int imageWidth, int imageHeight, int targetWidth, int targetHeight)
 	{
-		if (width > height)
-			img.Width = width;
+		double scaledWidth = 0, scaledHeight = 0;
+		if (imageWidth > imageHeight)
+		{
+			scaledHeight = targetHeight;
+			scaledWidth = (scaledHeight / imageHeight) * imageWidth;
+		}
 		else
-			img.Height = height;
+		{
+			scaledWidth = targetWidth;
+			scaledHeight = (scaledWidth / imageWidth) * imageHeight;
+		}
+
+		return ((int)scaledWidth, (int)scaledHeight);
+	}
+
+	/// <summary>
+	/// Get the dimensions (width * height) of an image (.jpg, .png, ...)
+	/// </summary>
+	public static (int, int) GetImageDimensions(string imgFile)
+	{
+		System.Drawing.Image img = System.Drawing.Image.FromFile(imgFile);
+		return (img.Width, img.Height);
 	}
 }
 

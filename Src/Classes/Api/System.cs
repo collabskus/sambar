@@ -48,7 +48,9 @@ public partial class Api
 		Image img = new() { Source = GetImageSource(imageFile) };
 		//Image img2 = new() { Source = new BitmapImage(new Uri(@"C:\Users\Jayakuttan\Pictures\Wallpapers\1360350.png")) };
 
-		Utils.ScaleImage(img, (int)wnd.Width, (int)wnd.Height);
+		(int imgWidth, int imgHeight) = Utils.GetImageDimensions(imageFile);
+		(img.Width, img.Height) = Utils.ScaleImage(imgWidth, imgHeight, (int)wnd.Width, (int)wnd.Height);
+		Logger.Log($"W: {img.Width}, H: {img.Height}, imgWidth: {imgWidth}, imgHeight: {imgHeight}");
 		//Utils.ScaleImage(img2, (int)wnd.Width, (int)wnd.Height);
 
 		double final_radius = Math.Max(wnd.Width, wnd.Height);
@@ -111,6 +113,8 @@ public partial class Api
 		storyboard.Completed += (s, e) =>
 		{
 			SetWallpaper(imageFile);
+			Thread.Sleep(500);
+			Logger.Log("closing overlay window");
 			wnd.Close();
 		};
 

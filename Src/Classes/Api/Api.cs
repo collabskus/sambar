@@ -27,7 +27,7 @@ public partial class Api
 		ToggleTaskbarInit();
 		WindowingInit();
 		SystemInit();
-		SystemTrayInit();
+		//SystemTrayInit();
 		TaskbarInterceptorInit();
 		CustomWindowsInit();
 		ClockInit();
