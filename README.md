@@ -40,6 +40,10 @@ positions and colors are <ins>fully customizable</ins>. [dive in?](https://githu
 
 ![showcase_2](https://github.com/TheAjaykrishnanR/sambar/blob/master/Imgs/autumn.png)
 
+ <ins>Nostalgia</ins>:
+
+![showcase_3](https://github.com/TheAjaykrishnanR/sambar/blob/master/Imgs/win98.png)
+
 ## Usage
 
 Download the latest release from [here](https://github.com/TheAjaykrishnanR/sambar/releases)
