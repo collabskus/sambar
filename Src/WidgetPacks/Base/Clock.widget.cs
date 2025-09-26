@@ -1,6 +1,6 @@
 ﻿public class Clock : Widget
 {
-	TextBlock textBlock = new();
+	public TextBlock textBlock = new();
 
 	public Clock(WidgetEnv ENV) : base(ENV)
 	{

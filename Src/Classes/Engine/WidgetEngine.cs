@@ -152,7 +152,24 @@ internal class WidgetLoader
 			Type widgetType = typesInAssembly.Where(type => type.IsSubclassOf(typeof(Widget))).First();
 			// prepare the ENV VARS for widget
 			WidgetEnv env = PrepareEnvVarsForWidget(widgetName.Key);
-			Widget widget = (Widget)Activator.CreateInstance(widgetType, [env])!; // where the widget actually runs
+			Widget? widget = null;
+			try
+			{
+				widget = (Widget)Activator.CreateInstance(widgetType, [env])!; // where the widget actually runs
+
+				// check if <widgetName.mod.cs> exists and apply 
+				string modFile = Path.Join(Paths.widgetPacksFolder, widgetPackName, $"{widgetName.Key}.mod.cs");
+				if (File.Exists(modFile))
+				{
+					var modAction = GetObjectFromScript<Action<dynamic>>(modFile);
+					Logger.Log($"modFile exists: {modFile}, modActionNull: {modAction == null}");
+					modAction!(widget);
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.Log($"[ WIDGET-LOADING/MOD-FAILED, {widgetName.Key} (exception at constructor) ]\n{ex.Message}");
+			}
 			if (widget != null) { widgets.Add(widget); }
 		}
 
@@ -309,17 +326,10 @@ using SkiaSharp.Views.WPF;
 	}
 
 	/// <summary>
-	/// Evaluate Script
-	/// (Alternative to CompileDll)
+	/// Evaluate string
 	/// </summary>
-	public static T? GetObjectFromScript<T>(string scriptPath)
+	public static T? GetObjectFromString<T>(string script, string? scriptPath = null)
 	{
-		if (!File.Exists(scriptPath))
-		{
-			Logger.Log($"{scriptPath} does not exist, exiting...");
-			return default(T);
-		}
-		string script = File.ReadAllText(scriptPath);
 		ScriptOptions options = ScriptOptions.Default
 								.AddReferences(typeof(Sambar).Assembly)
 								.WithImports("sambar");
@@ -332,12 +342,29 @@ using SkiaSharp.Views.WPF;
 			}
 			catch (Exception ex)
 			{
-				Logger.Log($"unable to compile {scriptPath}");
+				Logger.Log($"unable to compile {(scriptPath == null ? script : scriptPath)}");
 				Logger.Log(ex.Message);
 			}
 		});
 		_t.Start();
 		_t.Join();
+		return obj;
+	}
+
+	/// <summary>
+	/// Evaluate Script
+	/// (Alternative to CompileDll)
+	/// </summary>
+	public static T? GetObjectFromScript<T>(string scriptPath)
+	{
+		if (!File.Exists(scriptPath))
+		{
+			Logger.Log($"{scriptPath} does not exist, exiting...");
+			return default(T);
+		}
+		string script = File.ReadAllText(scriptPath);
+		T? obj = default(T);
+		obj = GetObjectFromString<T>(script, scriptPath);
 		return obj;
 	}
 
