@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-public class StartButton : Widget
+﻿public class StartButton : Widget
 {
 	public RoundedButton btn = new();
 

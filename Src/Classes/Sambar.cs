@@ -52,6 +52,7 @@ public partial class Sambar : Window
 		this.widgetPackName = widgetPackName;
 		this.config = config;
 		this.UIThread = this.Dispatcher.Invoke;
+		this.ShowActivated = false;
 
 		// WPF event sequence
 		// https://memories3615.wordpress.com/2017/03/24/wpf-window-events-sequence/
@@ -61,7 +62,8 @@ public partial class Sambar : Window
 			WindowInit(); // needs hWnd
 		};
 
-		Activated += (s, e) =>
+		// since ShowActivated = false
+		Loaded += (s, e) =>
 		{
 			if (firstShow)
 			{

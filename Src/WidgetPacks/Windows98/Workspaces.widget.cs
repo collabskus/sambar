@@ -26,7 +26,11 @@ public class Workspaces : Widget
 		}
 		Sambar.api.Print($"workspaces: {workspaces.Count}, buttons: {buttons.Count}, index: {Sambar.api.currentWorkspace.index}");
 		if (buttons.Count > 0)
-			buttons[Sambar.api.currentWorkspace.index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
+		{
+			var selectedButton = buttons[Sambar.api.currentWorkspace.index];
+			selectedButton.Background = Theme.BUTTON_PRESSED_BACKGROUND;
+			selectedButton.Foreground = new SolidColorBrush(Colors.White);
+		}
 		Sambar.api.GLAZE_WORKSPACE_CHANGED += (workspace) =>
 		{
 			RedrawButtons(workspace.index);

@@ -23,7 +23,7 @@ public class Config
 	public bool roundedCorners = true;
 	public string borderColor = "";
 	public Thickness borderThickness = new(0);
-	public string widgetPack = "Base";
+	public bool hardwareRendering = true;
 
 	[JsonConstructor]
 	public Config(
@@ -40,7 +40,7 @@ public class Config
 		bool? roundedCorners,
 		string? borderColor,
 		Thickness? borderThickness,
-		string? widgetPack
+		bool? hardwareRendering
 	)
 	{
 
@@ -56,7 +56,7 @@ public class Config
 		this.backgroundColor = backgroundColor ?? "#ffffff";
 		this.borderColor = borderColor ?? "#ffffff";
 		this.borderThickness = borderThickness ?? new(0);
-		this.widgetPack = widgetPack ?? "Base";
+		this.hardwareRendering = hardwareRendering ?? true;
 	}
 
 	public Config(int screenWidth)

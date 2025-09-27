@@ -42,10 +42,10 @@ public class TaskbarApps : Widget
 				RoundedButton btn = new();
 				btn.Id = app.hWnd.ToString();
 				btn.Icon = app.icon;
-				btn.Height = Sambar.api.config.height;
-				btn.Width = Sambar.api.config.height;
-				btn.IconHeight = BUTTON_HEIGHT;
-				btn.IconWidth = BUTTON_WIDTH;
+				btn.Height = BUTTON_HEIGHT;
+				btn.Width = BUTTON_WIDTH;
+				btn.IconHeight = BUTTON_HEIGHT - 2;
+				btn.IconWidth = BUTTON_WIDTH - 2;
 				btn.Margin = new(0, 0, 5, 0);
 				btn.HoverEffect = false;
 				List<MenuButton> menuItems = new()

@@ -1,0 +1,24 @@
+public class StartButton : Widget
+{
+	public Button btn = new();
+
+	public StartButton(WidgetEnv ENV) : base(ENV)
+	{
+		Image icon = new() { Source = Sambar.api.GetImageSource(Path.Join(ENV.ASSETS_FOLDER, "windows.ico")) };
+		icon.Width = 15;
+
+		btn.Height = 19;
+		btn.Width = 19;
+		btn.Foreground = Theme.TEXT_COLOR;
+		btn.Background = Theme.BUTTON_BACKGROUND;
+		btn.FontFamily = Theme.FONT_FAMILY;
+		btn.Content = icon;
+		btn.Click += Clicked;
+		this.Content = btn;
+	}
+
+	public void Clicked(object sender, RoutedEventArgs e)
+	{
+		Sambar.api.StartMenu();
+	}
+}

@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.Scripting;
 using System.IO;
 using System.Diagnostics;
 using System.Reflection;
+using System.Windows.Media;
 
 namespace sambar;
 
@@ -45,7 +46,10 @@ public class _Main
 		Utils.CompileFileToDll(configFile, ".config");
 		Assembly configAssembly = Assembly.LoadFile(Paths.configDll);
 		Type configType = configAssembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Config))).First();
-		Config config = (Config)Activator.CreateInstance(configType);
+		Config? config = (Config?)Activator.CreateInstance(configType);
+
+		if (!config!.hardwareRendering)
+			RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
 
 		// start the wpf bar window
 		app = new();
