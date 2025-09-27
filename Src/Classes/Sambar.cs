@@ -23,6 +23,7 @@ using Newtonsoft.Json;
 using System.Drawing;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Windows.Threading;
 
 namespace sambar;
 
@@ -36,6 +37,7 @@ public partial class Sambar : Window
 	Config config;
 	public string widgetPackName;
 	bool firstShow = true;
+	public Action<Action> UIThread;
 	internal Sambar(string widgetPackName, Config config)
 	{
 		// Initialize the following in order
@@ -49,6 +51,7 @@ public partial class Sambar : Window
 		this.Topmost = true;
 		this.widgetPackName = widgetPackName;
 		this.config = config;
+		this.UIThread = this.Dispatcher.Invoke;
 
 		// WPF event sequence
 		// https://memories3615.wordpress.com/2017/03/24/wpf-window-events-sequence/
@@ -122,7 +125,13 @@ public partial class Sambar : Window
 	{
 		// the api has some blocking init tasks (looking at you glazewm) in the constructor that widgets might request, so only load the widgets once they are finished
 		await Task.WhenAll(api!.initTasks);
-		WidgetLoader widgetLoader = new();
+		// way down the line in widget loader we call GetObjectFromString<T>() for 
+		// all the .mod.cs files, the EvaluateAsync inside is run on a newly spawned 
+		// thread for each script. After a couple of scripts (6 - 7) the next script's
+		// thread for some reason goes into ThreadState.WaitSleepJoin. So i guess in short
+		// _t.Join() doesnt work reliably when called from the UIThread (a deadlock ?).
+		// But why would EvaluateAsync wait for UIThread ? it doesnt have anything to do with it.
+		await Task.Run(() => { WidgetLoader widgetLoader = new(this); });
 		// since the api starts much earlier than the widgets, fire events to update state once
 		// widgets are loaded
 		Sambar.api.FlushEvents();

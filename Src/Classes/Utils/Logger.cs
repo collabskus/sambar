@@ -24,7 +24,7 @@ public class Logger
 		if (ex != null) text += $"\n{ex.Message}" + $"\n{ex.StackTrace}";
 		if (DEBUG && debug) Debug.WriteLine(text);
 		if (CONSOLE && console) Console.WriteLine(text);
-		if (FILE && file) logFileWriter.WriteLine(text);
+		//if (FILE && file) logFileWriter.WriteLine(text);
 	}
 
 	public static void Log(List<string> array)

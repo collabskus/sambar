@@ -2,9 +2,10 @@
 
 public class StartButton : Widget
 {
+	public RoundedButton btn = new();
+
 	public StartButton(WidgetEnv ENV) : base(ENV)
 	{
-		RoundedButton btn = new();
 		btn.Height = 16;
 		btn.Width = 16;
 		btn.Foreground = Theme.TEXT_COLOR;

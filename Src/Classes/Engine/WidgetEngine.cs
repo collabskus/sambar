@@ -42,9 +42,11 @@ internal class WidgetLoader
 
 	string? widgetPackName;
 
-	public WidgetLoader()
+	bool catchWidgetExceptions = false;
+
+	public WidgetLoader(Sambar bar)
 	{
-		widgetPackName = Sambar.api?.bar.widgetPackName;
+		widgetPackName = bar.widgetPackName;
 
 		var files = new DirectoryInfo(Path.Join(Paths.widgetPacksFolder, widgetPackName)).GetFiles();
 		var widgetFiles = files.Where(file => file.Name.EndsWith(".widget.cs")).ToList();
@@ -119,10 +121,14 @@ internal class WidgetLoader
 
 		var layoutAssembly = Assembly.LoadFile(Path.Join(Paths.dllFolder, ".layout.dll"));
 		Type layoutType = layoutAssembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Layout))).First();
-		Layout layout = (Layout)Activator.CreateInstance(layoutType);
 
 		// IMPORTANT
-		Sambar.api!.bar.Content = layout?.Container;
+		Layout? layout = null;
+		bar.UIThread(() =>
+		{
+			layout = (Layout?)Activator.CreateInstance(layoutType);
+			Sambar.api!.bar.Content = layout?.Container;
+		});
 
 		widgetFilesToCompile
 			.ForEach(
@@ -132,7 +138,7 @@ internal class WidgetLoader
 					string fileContent = File.ReadAllText(file.FullName);
 					//string finalScript = widgetsPrefix + "\n" + fileContent;
 					string dllName = file.Name.Replace(".cs", "");
-					Utils.CompileStringToDll(fileContent, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)], wrapInTryCatch: true);
+					Utils.CompileStringToDll(fileContent, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)], wrapInTryCatch: catchWidgetExceptions);
 					widgetToDllMap[file.Name.Replace(".widget.cs", "")] = Path.Join(Paths.dllFolder, dllName + ".dll");
 				}
 			);
@@ -157,37 +163,49 @@ internal class WidgetLoader
 			// prepare the ENV VARS for widget
 			WidgetEnv env = PrepareEnvVarsForWidget(widgetName.Key);
 			Widget? widget = null;
-			try
-			{
-				widget = (Widget)Activator.CreateInstance(widgetType, [env])!; // where the widget actually runs
 
-				// check if <widgetName.mod.cs> exists and apply 
-				string modFile = Path.Join(Paths.widgetPacksFolder, widgetPackName, $"{widgetName.Key}.mod.cs");
-				if (File.Exists(modFile))
-				{
-					//                                         Widget,  WidgetEnv
-					var modAction = GetObjectFromScript<Action<dynamic, dynamic>>(modFile);
-					Logger.Log($"modFile exists: {modFile}, modActionNull: {modAction == null}");
-					modAction!(widget, env);
-				}
-			}
-			catch (Exception ex)
+			bar.UIThread(() =>
 			{
-				Logger.Log($"[ WIDGET-LOADING/MOD-FAILED, {widgetName.Key} (exception at constructor) ]", ex: ex);
-			}
+				try
+				{
+					// BUG: STARTBUTTON CRASHING
+					widget = (Widget)Activator.CreateInstance(widgetType, [env])!; // where the widget actually runs
+
+					// check if <widgetName.mod.cs> exists and apply 
+					string modFile = Path.Join(Paths.widgetPacksFolder, widgetPackName, $"{widgetName.Key}.mod.cs");
+					if (File.Exists(modFile))
+					{
+						Logger.Log($"modFile exists: {modFile}");
+						//                                         Widget,  WidgetEnv
+						var modAction = GetObjectFromScript<Action<dynamic, dynamic>>(modFile);
+						Logger.Log($"modFile exists: {modFile}, modActionNull: {modAction == null}");
+						modAction?.Invoke(widget, env);
+					}
+				}
+				catch (Exception ex)
+				{
+					Logger.Log($"[ WIDGET-LOADING/MOD-FAILED, {widgetName.Key} (exception at constructor) ]", ex: ex);
+				}
+			});
 			if (widget != null) { widgets.Add(widget); }
 		}
 
 		// widgets currently being loaded
 		Logger.Log($"[ Currently loaded widgets: {widgets.Count} ]");
-		Logger.Log(widgets.Select(widget => widget.Name).ToList());
+		//Logger.Log(widgets.Select(widget => widget.Name).ToList());
 
 		widgets.ForEach(
 			widget =>
 			{
 				//layout.WidgetToContainerMap[widget.GetType().Name].Child = widget;
 				Border? border = layout?.WidgetToContainerMap.GetValueOrDefault(widget.GetType().Name);
-				if (border != null) border.Child = widget;
+				if (border != null)
+				{
+					bar.UIThread(() =>
+					{
+						border.Child = widget;
+					});
+				}
 			}
 		);
 
@@ -339,13 +357,18 @@ using System.Windows.Media.Animation;
 	{
 		ScriptOptions options = ScriptOptions.Default
 								.AddReferences(typeof(Sambar).Assembly)
+								.AddReferences(typeof(System.Runtime.CompilerServices.DynamicAttribute).Assembly)
+								.AddReferences(typeof(Microsoft.CSharp.RuntimeBinder.RuntimeBinderException).Assembly)
 								.WithImports("sambar");
 		T? obj = default(T);
-		Thread _t = new(async () =>
+		Thread _t = new(() =>
 		{
 			try
 			{
-				obj = await CSharpScript.EvaluateAsync<T>(script, options: options);
+				Logger.Log($"EvaluateAsync(): started, {scriptPath}");
+				Logger.Log(script);
+				obj = CSharpScript.EvaluateAsync<T>(script, options: options).GetAwaiter().GetResult();
+				Logger.Log($"EvaluateAsync(): finished, {scriptPath}");
 			}
 			catch (Exception ex)
 			{
@@ -354,6 +377,14 @@ using System.Windows.Media.Animation;
 			}
 		});
 		_t.Start();
+		Task.Run(async () =>
+		{
+			while (_t.ThreadState != System.Threading.ThreadState.Stopped)
+			{
+				Logger.Log($"ThreadState: {_t.ThreadState}, IsAlive: {_t.IsAlive}");
+				await Task.Delay(100);
+			}
+		});
 		_t.Join();
 		return obj;
 	}
@@ -371,6 +402,7 @@ using System.Windows.Media.Animation;
 		}
 		string script = File.ReadAllText(scriptPath);
 		T? obj = default(T);
+		Logger.Log($"GetObjectFromString<T>() started: {scriptPath}");
 		obj = GetObjectFromString<T>(script, scriptPath);
 		return obj;
 	}
