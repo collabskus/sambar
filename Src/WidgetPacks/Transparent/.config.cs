@@ -11,8 +11,8 @@ public class BaseConfig : Config
 		this.paddingXRight = 0;
 		this.paddingYTop = 0;
 		this.paddingYDown = 0;
-		this.backgroundColor = "#1a1a1a";
-		this.borderColor = "#ffffff";
+		this.backgroundColor = "transparent";
+		this.borderColor = "transparent";
 		this.borderThickness = new(0);
 		this.roundedCorners = false;
 	}
