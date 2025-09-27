@@ -402,9 +402,20 @@ public partial class Utils
 	/// </summary>
 	public static (int, int) ScaleImage(int imgWidth, int imgHeight, int targetWidth, int targetHeight)
 	{
-		string touchDimension = (imgWidth / targetWidth) > (imgHeight / targetHeight) ? "height" : "width";
+		string touchDimension = (targetWidth / imgWidth) > (targetHeight / imgHeight) ? "width" : "height";
 		double scale = touchDimension == "width" ? (double)targetWidth / imgWidth : (double)targetHeight / imgHeight;
-		return ((int)(scale * imgWidth), (int)(scale * imgHeight));
+
+		imgWidth = (int)(scale * imgWidth);
+		imgHeight = (int)(scale * imgHeight);
+
+		if (imgWidth < targetWidth || imgHeight < targetHeight)
+		{
+			touchDimension = touchDimension == "width" ? "height" : "width";
+			scale = touchDimension == "width" ? (double)targetWidth / imgWidth : (double)targetHeight / imgHeight;
+			return ((int)(scale * imgWidth), (int)(scale * imgHeight));
+		}
+		else
+			return (imgWidth, imgHeight);
 	}
 
 	/// <summary>
