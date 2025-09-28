@@ -1,9 +1,7 @@
 ﻿public class Counters : Widget
 {
 	public TextBlock textBlock = new();
-	long cpuUsage = 0;
-	float downSpeed = 0f, upSpeed = 0f;
-	float memUsage = 0;
+
 	public Counters(WidgetEnv ENV) : base(ENV)
 	{
 		textBlock.Foreground = Theme.TEXT_COLOR;
@@ -18,6 +16,10 @@
 
 		this.Content = textBlock;
 	}
+
+	long cpuUsage = 0;
+	float downSpeed = 0f, upSpeed = 0f;
+	float memUsage = 0;
 
 	public void UpdateText()
 	{
