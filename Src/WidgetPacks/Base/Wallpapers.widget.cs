@@ -1,15 +1,18 @@
 public class Wallpapers : Widget
 {
 	public RoundedButton btn = new();
+	public string iconFile = "image.svg";
 
 	public Wallpapers(WidgetEnv ENV) : base(ENV) { }
 	public override void Init()
 	{
+		if (File.Exists(Path.Join(ENV.ASSETS_FOLDER, iconFile)))
+			btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, iconFile);
+		else
+			btn.ImageSrc = Path.Join(ENV.IMPORTS_ASSETS_FOLDER, iconFile);
 		btn.Height = Theme.BUTTON_HEIGHT;
 		btn.Width = Theme.BUTTON_WIDTH;
 		btn.Margin = Theme.BUTTON_MARGIN;
-		if (!ENV.IS_IMPORTED) btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "image.svg");
-		else btn.ImageSrc = Path.Join(ENV.IMPORTS_ASSETS_FOLDER, "image.svg");
 		btn.IconWidth = 13;
 		btn.IconHeight = 13;
 		btn.Background = Theme.BUTTON_BACKGROUND;
