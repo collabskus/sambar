@@ -1,3 +1,7 @@
+/*
+ * Combines NetworkManager, Tray and Wallpaper widgets from Base
+ * */
+
 public class ActionCenter : Widget
 {
 	public ActionCenter(WidgetEnv ENV) : base(ENV)
