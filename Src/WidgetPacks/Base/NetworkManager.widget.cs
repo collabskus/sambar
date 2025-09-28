@@ -2,9 +2,9 @@
 {
 	public RoundedButton btn = new();
 
-	public NetworkManager(WidgetEnv ENV) : base(ENV)
+	public NetworkManager(WidgetEnv ENV) : base(ENV) { }
+	public override void Init()
 	{
-		//btn.Text = "W";
 		btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
 		btn.Margin = Theme.BUTTON_MARGIN;
 		btn.Height = Theme.BUTTON_HEIGHT;
@@ -18,9 +18,9 @@
 		btn.Background = Theme.BUTTON_BACKGROUND;
 		btn.HoverEffect = false;
 		btn.MouseDown += ButtonMouseDown;
-		this.Content = btn;
-		this.Background = Theme.WIDGET_BACKGROUND;
 
+		this.Background = Theme.WIDGET_BACKGROUND;
+		this.Content = btn;
 	}
 
 	public void ButtonMouseDown(object? sender, MouseEventArgs e)

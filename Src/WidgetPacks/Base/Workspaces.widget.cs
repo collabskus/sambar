@@ -2,7 +2,19 @@ public class Workspaces : Widget
 {
 	List<Workspace> workspaces = new();
 	public List<RoundedButton> buttons = new();
-	public Workspaces(WidgetEnv ENV) : base(ENV)
+
+	/*
+	 * Made public so that they can be edited in a mod file (Workspaces.mod.cs)
+	 * */
+
+	public int BUTTON_HEIGHT = Theme.BUTTON_HEIGHT;
+	public int BUTTON_WIDTH = Theme.BUTTON_WIDTH;
+
+	public Brush BUTTON_BACKGROUND = Theme.BUTTON_BACKGROUND;
+	public Brush BUTTON_PRESSED_BACKGROUND = Theme.BUTTON_PRESSED_BACKGROUND;
+
+	public Workspaces(WidgetEnv ENV) : base(ENV) { }
+	public override void Init()
 	{
 		workspaces = Sambar.api.workspaces;
 
@@ -11,6 +23,8 @@ public class Workspaces : Widget
 		panel.Orientation = Orientation.Horizontal;
 		panel.VerticalAlignment = VerticalAlignment.Center;
 		panel.ClipToBounds = true;
+		panel.Height = Sambar.api.config.height;
+
 		for (int i = 1; i <= workspaces.Count; i++)
 		{
 			RoundedButton btn = new();
@@ -31,7 +45,7 @@ public class Workspaces : Widget
 		}
 		Sambar.api.Print($"workspaces: {workspaces.Count}, buttons: {buttons.Count}, index: {Sambar.api.currentWorkspace.index}");
 		if (buttons.Count > 0)
-			buttons[Sambar.api.currentWorkspace.index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
+			buttons[Sambar.api.currentWorkspace.index].Background = BUTTON_PRESSED_BACKGROUND;
 		Sambar.api.GLAZE_WORKSPACE_CHANGED += (workspace) =>
 		{
 			RedrawButtons(workspace.index);
@@ -45,9 +59,9 @@ public class Workspaces : Widget
 		{
 			foreach (var button in buttons)
 			{
-				button.Background = Theme.BUTTON_BACKGROUND;
+				button.Background = BUTTON_BACKGROUND;
 			}
-			buttons[index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
+			buttons[index].Background = BUTTON_PRESSED_BACKGROUND;
 			buttons[index].HoverEffect = false;
 		});
 	}

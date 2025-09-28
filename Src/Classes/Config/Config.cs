@@ -70,8 +70,10 @@ public class Config
 // .imports.cs
 public class WidgetImports
 {
-	public string importsPack;
-	public List<string> widgets;
+	public string importsPack = "";
+	public List<string> widgets = new();
+	//                widget        pack    file
+	public Dictionary<string, List<(string, string)>> usings = new();
 }
 
 

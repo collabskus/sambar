@@ -7,15 +7,10 @@ class BaseLayout : Layout
 	/// </summary>
 
 	Border Workspaces = new();
-	Border Tray = new();
-	Border NetworkManager = new();
-	Border HideTaskbar = new();
 	Border Clock = new();
-	Border ScribblePad = new();
-	Border StartButton = new();
 	Border Counters = new();
 	Border TaskbarApps = new();
-	Border Wallpapers = new();
+	Border ActionCenter = new();
 
 	public BaseLayout()
 	{
@@ -54,7 +49,7 @@ class BaseLayout : Layout
 		col3.HorizontalAlignment = HorizontalAlignment.Right;
 		col3.VerticalAlignment = VerticalAlignment.Center;
 		col3.FlowDirection = FlowDirection.RightToLeft;
-		col3.Margin = new(0, 0, 6, 0);
+		//col3.Margin = new(0, 0, 0, 0);
 
 		Grid.SetColumn(col1, 0);
 		Grid.SetColumn(col2, 1);
@@ -68,21 +63,9 @@ class BaseLayout : Layout
 		Clock.HorizontalAlignment = HorizontalAlignment.Center;
 		col2.Children.Add(Clock);
 		// col3
-		List<Border> systemTray = new();
-		systemTray.Add(StartButton);
-		systemTray.Add(Counters);
-		systemTray.Add(NetworkManager);
-		systemTray.Add(Tray);
-		systemTray.Add(Wallpapers);
-		//systemTray.Add(HideTaskbar);
-		//systemTray.Add(ScribblePad);
-		systemTray.ForEach(border =>
-		{
-			border.Margin = new(0, 0, 5, 0);
-			border.VerticalAlignment = VerticalAlignment.Center;
-			col3.Children.Add(border);
-		});
-		Counters.Margin = new(10, 0, 10, 0);
+		col3.Children.Add(Counters);
+		Counters.Margin = new(0, 0, 10, 0);
+		col3.Children.Add(ActionCenter);
 
 		/// <summary>
 		/// Add all borders to the layout type [Grid || StackPanel]

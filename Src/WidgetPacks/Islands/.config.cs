@@ -2,16 +2,16 @@ public class BaseConfig : Config
 {
 	public BaseConfig()
 	{
-		this.height = 20;
+		this.height = 25;
 		this.width = 0;
-		this.marginXLeft = 0;
-		this.marginXRight = 0;
-		this.marginYTop = 0;
+		this.marginXLeft = 10;
+		this.marginXRight = 10;
+		this.marginYTop = 10;
 		this.paddingXLeft = 0;
 		this.paddingXRight = 0;
 		this.paddingYTop = 0;
 		this.paddingYDown = 0;
-		this.backgroundColor = "#1a1a1a";
+		this.backgroundColor = "transparent";
 		this.borderColor = "#ffffff";
 		this.borderThickness = new(0);
 		this.roundedCorners = false;

@@ -134,12 +134,24 @@ internal class WidgetLoader
 			.ForEach(
 				file =>
 				{
-					Logger.Log($"Compiling {file.Name}");
+					string widgetName = file.Name.Replace(".widget.cs", "");
+
+					// check if the widget calls for including any reference widgets
+					List<(string, string)> packWidgetPairs = new();
+					imports?.usings.TryGetValue(widgetName, out packWidgetPairs);
+					string codePrefix = "";
+					foreach (var pair in packWidgetPairs)
+					{
+						codePrefix += File.ReadAllText(Path.Join(Paths.widgetPacksFolder, pair.Item1, $"{pair.Item2}.widget.cs")) + "\n";
+					}
 					string fileContent = File.ReadAllText(file.FullName);
-					//string finalScript = widgetsPrefix + "\n" + fileContent;
+					string code = codePrefix + "\n" + fileContent;
+
+					Logger.Log($"Compiling {file.Name}");
+					Logger.Log(code);
 					string dllName = file.Name.Replace(".cs", "");
-					Utils.CompileStringToDll(fileContent, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)], wrapInTryCatch: catchWidgetExceptions);
-					widgetToDllMap[file.Name.Replace(".widget.cs", "")] = Path.Join(Paths.dllFolder, dllName + ".dll");
+					Utils.CompileStringToDll(code, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)], wrapInTryCatch: catchWidgetExceptions);
+					widgetToDllMap[widgetName] = Path.Join(Paths.dllFolder, dllName + ".dll");
 				}
 			);
 
@@ -155,11 +167,19 @@ internal class WidgetLoader
 			if (File.Exists(_assemblyPath)) return Assembly.LoadFrom(_assemblyPath);
 			return null;
 		};
+		List<Type> widgetTypes = new();
 		foreach (var widgetName in widgetToDllMap)
 		{
 			var assembly = Assembly.LoadFile(widgetName.Value);
 			Type[] typesInAssembly = assembly.GetTypes();
-			Type widgetType = typesInAssembly.Where(type => type.IsSubclassOf(typeof(Widget))).First();
+			Type widgetType = typesInAssembly.Where(type => type.IsSubclassOf(typeof(Widget)) && type.Name == widgetName.Key).First();
+			if (widgetTypes.Contains(widgetType))
+			{
+				Logger.Log($"Widget of typeName: {widgetType} already exists, so not compiling...");
+				continue;
+			}
+			widgetTypes.Add(widgetType);
+
 			// prepare the ENV VARS for widget
 			WidgetEnv env = PrepareEnvVarsForWidget(widgetName.Key);
 			Widget? widget = null;
@@ -168,7 +188,6 @@ internal class WidgetLoader
 			{
 				try
 				{
-					// BUG: STARTBUTTON CRASHING
 					widget = (Widget)Activator.CreateInstance(widgetType, [env])!; // where the widget actually runs
 
 					// check if <widgetName.mod.cs> exists and apply 
@@ -181,10 +200,11 @@ internal class WidgetLoader
 						Logger.Log($"modFile exists: {modFile}, modActionNull: {modAction == null}");
 						modAction?.Invoke(widget, env);
 					}
+					widget.Init(); // run the init anyway, maybe empty maybe not
 				}
 				catch (Exception ex)
 				{
-					Logger.Log($"[ WIDGET-LOADING/MOD-FAILED, {widgetName.Key} (exception at constructor) ]", ex: ex);
+					Logger.Log($"[ WIDGET-LOADING/MOD-FAILED, {widgetName.Key}, Type: {widgetType.Name} (exception at constructor) ]", ex: ex);
 				}
 			});
 			if (widget != null) { widgets.Add(widget); }
@@ -212,49 +232,41 @@ internal class WidgetLoader
 		GC.Collect();
 	}
 
-	/// <summary>
-	/// compiles code (primarily classes) into dlls. Used to compile widgets, themes, layouts etc
-	/// Since assembly cache is not unloaded automatically this must be run on a separate thread
-	/// and discarded, so use the wrapper defined inside Utils
-	/// </summary>
-	/// <param name="classCode"></param>
-	/// <param name="dllName"></param>
-	/// <param name="additionalDllsAndUsings"></param>
-	public static void CompileToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null, bool wrapInTryCatch = false)
-	{
-		List<MetadataReference> references =
-		[
-			MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Object).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Sambar).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Debug).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Thread).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Task).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(List<>).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Application).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(UIElement).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Control).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Brush).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(JsonConvert).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Enum).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(DependencyObject).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(HttpClient).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(DrawingAttributes).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(WpfPlot).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(ScottPlot.Colors).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(System.Drawing.Color).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(ScottPlot.Plottables.Signal).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(SKSurface).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(SKElement).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(SKPaintSurfaceEventArgs).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Storyboard).Assembly.Location),
-			MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
-			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
-		];
+	static List<Type> typesInScript = [
+		typeof(object),
+		typeof(Object),
+		typeof(Sambar),
+		typeof(Enumerable),
+		typeof(Debug),
+		typeof(Thread),
+		typeof(Task),
+		typeof(List<>),
+		typeof(Application),
+		typeof(UIElement),
+		typeof(Control),
+		typeof(Brush),
+		typeof(JsonConvert),
+		typeof(Enum),
+		typeof(DependencyObject),
+		typeof(Uri),
+		typeof(HttpClient),
+		typeof(DrawingAttributes),
+		typeof(WpfPlot),
+		typeof(ScottPlot.Colors),
+		typeof(System.Drawing.Color),
+		typeof(ScottPlot.Plottables.Signal),
+		typeof(SKSurface),
+		typeof(SKElement),
+		typeof(SKPaintSurfaceEventArgs),
+		typeof(Storyboard),
+	];
 
-		string usingsPrefix =
+	static List<string> assembliesInScript = [
+		"System.Runtime",
+		"System.Collections"
+	];
+
+	static string scriptUsingsPrefix =
 """
 using sambar;
 using System;
@@ -279,18 +291,38 @@ using SkiaSharp.Views.WPF;
 using System.Windows.Media.Animation;
 """;
 
+	/// <summary>
+	/// compiles code (primarily classes) into dlls. Used to compile widgets, themes, layouts etc
+	/// Since assembly cache is not unloaded automatically this must be run on a separate thread
+	/// and discarded, so use the wrapper defined inside Utils
+	/// </summary>
+	/// <param name="classCode"></param>
+	/// <param name="dllName"></param>
+	/// <param name="additionalDllsAndUsings"></param>
+	public static void CompileToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null, bool wrapInTryCatch = false)
+	{
+		List<MetadataReference> references = new();
+		foreach (Type t in typesInScript)
+		{
+			references.Add(MetadataReference.CreateFromFile(t.Assembly.Location));
+		}
+		foreach (string assemblyName in assembliesInScript)
+		{
+			references.Add(MetadataReference.CreateFromFile(Assembly.Load(assemblyName).Location));
+		}
+
 		if (additionalDllsAndUsings != null)
 		{
 			additionalDllsAndUsings
 				.ForEach(dllAndUsing =>
 				{
 					references.Add(MetadataReference.CreateFromFile(dllAndUsing.Item1));
-					if (dllAndUsing.Item2 != null) usingsPrefix += "\n" + $"using {dllAndUsing.Item2}";
+					if (dllAndUsing.Item2 != null) scriptUsingsPrefix += "\n" + $"using {dllAndUsing.Item2}";
 				}
 			);
 		}
 
-		string code = usingsPrefix + classCode;
+		string code = scriptUsingsPrefix + classCode;
 		CSharpParseOptions parseOptions = new(LanguageVersion.Preview);
 		SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code, parseOptions);
 
@@ -355,11 +387,22 @@ using System.Windows.Media.Animation;
 	/// </summary>
 	public static T? GetObjectFromString<T>(string script, string? scriptPath = null)
 	{
-		ScriptOptions options = ScriptOptions.Default
-								.AddReferences(typeof(Sambar).Assembly)
-								.AddReferences(typeof(System.Runtime.CompilerServices.DynamicAttribute).Assembly)
-								.AddReferences(typeof(Microsoft.CSharp.RuntimeBinder.RuntimeBinderException).Assembly)
-								.WithImports("sambar");
+		ScriptOptions options = ScriptOptions.Default;
+		foreach (Type t in typesInScript)
+		{
+			options = options.AddReferences(t.Assembly);
+		}
+		foreach (string assemblyName in assembliesInScript)
+		{
+			options = options.AddReferences(Assembly.Load(assemblyName));
+		}
+		options = options
+				  .AddReferences(typeof(System.Runtime.CompilerServices.DynamicAttribute).Assembly) // for using the dynamic keyword 
+				  .AddReferences(typeof(Microsoft.CSharp.RuntimeBinder.RuntimeBinderException).Assembly)
+				  .AddImports("sambar");
+
+		script = scriptUsingsPrefix + script;
+
 		T? obj = default(T);
 		Thread _t = new(() =>
 		{
@@ -374,6 +417,7 @@ using System.Windows.Media.Animation;
 			{
 				Logger.Log($"unable to compile {(scriptPath == null ? script : scriptPath)}");
 				Logger.Log(ex.Message);
+				Logger.Log(ex.StackTrace);
 			}
 		});
 		_t.Start();
@@ -411,11 +455,14 @@ using System.Windows.Media.Animation;
 	{
 		WidgetEnv env = new();
 		env.ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, widgetPackName, "assets");
-		if (imports!.widgets.Contains(widgetName))
+		Logger.Log($"IMPORTS_NULL: {imports == null}");
+		if (imports != null)
 		{
-			env.IS_IMPORTED = true;
+			if (imports.widgets.Contains(widgetName))
+				env.IS_IMPORTED = true;
 			env.IMPORTS_ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, imports.importsPack, "assets");
 		}
+
 		return env;
 	}
 

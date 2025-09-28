@@ -1,21 +1,23 @@
 ﻿public class Clock : Widget
 {
 	public TextBlock textBlock = new();
+	public Func<Time, string> timeString = (time) =>
+	{
+		return $"{time.hours}:{time.minutes}:{time.seconds} {time.day}-{time.month}-{time.year}";
+	};
 
 	public Clock(WidgetEnv ENV) : base(ENV)
 	{
 		textBlock.Foreground = Theme.TEXT_COLOR;
 		textBlock.FontFamily = Theme.FONT_FAMILY;
-		Sambar.api.CLOCK_TICKED += ClockTickedEventHandler;
-
-		this.Content = textBlock;
-	}
-
-	public void ClockTickedEventHandler(Time time)
-	{
-		this.Thread.Invoke(() =>
+		textBlock.VerticalAlignment = VerticalAlignment.Center;
+		textBlock.Margin = new(5);
+		Sambar.api.CLOCK_TICKED += (time) => this.Thread.Invoke(() =>
 		{
-			textBlock.Text = $"{time.hours}:{time.minutes}:{time.seconds} {time.day}-{time.month}-{time.year}";
+			textBlock.Text = timeString(time);
 		});
+
+		this.Height = Sambar.api.config.height;
+		this.Content = textBlock;
 	}
 }

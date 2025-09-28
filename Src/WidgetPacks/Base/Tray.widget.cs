@@ -6,10 +6,9 @@ public class Tray : Widget
 
 	public RoundedButton btn = new();
 
-	public Tray(WidgetEnv ENV) : base(ENV)
+	public Tray(WidgetEnv ENV) : base(ENV) { }
+	public override void Init()
 	{
-		//UpdateTrayPanel();
-
 		if (!ENV.IS_IMPORTED) btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "arrow_down.svg");
 		else btn.ImageSrc = Path.Join(ENV.IMPORTS_ASSETS_FOLDER, "arrow_down.svg");
 		btn.IconHeight = Theme.ICON_HEIGHT;

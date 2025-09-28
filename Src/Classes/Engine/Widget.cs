@@ -27,6 +27,11 @@ public class Widget : Border
 
 	Config config;
 	public WidgetEnv ENV;
+
+	// for widgets that intend to be as extensible as possible put the initializing
+	// here so that they can be called after modAction has been executed
+	public virtual void Init() { }
+
 	protected Widget(WidgetEnv ENV)
 	{
 		this.HorizontalAlignment = HorizontalAlignment.Left;

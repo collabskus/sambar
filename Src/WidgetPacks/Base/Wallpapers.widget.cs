@@ -2,7 +2,8 @@ public class Wallpapers : Widget
 {
 	public RoundedButton btn = new();
 
-	public Wallpapers(WidgetEnv ENV) : base(ENV)
+	public Wallpapers(WidgetEnv ENV) : base(ENV) { }
+	public override void Init()
 	{
 		btn.Height = Theme.BUTTON_HEIGHT;
 		btn.Width = Theme.BUTTON_WIDTH;
