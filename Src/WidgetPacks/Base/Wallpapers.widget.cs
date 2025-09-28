@@ -2,6 +2,7 @@ public class Wallpapers : Widget
 {
 	public RoundedButton btn = new();
 	public string iconFile = "image.svg";
+	public Theme theme = new();
 
 	public Wallpapers(WidgetEnv ENV) : base(ENV) { }
 	public override void Init()
@@ -10,13 +11,13 @@ public class Wallpapers : Widget
 			btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, iconFile);
 		else
 			btn.ImageSrc = Path.Join(ENV.IMPORTS_ASSETS_FOLDER, iconFile);
-		btn.Height = Theme.BUTTON_HEIGHT;
-		btn.Width = Theme.BUTTON_WIDTH;
-		btn.Margin = Theme.BUTTON_MARGIN;
+		btn.Height = theme.BUTTON_HEIGHT;
+		btn.Width = theme.BUTTON_WIDTH;
+		btn.Margin = theme.BUTTON_MARGIN;
 		btn.IconWidth = 13;
 		btn.IconHeight = 13;
-		btn.Background = Theme.BUTTON_BACKGROUND;
-		btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
+		btn.Background = theme.BUTTON_BACKGROUND;
+		btn.CornerRadius = theme.BUTTON_CORNER_RADIUS;
 		btn.MouseDown += ButtonMouseDown;
 		this.Content = btn;
 	}

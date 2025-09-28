@@ -1,11 +1,12 @@
 ﻿public class Counters : Widget
 {
+	public Theme theme = new();
 	public TextBlock textBlock = new();
 
 	public Counters(WidgetEnv ENV) : base(ENV)
 	{
-		textBlock.Foreground = Theme.TEXT_COLOR;
-		textBlock.FontFamily = Theme.FONT_FAMILY;
+		textBlock.Foreground = theme.TEXT_COLOR;
+		textBlock.FontFamily = theme.FONT_FAMILY;
 		textBlock.VerticalAlignment = VerticalAlignment.Center;
 		textBlock.Margin = new(0);
 
