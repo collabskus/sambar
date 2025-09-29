@@ -1,7 +1,7 @@
 ﻿
 ===============================================================================
 sambar PROJECT EXPORT
-Generated: 09/29/2025 14:26:43
+Generated: 09/29/2025 14:27:07
 Project Path: D:\DEV\sambar
 ===============================================================================
 
@@ -32,8 +32,10 @@ D:\DEV\SAMBAR
 |           Widgets.md
 |           
 +---Imgs
+|       autumn.png
 |       explorer_fi1Oz9MPqd.gif
 |       Screenshot 2025-07-14 182909.png
+|       win98.png
 |       
 +---Scripts
 |       createRelease.ps1
@@ -144,21 +146,48 @@ D:\DEV\SAMBAR
 |       |           start.svg
 |       |           wifi.svg
 |       |           
+|       +---Islands
+|       |       .config.cs
+|       |       .imports.cs
+|       |       .layout.cs
+|       |       .theme.cs
+|       |       ActionCenter.widget.cs
+|       |       Clock.mod.cs
+|       |       Counters.mod.cs
+|       |       Workspaces.mod.cs
+|       |       
 |       +---Plain1
 |       |       .config.cs
 |       |       .imports.cs
 |       |       .layout.cs
 |       |       .theme.cs
 |       |       
+|       +---Transparent
+|       |       .config.cs
+|       |       .imports.cs
+|       |       .layout.cs
+|       |       .theme.cs
+|       |       
 |       \---Windows98
-|               .config.cs
-|               .imports.cs
-|               .layout.cs
-|               .theme.cs
-|               Clock.mod.cs
-|               Counters.mod.cs
-|               Workspaces.widget.cs
-|               
+|           |   .config.cs
+|           |   .imports.cs
+|           |   .layout.cs
+|           |   .theme.cs
+|           |   Clock.mod.cs
+|           |   Counters.mod.cs
+|           |   NetworkManager.mod.cs
+|           |   StartButton.widget.cs
+|           |   TaskbarApps.mod.cs
+|           |   Tray.mod.cs
+|           |   Wallpapers.mod.cs
+|           |   Workspaces.widget.cs
+|           |   
+|           \---assets
+|                   tray_apps.ico
+|                   wallpaper.ico
+|                   wifi.ico
+|                   windows.ico
+|                   
 \---Todo
         Bugs.md
         
@@ -186,8 +215,8 @@ Much of the Api is served as events that you can subscribe to from your plugins.
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\Basics.md
-SIZE: 2.03 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 2.02 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 # Basics
@@ -208,7 +237,7 @@ The logfile `sambar.log` can be found alongside the executable which will be cre
 
 Right clicking anywhere on the bar will open a context menu containing the option to exit.
 
-You can also kill `sambar.exe` from the task manager or by running `taskkill /IM sambar.exe` from cmd/pwsh. Even while running the terminal, since the bar window runs on its own UI thread the `Main()` returns immediately, so `Ctrl-C` wont work to kill sambar.
+You can also kill `sambar.exe` from the task manager or by running `taskkill /IM sambar.exe` from cmd/pwsh. Even while running the terminal, since the it is basically a wpf app the console returns immediately, so `Ctrl-C` wont work to kill sambar.
 
 # Widgets
 
@@ -225,7 +254,7 @@ To start hacking with sambar have a go at [Tutorials](https://github.com/TheAjay
 ================================================================================
 FILE: :\DEV\sambar\Docs\claude.md
 SIZE: 8.79 KB
-MODIFIED: 09/29/2025 14:26:13
+MODIFIED: 09/29/2025 14:26:52
 ================================================================================
 
 # Comprehensive Sambar Security and Architecture Review
@@ -643,14 +672,14 @@ new plugins the Sambar Api is incredibly useful, see the Api reference here.
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\project_export.txt
-SIZE: 20.46 KB
-MODIFIED: 09/29/2025 14:26:44
+SIZE: 21.27 KB
+MODIFIED: 09/29/2025 14:27:07
 ================================================================================
 
 
 ===============================================================================
 sambar PROJECT EXPORT
-Generated: 09/29/2025 14:26:43
+Generated: 09/29/2025 14:27:07
 Project Path: D:\DEV\sambar
 ===============================================================================
 
@@ -681,8 +710,10 @@ D:\DEV\SAMBAR
 |           Widgets.md
 |           
 +---Imgs
+|       autumn.png
 |       explorer_fi1Oz9MPqd.gif
 |       Screenshot 2025-07-14 182909.png
+|       win98.png
 |       
 +---Scripts
 |       createRelease.ps1
@@ -793,21 +824,48 @@ D:\DEV\SAMBAR
 |       |           start.svg
 |       |           wifi.svg
 |       |           
+|       +---Islands
+|       |       .config.cs
+|       |       .imports.cs
+|       |       .layout.cs
+|       |       .theme.cs
+|       |       ActionCenter.widget.cs
+|       |       Clock.mod.cs
+|       |       Counters.mod.cs
+|       |       Workspaces.mod.cs
+|       |       
 |       +---Plain1
 |       |       .config.cs
 |       |       .imports.cs
 |       |       .layout.cs
 |       |       .theme.cs
 |       |       
+|       +---Transparent
+|       |       .config.cs
+|       |       .imports.cs
+|       |       .layout.cs
+|       |       .theme.cs
+|       |       
 |       \---Windows98
-|               .config.cs
-|               .imports.cs
-|               .layout.cs
-|               .theme.cs
-|               Clock.mod.cs
-|               Counters.mod.cs
-|               Workspaces.widget.cs
-|               
+|           |   .config.cs
+|           |   .imports.cs
+|           |   .layout.cs
+|           |   .theme.cs
+|           |   Clock.mod.cs
+|           |   Counters.mod.cs
+|           |   NetworkManager.mod.cs
+|           |   StartButton.widget.cs
+|           |   TaskbarApps.mod.cs
+|           |   Tray.mod.cs
+|           |   Wallpapers.mod.cs
+|           |   Workspaces.widget.cs
+|           |   
+|           \---assets
+|                   tray_apps.ico
+|                   wallpaper.ico
+|                   wifi.ico
+|                   windows.ico
+|                   
 \---Todo
         Bugs.md
         
@@ -835,8 +893,8 @@ Much of the Api is served as events that you can subscribe to from your plugins.
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\Basics.md
-SIZE: 2.03 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 2.02 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 # Basics
@@ -857,7 +915,7 @@ The logfile `sambar.log` can be found alongside the executable which will be cre
 
 Right clicking anywhere on the bar will open a context menu containing the option to exit.
 
-You can also kill `sambar.exe` from the task manager or by running `taskkill /IM sambar.exe` from cmd/pwsh. Even while running the terminal, since the bar window runs on its own UI thread the `Main()` returns immediately, so `Ctrl-C` wont work to kill sambar.
+You can also kill `sambar.exe` from the task manager or by running `taskkill /IM sambar.exe` from cmd/pwsh. Even while running the terminal, since the it is basically a wpf app the console returns immediately, so `Ctrl-C` wont work to kill sambar.
 
 # Widgets
 
@@ -874,7 +932,7 @@ To start hacking with sambar have a go at [Tutorials](https://github.com/TheAjay
 ================================================================================
 FILE: :\DEV\sambar\Docs\claude.md
 SIZE: 8.79 KB
-MODIFIED: 09/29/2025 14:26:13
+MODIFIED: 09/29/2025 14:26:52
 ================================================================================
 
 # Comprehensive Sambar Security and Architecture Review
@@ -1292,8 +1350,8 @@ new plugins the Sambar Api is incredibly useful, see the Api reference here.
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\project_export.txt
-SIZE: 20.46 KB
-MODIFIED: 09/29/2025 14:26:44
+SIZE: 21.27 KB
+MODIFIED: 09/29/2025 14:27:07
 ================================================================================
 
 
@@ -1523,8 +1581,8 @@ void MyEventHandler(string arg) {
 
 ================================================================================
 FILE: :\DEV\sambar\README.md
-SIZE: 2.76 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 3.08 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 # Sambar
@@ -1563,6 +1621,16 @@ positions and colors are <ins>fully customizable</ins>. [dive in?](https://githu
  10. Hide the default windows taskbar
  11. Animated Wallpaper changer
 
+## Showcase
+
+ <ins>Autumn (WidgetPack: Plain1)</ins>
+
+![showcase_2](https://github.com/TheAjaykrishnanR/sambar/blob/master/Imgs/autumn.png)
+
+ <ins>Nostalgia (WidgetPack: Windows98)</ins>
+
+![showcase_3](https://github.com/TheAjaykrishnanR/sambar/blob/master/Imgs/win98.png)
+
 ## Usage
 
 Download the latest release from [here](https://github.com/TheAjaykrishnanR/sambar/releases)
@@ -1571,6 +1639,9 @@ Download the latest release from [here](https://github.com/TheAjaykrishnanR/samb
 
  1. Windows 11 build 26100+
  2. .NET 9 Desktop Runtime (if you aren't running the self-contained version), download and install it from [here](https://dotnet.microsoft.com/en-us/download/dotnet/9.0/runtime)
+
+### Optional
+ 1. JetBrains Mono Font
 
  ## Documentation and Tutorials
 
@@ -1634,7 +1705,7 @@ using System.Windows;
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Api\Api.cs
 SIZE: 1.11 KB
-MODIFIED: 09/26/2025 08:24:32
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -1666,7 +1737,7 @@ public partial class Api
 		ToggleTaskbarInit();
 		WindowingInit();
 		SystemInit();
-		SystemTrayInit();
+		//SystemTrayInit();
 		TaskbarInterceptorInit();
 		CustomWindowsInit();
 		ClockInit();
@@ -2009,8 +2080,8 @@ public class MediaInfo
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Api\Clocks.cs
-SIZE: 0.86 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 1.05 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -2018,37 +2089,43 @@ MODIFIED: 09/25/2025 13:32:59
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
+using Windows.Globalization.DateTimeFormatting;
+
 namespace sambar;
 
 public partial class Api
 {
-    public delegate void ClockTickedEventHandler(Time time);
-    public event ClockTickedEventHandler CLOCK_TICKED = (time) => { };
-    private void ClockInit()
-    {
-        Task.Run(async () =>
-        {
-            while(true)
-            {
-                Time now = new();
-                CLOCK_TICKED(now);
-                await Task.Delay(1000);
-            }
-        });
-    }
+	public delegate void ClockTickedEventHandler(Time time);
+	public event ClockTickedEventHandler CLOCK_TICKED = (time) => { };
+	private void ClockInit()
+	{
+		Task.Run(async () =>
+		{
+			while (true)
+			{
+				Time now = new();
+				CLOCK_TICKED(now);
+				await Task.Delay(1000);
+			}
+		});
+	}
 
-    // Api Endpoint
-    // Set polling frequence / event firing rate
+	// Api Endpoint
+	// Set polling frequence / event firing rate
 }
 
 public class Time
 {
-    public int seconds = DateTime.Now.Second;
-    public int minutes = DateTime.Now.Minute;
-    public int hours = DateTime.Now.Hour;
-    public int day = DateTime.Now.Day;
-    public int month = DateTime.Now.Month;
-    public int year = DateTime.Now.Year;
+	public int seconds = DateTime.Now.Second;
+	public int minutes = DateTime.Now.Minute;
+	public int hours = DateTime.Now.Hour;
+	public int day = DateTime.Now.Day;
+	public int month = DateTime.Now.Month;
+	public int year = DateTime.Now.Year;
+	public DayOfWeek dayName = DateTime.Now.DayOfWeek;
+	public string monthName { get { return months[month]; } }
+
+	List<string> months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 }
 
 
@@ -3087,8 +3164,8 @@ public class MenuButton : RoundedButton
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Api\System.cs
-SIZE: 3.84 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 3.08 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -3132,31 +3209,24 @@ public partial class Api
 		activeDesktop?.ApplyChanges(AD_Apply.ALL);
 	}
 
-	public void SetWallpaper(string imageFile, WallpaperAnimation animation, int duration = 2)
+	public void SetWallpaper(string imageFile, WallpaperAnimation animation)
 	{
 		Window? wnd = Sambar.api?.CreateDesktopOverlay();
 		wnd!.Background = new SolidColorBrush(System.Windows.Media.Colors.Transparent);
 		Canvas canvas = new();
 
 		Image img = new() { Source = GetImageSource(imageFile) };
-		//Image img2 = new() { Source = new BitmapImage(new Uri(@"C:\Users\Jayakuttan\Pictures\Wallpapers\1360350.png")) };
 
-		Utils.ScaleImage(img, (int)wnd.Width, (int)wnd.Height);
-		//Utils.ScaleImage(img2, (int)wnd.Width, (int)wnd.Height);
+		(int imgWidth, int imgHeight) = Utils.GetImageDimensions(imageFile);
+		(img.Width, img.Height) = Utils.ScaleImage(imgWidth, imgHeight, (int)wnd.Width, (int)wnd.Height);
 
-		double final_radius = Math.Max(wnd.Width, wnd.Height);
-		final_radius += 0.25 * final_radius;
+		Logger.Log($"img.Width: {img.Width}, img.Height: {img.Height}, actual => W: {imgWidth}, H: {imgHeight}, [screen, x: {Sambar.screenWidth}, y: {Sambar.screenHeight}, scale: {Sambar.scale}]");
 
-		double radiusX_initial = 0, radiusX_final = final_radius;
-		double radiusY_initial = 0, radiusY_final = final_radius;
-
-		EllipseGeometry ellipse = new(new Point(0, 0), radiusX_initial, radiusY_initial);
 		// register a name for the ellipse so it can be targetted for animations
 		NameScope.SetNameScope(wnd, new NameScope());
-		string ellipseName = "ellipse";
-		wnd!.RegisterName(ellipseName, ellipse);
+		wnd!.RegisterName(animation.maskShapeIdentifier, animation.maskShape);
 
-		GeometryDrawing geometryDrawing = new() { Geometry = ellipse, Brush = new SolidColorBrush(Colors.Black) };
+		GeometryDrawing geometryDrawing = new() { Geometry = animation.maskShape, Brush = new SolidColorBrush(Colors.Black) };
 
 		//https://stackoverflow.com/questions/14283528/positioning-an-opacitymask-in-wpf
 		DrawingBrush drawingBrush = new()
@@ -3170,63 +3240,38 @@ public partial class Api
 
 		img.OpacityMask = drawingBrush;
 
-		// Animation
-		DoubleAnimation doubleAnimationX = new()
-		{
-			From = radiusX_initial,
-			To = radiusX_final,
-			Duration = TimeSpan.FromSeconds(duration),
-			AutoReverse = false
-		};
-		DoubleAnimation doubleAnimationY = new()
-		{
-			From = radiusX_initial,
-			To = radiusY_final,
-			Duration = TimeSpan.FromSeconds(duration),
-			AutoReverse = false
-		};
-		Storyboard storyboard = new();
-
-		Storyboard.SetTargetName(doubleAnimationX, ellipseName);
-		Storyboard.SetTargetProperty(doubleAnimationX, new PropertyPath(EllipseGeometry.RadiusXProperty));
-
-		Storyboard.SetTargetName(doubleAnimationY, ellipseName);
-		Storyboard.SetTargetProperty(doubleAnimationY, new PropertyPath(EllipseGeometry.RadiusYProperty));
-
-		storyboard.Children.Add(doubleAnimationX);
-		storyboard.Children.Add(doubleAnimationY);
-
 		// triggers animation at window load
-		wnd.Loaded += (s, e) => { storyboard.Begin(wnd); };
+		wnd.Loaded += (s, e) => { animation.sequence.Begin(wnd); };
 		canvas.Children.Add(img);
 
 		// close the window once animation is complete and wallpaper is set
-		storyboard.Completed += (s, e) =>
+		animation.sequence.Completed += (s, e) =>
 		{
 			SetWallpaper(imageFile);
+			Thread.Sleep(500);
+			Logger.Log("closing overlay window");
 			wnd.Close();
 		};
 
-		//
 		wnd!.Content = canvas;
 		wnd.Show();
 	}
 }
 
-public enum WallpaperAnimation
+public class WallpaperAnimation
 {
-	CORNER_BLOOM,
-	NONE
+	public Geometry maskShape; // shape of the moving mask
+	public string maskShapeIdentifier = "maskShapeName"; // name of the mask
+	public Storyboard sequence = new(); // the actual movement
 }
-
 
 
 
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Api\SystemTray.cs
-SIZE: 7.15 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 7.44 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -3247,157 +3292,156 @@ using Microsoft.Win32;
 
 namespace sambar;
 
-public partial class Api {
+//public partial class Api {
+//
+//    private List<TrayIcon> trayIcons = new();
+//    private RegistryKey trayIconsRegistryKeyRoot;
+//    private List<TrayIconRegKey> UIOrderListRegKeys = new();
+//
+//    // Constructor
+//    private void SystemTrayInit()
+//    {
+//        // for trayIcon's images
+//        trayIconsRegistryKeyRoot = Registry.CurrentUser.OpenSubKey("Control Panel").OpenSubKey("NotifyIconSettings");
+//        byte[] raw_UIOrderList = (byte[])trayIconsRegistryKeyRoot.GetValue("UIOrderList");
+//        string fullHex = Convert.ToHexStringLower(raw_UIOrderList);
+//        Logger.Log($"UIOrderList: {fullHex}");
+//        fullHex.Chunk(16).ToList().ForEach(chunk => {
+//            string hex = new(chunk);
+//            char[][] chunks = hex.Chunk(2).ToArray();
+//            chunks = chunks.Reverse().ToArray();
+//            string reverse = "";
+//            chunks.ToList().ForEach(_c => reverse += new string(_c));
+//            ulong num = (ulong)Int64.Parse(reverse, System.Globalization.NumberStyles.HexNumber);
+//            //Logger.Log($"chunk: {hex}, reverse: {reverse}, decimal: {num}");
+//            TrayIconRegKey key = new();
+//            key.parentKey = $"{num}";
+//            key.ExecutablePath = (string)trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("ExecutablePath");
+//            key.IconGuid = (string)trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("IconGuid");
+//            key.IconSnapshot = (byte[])trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("IconSnapshot");
+//            key.UID = unchecked((uint?)(int?)trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("UID"));
+//            UIOrderListRegKeys.Add(key);
+//            Logger.Log($"{num}, {key.ExecutablePath}");
+//        });
+//
+//        Process[] runningProcesses = Process.GetProcesses();
+//        runningProcesses.ToList().ForEach(p => Logger.Log("executable path: " + p.ProcessName));
+//        List<string> trayProcesses = new();
+//        // filter out the non running ones
+//        UIOrderListRegKeys = UIOrderListRegKeys
+//            .Where(
+//                key => runningProcesses
+//                        .Select(_p => _p.ProcessName)
+//                        .ToList()
+//                        .Contains(key.ExecutablePath
+//                                        .Split(@"\")
+//                                        .Last()
+//                                        .Replace(".exe", "")
+//            ))
+//            .ToList();
+//
+//
+//        //trayIconRegKeys.ForEach(item => Logger.Log($"running: {item.ExecutablePath}"));
+//
+//        // from these use either IconGuid or hWnd + UID to figure out which is in overflow
+//        // tray by Shell_NotifyIconGetRect()
+//        /*
+//        List<GUIProcess> allWindows = Utils.EnumWindowProcesses();
+//        List<TrayIconRegKey> actuallyInTrayRegKeys = new();
+//        foreach(var key in UIOrderListRegKeys)
+//        {
+//            _NOTIFYICONIDENTIFIER identifier = new();
+//            identifier.cbSize = (uint)Marshal.SizeOf<_NOTIFYICONIDENTIFIER>();
+//            long result;    
+//            // IconGuid exists
+//            if(key.IconGuid != null)
+//            {
+//                Logger.Log($"{key.ExecutablePath}, IconGuid, parent: {key.parentKey}");
+//                identifier.guidItem = new(key.IconGuid);
+//                if((result = Shell32.Shell_NotifyIconGetRect(ref identifier, out RECT iconLocation)) != 0) 
+//                {
+//                    Logger.Log($"failed: {result}");
+//                }
+//                if (
+//                    iconLocation.Left != 0 ||
+//                    iconLocation.Top != 0 ||
+//                    iconLocation.Right != 0 ||
+//                    iconLocation.Bottom != 0
+//                ) actuallyInTrayRegKeys.Add(key);
+//            }
+//            // UID + hWnd
+//            else if(key.UID != null)
+//            {
+//                identifier.UID = (uint)key.UID;
+//                string exePath = key.ExecutablePath;
+//                string processName = exePath.Split(@"\").Last().Replace(".exe", "");
+//                if (processName == "Taskmgr") identifier.UID = 0;
+//                var process = runningProcesses.Where(_p => _p.ProcessName == processName).First();
+//                GUIProcess guiProcess = allWindows.Where(gui_p => gui_p.name == process.ProcessName).First();
+//                foreach (var window in guiProcess.windows)
+//                {
+//                    identifier.hWnd = window.hWnd;
+//                    if((result = Shell32.Shell_NotifyIconGetRect(ref identifier, out RECT iconLocation)) != 0) 
+//                    {
+//                        Logger.Log($"failed: {result}");
+//                    }
+//                    if (
+//                        iconLocation.Left != 0 ||
+//                        iconLocation.Top != 0 ||
+//                        iconLocation.Right != 0 ||
+//                        iconLocation.Bottom != 0
+//                    )
+//                    {
+//                        actuallyInTrayRegKeys.Add(key);
+//                        break;
+//                    }
+//                }
+//                //nint hWnd = Utils.GetHWNDFromPID(process.Id);
+//                Logger.Log($"{key.ExecutablePath}, UID: {key.UID}, handle: {identifier.hWnd}, parent: {key.parentKey}");
+//            }
+//            else
+//            {
+//                Logger.Log($"BOTH NULL, path: {key.ExecutablePath}, UID: {key.UID}, parent: {key.parentKey}");
+//            }
+//        }
+//
+//        actuallyInTrayRegKeys.ForEach(key => Logger.Log("regInTrayFound: " + key.ExecutablePath));
+//        */
+//        // Enumerate TrayOverflowMenu
+//        //IntPtr hWnd_Overflow = User32.FindWindow("TopLevelWindowForOverflowXamlIsland", null);
+//        //IntPtr hWnd_IconContainer = User32.FindWindowEx(hWnd_Overflow, IntPtr.Zero, "Windows.UI.Composition.DesktopWindowContentBridge", null);
+//
+//        //var innerIconContainer = ui.ElementFromHandle(hWnd_IconContainer);
+//        //var icons = innerIconContainer.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition());
+//        //
+//        //for(int i = 0; i < icons.Length; i++) {
+//        //    var icon = icons.GetElement(i);
+//        //    TrayIcon trayIcon = new(i, hWnd_Overflow, icon as IUIAutomationElement3);
+//        //    trayIcon.szTip = icon.CurrentName;
+//        //    trayIcons.Add(trayIcon);
+//        //}
+//
+//        //trayIcons.ForEach(icon => Logger.Log($"trayIcon, {icon.element.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition()).GetElement(0).CurrentClassName}") );
+//        
+//        
+//        // icons obtained through registry enumeration must be same as that obtained
+//        // from IUIAutomation
+//        //Trace.Assert(actuallyInTrayRegKeys.Count == icons.Length);
+//
+//
+//    }
+//
+//   
+//}
 
-    private List<TrayIcon> trayIcons = new();
-    private RegistryKey trayIconsRegistryKeyRoot;
-    private List<TrayIconRegKey> UIOrderListRegKeys = new();
-
-    // Constructor
-    private void SystemTrayInit()
-    {
-        // for trayIcon's images
-        trayIconsRegistryKeyRoot = Registry.CurrentUser.OpenSubKey("Control Panel").OpenSubKey("NotifyIconSettings");
-        byte[] raw_UIOrderList = (byte[])trayIconsRegistryKeyRoot.GetValue("UIOrderList");
-        string fullHex = Convert.ToHexStringLower(raw_UIOrderList);
-        Logger.Log($"UIOrderList: {fullHex}");
-        fullHex.Chunk(16).ToList().ForEach(chunk => {
-            string hex = new(chunk);
-            char[][] chunks = hex.Chunk(2).ToArray();
-            chunks = chunks.Reverse().ToArray();
-            string reverse = "";
-            chunks.ToList().ForEach(_c => reverse += new string(_c));
-            ulong num = (ulong)Int64.Parse(reverse, System.Globalization.NumberStyles.HexNumber);
-            //Logger.Log($"chunk: {hex}, reverse: {reverse}, decimal: {num}");
-            TrayIconRegKey key = new();
-            key.parentKey = $"{num}";
-            key.ExecutablePath = (string)trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("ExecutablePath");
-            key.IconGuid = (string)trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("IconGuid");
-            key.IconSnapshot = (byte[])trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("IconSnapshot");
-            key.UID = unchecked((uint?)(int?)trayIconsRegistryKeyRoot.OpenSubKey($"{num}").GetValue("UID"));
-            UIOrderListRegKeys.Add(key);
-            Logger.Log($"{num}, {key.ExecutablePath}");
-        });
-
-        Process[] runningProcesses = Process.GetProcesses();
-        runningProcesses.ToList().ForEach(p => Logger.Log("executable path: " + p.ProcessName));
-        List<string> trayProcesses = new();
-        // filter out the non running ones
-        UIOrderListRegKeys = UIOrderListRegKeys
-            .Where(
-                key => runningProcesses
-                        .Select(_p => _p.ProcessName)
-                        .ToList()
-                        .Contains(key.ExecutablePath
-                                        .Split(@"\")
-                                        .Last()
-                                        .Replace(".exe", "")
-            ))
-            .ToList();
-
-
-        //trayIconRegKeys.ForEach(item => Logger.Log($"running: {item.ExecutablePath}"));
-
-        // from these use either IconGuid or hWnd + UID to figure out which is in overflow
-        // tray by Shell_NotifyIconGetRect()
-        /*
-        List<GUIProcess> allWindows = Utils.EnumWindowProcesses();
-        List<TrayIconRegKey> actuallyInTrayRegKeys = new();
-        foreach(var key in UIOrderListRegKeys)
-        {
-            _NOTIFYICONIDENTIFIER identifier = new();
-            identifier.cbSize = (uint)Marshal.SizeOf<_NOTIFYICONIDENTIFIER>();
-            long result;    
-            // IconGuid exists
-            if(key.IconGuid != null)
-            {
-                Logger.Log($"{key.ExecutablePath}, IconGuid, parent: {key.parentKey}");
-                identifier.guidItem = new(key.IconGuid);
-                if((result = Shell32.Shell_NotifyIconGetRect(ref identifier, out RECT iconLocation)) != 0) 
-                {
-                    Logger.Log($"failed: {result}");
-                }
-                if (
-                    iconLocation.Left != 0 ||
-                    iconLocation.Top != 0 ||
-                    iconLocation.Right != 0 ||
-                    iconLocation.Bottom != 0
-                ) actuallyInTrayRegKeys.Add(key);
-            }
-            // UID + hWnd
-            else if(key.UID != null)
-            {
-                identifier.UID = (uint)key.UID;
-                string exePath = key.ExecutablePath;
-                string processName = exePath.Split(@"\").Last().Replace(".exe", "");
-                if (processName == "Taskmgr") identifier.UID = 0;
-                var process = runningProcesses.Where(_p => _p.ProcessName == processName).First();
-                GUIProcess guiProcess = allWindows.Where(gui_p => gui_p.name == process.ProcessName).First();
-                foreach (var window in guiProcess.windows)
-                {
-                    identifier.hWnd = window.hWnd;
-                    if((result = Shell32.Shell_NotifyIconGetRect(ref identifier, out RECT iconLocation)) != 0) 
-                    {
-                        Logger.Log($"failed: {result}");
-                    }
-                    if (
-                        iconLocation.Left != 0 ||
-                        iconLocation.Top != 0 ||
-                        iconLocation.Right != 0 ||
-                        iconLocation.Bottom != 0
-                    )
-                    {
-                        actuallyInTrayRegKeys.Add(key);
-                        break;
-                    }
-                }
-                //nint hWnd = Utils.GetHWNDFromPID(process.Id);
-                Logger.Log($"{key.ExecutablePath}, UID: {key.UID}, handle: {identifier.hWnd}, parent: {key.parentKey}");
-            }
-            else
-            {
-                Logger.Log($"BOTH NULL, path: {key.ExecutablePath}, UID: {key.UID}, parent: {key.parentKey}");
-            }
-        }
-
-        actuallyInTrayRegKeys.ForEach(key => Logger.Log("regInTrayFound: " + key.ExecutablePath));
-        */
-        // Enumerate TrayOverflowMenu
-        //IntPtr hWnd_Overflow = User32.FindWindow("TopLevelWindowForOverflowXamlIsland", null);
-        //IntPtr hWnd_IconContainer = User32.FindWindowEx(hWnd_Overflow, IntPtr.Zero, "Windows.UI.Composition.DesktopWindowContentBridge", null);
-
-        //var innerIconContainer = ui.ElementFromHandle(hWnd_IconContainer);
-        //var icons = innerIconContainer.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition());
-        //
-        //for(int i = 0; i < icons.Length; i++) {
-        //    var icon = icons.GetElement(i);
-        //    TrayIcon trayIcon = new(i, hWnd_Overflow, icon as IUIAutomationElement3);
-        //    trayIcon.szTip = icon.CurrentName;
-        //    trayIcons.Add(trayIcon);
-        //}
-
-        //trayIcons.ForEach(icon => Logger.Log($"trayIcon, {icon.element.FindAll(TreeScope.TreeScope_Children, ui.CreateTrueCondition()).GetElement(0).CurrentClassName}") );
-        
-        
-        // icons obtained through registry enumeration must be same as that obtained
-        // from IUIAutomation
-        //Trace.Assert(actuallyInTrayRegKeys.Count == icons.Length);
-
-
-    }
-
-   
-}
-
-
-public class TrayIconRegKey
-{
-    public string parentKey;
-    public string ExecutablePath;
-    public string IconGuid;
-    public byte[] IconSnapshot;
-    public uint? UID;
-}
+//public class TrayIconRegKey
+//{
+//    public string parentKey;
+//    public string ExecutablePath;
+//    public string IconGuid;
+//    public byte[] IconSnapshot;
+//    public uint? UID;
+//}
 
 
 
@@ -3866,8 +3910,8 @@ public enum ICONACTION
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Api\ToggleTaskbar.cs
-SIZE: 1.34 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 1.39 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -3894,7 +3938,7 @@ public partial class Api
 	}
 
 	nint taskbar_hWnd;
-	public bool taskbarVisible = true;
+	public bool taskbarVisible { get; private set; } = true;
 	public void ToggleTaskbar()
 	{
 		if (taskbar_hWnd == 0) return;
@@ -3933,7 +3977,7 @@ public partial class Api
 
 	private void ToggleTaskbarCleanup()
 	{
-		// TODO
+		if (!taskbarVisible) ToggleTaskbar();
 	}
 }
 
@@ -4342,8 +4386,8 @@ public struct COMPONENTSOPT
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Config\Config.cs
-SIZE: 1.73 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 1.88 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -4371,7 +4415,7 @@ public class Config
 	public bool roundedCorners = true;
 	public string borderColor = "";
 	public Thickness borderThickness = new(0);
-	public string widgetPack = "Base";
+	public bool hardwareRendering = true;
 
 	[JsonConstructor]
 	public Config(
@@ -4388,7 +4432,7 @@ public class Config
 		bool? roundedCorners,
 		string? borderColor,
 		Thickness? borderThickness,
-		string? widgetPack
+		bool? hardwareRendering
 	)
 	{
 
@@ -4404,7 +4448,7 @@ public class Config
 		this.backgroundColor = backgroundColor ?? "#ffffff";
 		this.borderColor = borderColor ?? "#ffffff";
 		this.borderThickness = borderThickness ?? new(0);
-		this.widgetPack = widgetPack ?? "Base";
+		this.hardwareRendering = hardwareRendering ?? true;
 	}
 
 	public Config(int screenWidth)
@@ -4418,8 +4462,10 @@ public class Config
 // .imports.cs
 public class WidgetImports
 {
-	public string importsPack;
-	public List<string> widgets;
+	public string importsPack = "";
+	public List<string> widgets = new();
+	//                widget        pack    file
+	public Dictionary<string, List<(string, string)>> usings = new();
 }
 
 
@@ -4514,8 +4560,8 @@ public class Paths
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Engine\Widget.cs
-SIZE: 0.75 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 1.01 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -4547,6 +4593,11 @@ public class Widget : Border
 
 	Config config;
 	public WidgetEnv ENV;
+
+	// for widgets that intend to be as extensible as possible put the initializing
+	// here so that they can be called after modAction has been executed
+	public virtual void Init() { }
+
 	protected Widget(WidgetEnv ENV)
 	{
 		this.HorizontalAlignment = HorizontalAlignment.Left;
@@ -4558,7 +4609,9 @@ public class Widget : Border
 
 public class WidgetEnv
 {
-	public string ASSETS_FOLDER;
+	public string ASSETS_FOLDER = "";
+	public string IMPORTS_ASSETS_FOLDER = "";
+	public bool IS_IMPORTED = false;
 	public string HOME = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 }
 
@@ -4566,8 +4619,8 @@ public class WidgetEnv
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Engine\WidgetEngine.cs
-SIZE: 14.8 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 16.01 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -4600,6 +4653,7 @@ using SkiaSharp;
 using SkiaSharp.Views.WPF;
 using SkiaSharp.Views.Desktop;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Windows.Media.Animation;
 
 namespace sambar;
 
@@ -4610,9 +4664,14 @@ internal class WidgetLoader
 	Dictionary<string, string> widgetToDllMap = new();
 
 	WidgetImports? imports = null;
-	public WidgetLoader()
+
+	string? widgetPackName;
+
+	bool catchWidgetExceptions = false;
+
+	public WidgetLoader(Sambar bar)
 	{
-		string? widgetPackName = Sambar.api?.bar.widgetPackName;
+		widgetPackName = bar.widgetPackName;
 
 		var files = new DirectoryInfo(Path.Join(Paths.widgetPacksFolder, widgetPackName)).GetFiles();
 		var widgetFiles = files.Where(file => file.Name.EndsWith(".widget.cs")).ToList();
@@ -4687,21 +4746,37 @@ internal class WidgetLoader
 
 		var layoutAssembly = Assembly.LoadFile(Path.Join(Paths.dllFolder, ".layout.dll"));
 		Type layoutType = layoutAssembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Layout))).First();
-		Layout layout = (Layout)Activator.CreateInstance(layoutType);
 
 		// IMPORTANT
-		Sambar.api!.bar.Content = layout?.Container;
+		Layout? layout = null;
+		bar.UIThread(() =>
+		{
+			layout = (Layout?)Activator.CreateInstance(layoutType);
+			Sambar.api!.bar.Content = layout?.Container;
+		});
 
 		widgetFilesToCompile
 			.ForEach(
 				file =>
 				{
 					Logger.Log($"Compiling {file.Name}");
+					string widgetName = file.Name.Replace(".widget.cs", "");
+
+					// check if the widget calls for including any reference widgets
+					List<(string, string)>? packWidgetPairs = new();
+					imports?.usings.TryGetValue(widgetName, out packWidgetPairs);
+					string codePrefix = "";
+					packWidgetPairs?.ForEach(pair =>
+					{
+						codePrefix += File.ReadAllText(Path.Join(Paths.widgetPacksFolder, pair.Item1, $"{pair.Item2}.widget.cs")) + "\n";
+					});
 					string fileContent = File.ReadAllText(file.FullName);
-					//string finalScript = widgetsPrefix + "\n" + fileContent;
+					string code = codePrefix + "\n" + fileContent;
+
+					Logger.Log(code);
 					string dllName = file.Name.Replace(".cs", "");
-					Utils.CompileStringToDll(fileContent, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)], wrapInTryCatch: true);
-					widgetToDllMap[file.Name.Replace(".widget.cs", "")] = Path.Join(Paths.dllFolder, dllName + ".dll");
+					Utils.CompileStringToDll(code, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)], wrapInTryCatch: catchWidgetExceptions);
+					widgetToDllMap[widgetName] = Path.Join(Paths.dllFolder, dllName + ".dll");
 				}
 			);
 
@@ -4717,92 +4792,106 @@ internal class WidgetLoader
 			if (File.Exists(_assemblyPath)) return Assembly.LoadFrom(_assemblyPath);
 			return null;
 		};
+		List<Type> widgetTypes = new();
 		foreach (var widgetName in widgetToDllMap)
 		{
 			var assembly = Assembly.LoadFile(widgetName.Value);
 			Type[] typesInAssembly = assembly.GetTypes();
-			Type widgetType = typesInAssembly.Where(type => type.IsSubclassOf(typeof(Widget))).First();
+			Type widgetType = typesInAssembly.Where(type => type.IsSubclassOf(typeof(Widget)) && type.Name == widgetName.Key).First();
+			if (widgetTypes.Contains(widgetType))
+			{
+				Logger.Log($"Widget of typeName: {widgetType} already exists, so not compiling...");
+				continue;
+			}
+			widgetTypes.Add(widgetType);
+
 			// prepare the ENV VARS for widget
 			WidgetEnv env = PrepareEnvVarsForWidget(widgetName.Key);
 			Widget? widget = null;
-			try
-			{
-				widget = (Widget)Activator.CreateInstance(widgetType, [env])!; // where the widget actually runs
 
-				// check if <widgetName.mod.cs> exists and apply 
-				string modFile = Path.Join(Paths.widgetPacksFolder, widgetPackName, $"{widgetName.Key}.mod.cs");
-				if (File.Exists(modFile))
-				{
-					var modAction = GetObjectFromScript<Action<dynamic>>(modFile);
-					Logger.Log($"modFile exists: {modFile}, modActionNull: {modAction == null}");
-					modAction!(widget);
-				}
-			}
-			catch (Exception ex)
+			bar.UIThread(() =>
 			{
-				Logger.Log($"[ WIDGET-LOADING/MOD-FAILED, {widgetName.Key} (exception at constructor) ]\n{ex.Message}");
-			}
+				try
+				{
+					widget = (Widget)Activator.CreateInstance(widgetType, [env])!; // where the widget actually runs
+
+					// check if <widgetName.mod.cs> exists and apply 
+					string modFile = Path.Join(Paths.widgetPacksFolder, widgetPackName, $"{widgetName.Key}.mod.cs");
+					if (File.Exists(modFile))
+					{
+						Logger.Log($"modFile exists: {modFile}");
+						//                                         Widget,  WidgetEnv
+						var modAction = GetObjectFromScript<Action<dynamic, dynamic>>(modFile);
+						Logger.Log($"modFile exists: {modFile}, modActionNull: {modAction == null}");
+						modAction?.Invoke(widget, env);
+					}
+					widget.Init(); // run the init anyway, maybe empty maybe not
+				}
+				catch (Exception ex)
+				{
+					Logger.Log($"[ WIDGET-LOADING/MOD-FAILED, {widgetName.Key}, Type: {widgetType.Name} (exception at constructor) ]", ex: ex);
+				}
+			});
 			if (widget != null) { widgets.Add(widget); }
 		}
 
 		// widgets currently being loaded
 		Logger.Log($"[ Currently loaded widgets: {widgets.Count} ]");
-		Logger.Log(widgets.Select(widget => widget.Name).ToList());
+		//Logger.Log(widgets.Select(widget => widget.Name).ToList());
 
 		widgets.ForEach(
 			widget =>
 			{
 				//layout.WidgetToContainerMap[widget.GetType().Name].Child = widget;
 				Border? border = layout?.WidgetToContainerMap.GetValueOrDefault(widget.GetType().Name);
-				if (border != null) border.Child = widget;
+				if (border != null)
+				{
+					bar.UIThread(() =>
+					{
+						border.Child = widget;
+					});
+				}
 			}
 		);
 
 		GC.Collect();
 	}
 
-	/// <summary>
-	/// compiles code (primarily classes) into dlls. Used to compile widgets, themes, layouts etc
-	/// Since assembly cache is not unloaded automatically this must be run on a separate thread
-	/// and discarded, so use the wrapper defined inside Utils
-	/// </summary>
-	/// <param name="classCode"></param>
-	/// <param name="dllName"></param>
-	/// <param name="additionalDllsAndUsings"></param>
-	public static void CompileToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null, bool wrapInTryCatch = false)
-	{
-		List<MetadataReference> references =
-		[
-			MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Object).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Sambar).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Debug).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Thread).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Task).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(List<>).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Application).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(UIElement).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Control).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Brush).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(JsonConvert).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Enum).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(DependencyObject).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(HttpClient).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(DrawingAttributes).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(WpfPlot).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(ScottPlot.Colors).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(System.Drawing.Color).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(ScottPlot.Plottables.Signal).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(SKSurface).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(SKElement).Assembly.Location),
-			MetadataReference.CreateFromFile(typeof(SKPaintSurfaceEventArgs).Assembly.Location),
-			MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
-			MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location),
-		];
+	static List<Type> typesInScript = [
+		typeof(object),
+		typeof(Object),
+		typeof(Sambar),
+		typeof(Enumerable),
+		typeof(Debug),
+		typeof(Thread),
+		typeof(Task),
+		typeof(List<>),
+		typeof(Application),
+		typeof(UIElement),
+		typeof(Control),
+		typeof(Brush),
+		typeof(JsonConvert),
+		typeof(Enum),
+		typeof(DependencyObject),
+		typeof(Uri),
+		typeof(HttpClient),
+		typeof(DrawingAttributes),
+		typeof(WpfPlot),
+		typeof(ScottPlot.Colors),
+		typeof(System.Drawing.Color),
+		typeof(ScottPlot.Plottables.Signal),
+		typeof(SKSurface),
+		typeof(SKElement),
+		typeof(SKPaintSurfaceEventArgs),
+		typeof(Storyboard),
+	];
 
-		string usingsPrefix =
+	static List<string> assembliesInScript = [
+		"System.Runtime",
+		"System.Collections"
+	];
+
+	static string scriptUsingsPrefix =
 """
 using sambar;
 using System;
@@ -4824,7 +4913,28 @@ using ScottColors = ScottPlot.Colors;
 using ScottPlot.Plottables;
 using SkiaSharp;
 using SkiaSharp.Views.WPF;
+using System.Windows.Media.Animation;
 """;
+
+	/// <summary>
+	/// compiles code (primarily classes) into dlls. Used to compile widgets, themes, layouts etc
+	/// Since assembly cache is not unloaded automatically this must be run on a separate thread
+	/// and discarded, so use the wrapper defined inside Utils
+	/// </summary>
+	/// <param name="classCode"></param>
+	/// <param name="dllName"></param>
+	/// <param name="additionalDllsAndUsings"></param>
+	public static void CompileToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null, bool wrapInTryCatch = false)
+	{
+		List<MetadataReference> references = new();
+		foreach (Type t in typesInScript)
+		{
+			references.Add(MetadataReference.CreateFromFile(t.Assembly.Location));
+		}
+		foreach (string assemblyName in assembliesInScript)
+		{
+			references.Add(MetadataReference.CreateFromFile(Assembly.Load(assemblyName).Location));
+		}
 
 		if (additionalDllsAndUsings != null)
 		{
@@ -4832,12 +4942,12 @@ using SkiaSharp.Views.WPF;
 				.ForEach(dllAndUsing =>
 				{
 					references.Add(MetadataReference.CreateFromFile(dllAndUsing.Item1));
-					if (dllAndUsing.Item2 != null) usingsPrefix += "\n" + $"using {dllAndUsing.Item2}";
+					if (dllAndUsing.Item2 != null) scriptUsingsPrefix += "\n" + $"using {dllAndUsing.Item2}";
 				}
 			);
 		}
 
-		string code = usingsPrefix + classCode;
+		string code = scriptUsingsPrefix + classCode;
 		CSharpParseOptions parseOptions = new(LanguageVersion.Preview);
 		SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code, parseOptions);
 
@@ -4902,23 +5012,48 @@ using SkiaSharp.Views.WPF;
 	/// </summary>
 	public static T? GetObjectFromString<T>(string script, string? scriptPath = null)
 	{
-		ScriptOptions options = ScriptOptions.Default
-								.AddReferences(typeof(Sambar).Assembly)
-								.WithImports("sambar");
+		ScriptOptions options = ScriptOptions.Default;
+		foreach (Type t in typesInScript)
+		{
+			options = options.AddReferences(t.Assembly);
+		}
+		foreach (string assemblyName in assembliesInScript)
+		{
+			options = options.AddReferences(Assembly.Load(assemblyName));
+		}
+		options = options
+				  .AddReferences(typeof(System.Runtime.CompilerServices.DynamicAttribute).Assembly) // for using the dynamic keyword 
+				  .AddReferences(typeof(Microsoft.CSharp.RuntimeBinder.RuntimeBinderException).Assembly)
+				  .AddImports("sambar");
+
+		script = scriptUsingsPrefix + script;
+
 		T? obj = default(T);
-		Thread _t = new(async () =>
+		Thread _t = new(() =>
 		{
 			try
 			{
-				obj = await CSharpScript.EvaluateAsync<T>(script, options: options);
+				Logger.Log($"EvaluateAsync(): started, {scriptPath}");
+				Logger.Log(script);
+				obj = CSharpScript.EvaluateAsync<T>(script, options: options).GetAwaiter().GetResult();
+				Logger.Log($"EvaluateAsync(): finished, {scriptPath}");
 			}
 			catch (Exception ex)
 			{
 				Logger.Log($"unable to compile {(scriptPath == null ? script : scriptPath)}");
 				Logger.Log(ex.Message);
+				Logger.Log(ex.StackTrace);
 			}
 		});
 		_t.Start();
+		Task.Run(async () =>
+		{
+			while (_t.ThreadState != System.Threading.ThreadState.Stopped)
+			{
+				Logger.Log($"ThreadState: {_t.ThreadState}, IsAlive: {_t.IsAlive}");
+				await Task.Delay(100);
+			}
+		});
 		_t.Join();
 		return obj;
 	}
@@ -4936,6 +5071,7 @@ using SkiaSharp.Views.WPF;
 		}
 		string script = File.ReadAllText(scriptPath);
 		T? obj = default(T);
+		Logger.Log($"GetObjectFromString<T>() started: {scriptPath}");
 		obj = GetObjectFromString<T>(script, scriptPath);
 		return obj;
 	}
@@ -4943,14 +5079,15 @@ using SkiaSharp.Views.WPF;
 	public WidgetEnv PrepareEnvVarsForWidget(string widgetName)
 	{
 		WidgetEnv env = new();
-		if (imports == null)
+		env.ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, widgetPackName, "assets");
+		Logger.Log($"IMPORTS_NULL: {imports == null}");
+		if (imports != null)
 		{
-			env.ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, Sambar.api!.bar.widgetPackName, "assets");
+			if (imports.widgets.Contains(widgetName))
+				env.IS_IMPORTED = true;
+			env.IMPORTS_ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, imports.importsPack, "assets");
 		}
-		if (imports!.widgets.Contains(widgetName))
-		{
-			env.ASSETS_FOLDER = Path.Join(Paths.widgetPacksFolder, imports.importsPack, "assets");
-		}
+
 		return env;
 	}
 
@@ -5279,8 +5416,8 @@ class Target
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Sambar.cs
-SIZE: 3.99 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 4.68 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -5308,6 +5445,7 @@ using Newtonsoft.Json;
 using System.Drawing;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Windows.Threading;
 
 namespace sambar;
 
@@ -5321,6 +5459,7 @@ public partial class Sambar : Window
 	Config config;
 	public string widgetPackName;
 	bool firstShow = true;
+	public Action<Action> UIThread;
 	internal Sambar(string widgetPackName, Config config)
 	{
 		// Initialize the following in order
@@ -5334,6 +5473,8 @@ public partial class Sambar : Window
 		this.Topmost = true;
 		this.widgetPackName = widgetPackName;
 		this.config = config;
+		this.UIThread = this.Dispatcher.Invoke;
+		this.ShowActivated = false;
 
 		// WPF event sequence
 		// https://memories3615.wordpress.com/2017/03/24/wpf-window-events-sequence/
@@ -5343,7 +5484,8 @@ public partial class Sambar : Window
 			WindowInit(); // needs hWnd
 		};
 
-		Activated += (s, e) =>
+		// since ShowActivated = false
+		Loaded += (s, e) =>
 		{
 			if (firstShow)
 			{
@@ -5407,7 +5549,13 @@ public partial class Sambar : Window
 	{
 		// the api has some blocking init tasks (looking at you glazewm) in the constructor that widgets might request, so only load the widgets once they are finished
 		await Task.WhenAll(api!.initTasks);
-		WidgetLoader widgetLoader = new();
+		// way down the line in widget loader we call GetObjectFromString<T>() for 
+		// all the .mod.cs files, the EvaluateAsync inside is run on a newly spawned 
+		// thread for each script. After a couple of scripts (6 - 7) the next script's
+		// thread for some reason goes into ThreadState.WaitSleepJoin. So i guess in short
+		// _t.Join() doesnt work reliably when called from the UIThread (a deadlock ?).
+		// But why would EvaluateAsync wait for UIThread ? it doesnt have anything to do with it.
+		await Task.Run(() => { WidgetLoader widgetLoader = new(this); });
 		// since the api starts much earlier than the widgets, fire events to update state once
 		// widgets are loaded
 		Sambar.api.FlushEvents();
@@ -5917,8 +6065,8 @@ public class StackPanelWithGaps : StackPanel
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Utils\Core.cs
-SIZE: 14.21 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 15.05 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -6323,12 +6471,31 @@ public partial class Utils
 	/// <summary>
 	/// Scale an image so that it fills the target rect (width*height) completely
 	/// </summary>
-	public static void ScaleImage(System.Windows.Controls.Image img, int width, int height)
+	public static (int, int) ScaleImage(int imgWidth, int imgHeight, int targetWidth, int targetHeight)
 	{
-		if (width > height)
-			img.Width = width;
+		string touchDimension = (targetWidth / imgWidth) > (targetHeight / imgHeight) ? "width" : "height";
+		double scale = touchDimension == "width" ? (double)targetWidth / imgWidth : (double)targetHeight / imgHeight;
+
+		imgWidth = (int)(scale * imgWidth);
+		imgHeight = (int)(scale * imgHeight);
+
+		if (imgWidth < targetWidth || imgHeight < targetHeight)
+		{
+			touchDimension = touchDimension == "width" ? "height" : "width";
+			scale = touchDimension == "width" ? (double)targetWidth / imgWidth : (double)targetHeight / imgHeight;
+			return ((int)(scale * imgWidth), (int)(scale * imgHeight));
+		}
 		else
-			img.Height = height;
+			return (imgWidth, imgHeight);
+	}
+
+	/// <summary>
+	/// Get the dimensions (width * height) of an image (.jpg, .png, ...)
+	/// </summary>
+	public static (int, int) GetImageDimensions(string imgFile)
+	{
+		System.Drawing.Image img = System.Drawing.Image.FromFile(imgFile);
+		return (img.Width, img.Height);
 	}
 }
 
@@ -6425,8 +6592,8 @@ public static class Extensions
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Utils\Logger.cs
-SIZE: 3.25 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 3.38 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -6450,8 +6617,9 @@ public class Logger
 	public static FileStream logFile = File.Open(Paths.logFile, FileMode.OpenOrCreate);
 	public static StreamWriter logFileWriter = new(logFile);
 
-	public static void Log(string? text, bool debug = true, bool console = true, bool file = true)
+	public static void Log(string? text, Exception? ex = null, bool debug = true, bool console = true, bool file = true)
 	{
+		if (ex != null) text += $"\n{ex.Message}" + $"\n{ex.StackTrace}" + $"\n{ex?.InnerException?.StackTrace}";
 		if (DEBUG && debug) Debug.WriteLine(text);
 		if (CONSOLE && console) Console.WriteLine(text);
 		if (FILE && file) logFileWriter.WriteLine(text);
@@ -7928,8 +8096,8 @@ public struct _SYSTEM_MEMORY_USAGE_INFORMATION {
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Main.cs
-SIZE: 1.45 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 1.6 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -7943,6 +8111,7 @@ using Microsoft.CodeAnalysis.Scripting;
 using System.IO;
 using System.Diagnostics;
 using System.Reflection;
+using System.Windows.Media;
 
 namespace sambar;
 
@@ -7979,7 +8148,10 @@ public class _Main
 		Utils.CompileFileToDll(configFile, ".config");
 		Assembly configAssembly = Assembly.LoadFile(Paths.configDll);
 		Type configType = configAssembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Config))).First();
-		Config config = (Config)Activator.CreateInstance(configType);
+		Config? config = (Config?)Activator.CreateInstance(configType);
+
+		if (!config!.hardwareRendering)
+			RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
 
 		// start the wpf bar window
 		app = new();
@@ -8931,13 +9103,13 @@ public partial class Program
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\.init.cs
-SIZE: 0.06 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 0.05 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 // return the widget pack's name
 
-return "Windows98";
+return "Base";
 
 
 
@@ -9076,8 +9248,8 @@ class BaseLayout : Layout
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\.theme.cs
-SIZE: 1.2 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 1.18 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 // GLOBAL RESOURCES USED BY YOUR THEME
@@ -9087,42 +9259,47 @@ MODIFIED: 09/25/2025 13:32:59
 // https://fluenticons.co/
 public class Theme
 {
-    public static Brush TEXT_COLOR = Utils.BrushFromHex("#EBDBB2");
-    public static FontFamily FONT_FAMILY = new("JetBrains Mono");
+	public Brush TEXT_COLOR = Utils.BrushFromHex("#EBDBB2");
+	public FontFamily FONT_FAMILY = new("JetBrains Mono");
 
-    public static Brush BUTTON_FOREGROUND = new SolidColorBrush(Colors.White);
-    public static Brush BUTTON_BACKGROUND = new SolidColorBrush(Colors.Transparent);
-    public static Brush BUTTON_PRESSED_BACKGROUND = Utils.BrushFromHex("#575555");
-    public static Brush BUTTON_BORDER_COLOR = new SolidColorBrush(Colors.Black);
-    public static Brush BUTTON_HOVER_COLOR = Utils.BrushFromHex("#828181");
-    public static CornerRadius BUTTON_CORNER_RADIUS = new(5);
-    public static Thickness BUTTON_MARGIN = new(2);
-    public static int ICON_WIDTH = 16;
-    public static int ICON_HEIGHT= 16;
-    public static int BUTTON_WIDTH = 20;
-    public static int BUTTON_HEIGHT = 20;
-    public static Thickness BUTTON_BORDER_THICKNESS = new(0);
+	public Brush BUTTON_FOREGROUND = new SolidColorBrush(Colors.White);
+	public Brush BUTTON_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public Brush BUTTON_PRESSED_BACKGROUND = Utils.BrushFromHex("#575555");
+	public Brush BUTTON_BORDER_COLOR = new SolidColorBrush(Colors.Black);
+	public Brush BUTTON_PRESSED_BORDER_COLOR = Utils.BrushFromHex("#22F803");
 
-    public static Brush WIDGET_BACKGROUND = new SolidColorBrush(Colors.Transparent);
-    public static CornerRadius WIDGET_CORNER_RADIUS = new(5);
-    public static int WIDGET_GAP = 5;
+	public Brush BUTTON_HOVER_COLOR = Utils.BrushFromHex("#828181");
+	public CornerRadius BUTTON_CORNER_RADIUS = new(5);
+	public Thickness BUTTON_MARGIN = new(2);
+	public int ICON_WIDTH = 16;
+	public int ICON_HEIGHT = 16;
+	public int BUTTON_WIDTH = 20;
+	public int BUTTON_HEIGHT = 20;
+	public Thickness BUTTON_BORDER_THICKNESS = new(0);
+	public Thickness BUTTON_PRESSED_BORDER_THICKNESS = new(0, 5, 0, 0);
+
+	public Brush WIDGET_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public CornerRadius WIDGET_CORNER_RADIUS = new(5);
+	public int WIDGET_GAP = 5;
 }
 
 
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\AudioInformation.widget.cs
-SIZE: 0.99 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 1.02 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 public class AudioInformation : Widget
 {
+	public Theme theme = new();
+
 	public AudioInformation(WidgetEnv ENV) : base(ENV)
 	{
 		TextBlock textBlock = new();
 		textBlock.Foreground = new SolidColorBrush(System.Windows.Media.Colors.Black);
-		textBlock.FontFamily = Theme.FONT_FAMILY;
+		textBlock.FontFamily = theme.FONT_FAMILY;
 		textBlock.TextWrapping = TextWrapping.Wrap;
 		textBlock.TextAlignment = TextAlignment.Right;
 		//textBlock.FontWeight = FontWeights.Bold;
@@ -9202,29 +9379,32 @@ public class AudioVisualizer : Widget
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\Clock.widget.cs
-SIZE: 0.49 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 0.66 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 public class Clock : Widget
 {
+	public Theme theme = new();
 	public TextBlock textBlock = new();
+	public Func<Time, string> timeString = (time) =>
+	{
+		return $"{time.hours}:{time.minutes}:{time.seconds} {time.day}-{time.month}-{time.year}";
+	};
 
 	public Clock(WidgetEnv ENV) : base(ENV)
 	{
-		textBlock.Foreground = Theme.TEXT_COLOR;
-		textBlock.FontFamily = Theme.FONT_FAMILY;
-		Sambar.api.CLOCK_TICKED += ClockTickedEventHandler;
-
-		this.Content = textBlock;
-	}
-
-	public void ClockTickedEventHandler(Time time)
-	{
-		this.Thread.Invoke(() =>
+		textBlock.Foreground = theme.TEXT_COLOR;
+		textBlock.FontFamily = theme.FONT_FAMILY;
+		textBlock.VerticalAlignment = VerticalAlignment.Center;
+		textBlock.Margin = new(5);
+		Sambar.api.CLOCK_TICKED += (time) => this.Thread.Invoke(() =>
 		{
-			textBlock.Text = $"{time.hours}:{time.minutes}:{time.seconds} {time.day}-{time.month}-{time.year}";
+			textBlock.Text = timeString(time);
 		});
+
+		this.Height = Sambar.api.config.height;
+		this.Content = textBlock;
 	}
 }
 
@@ -9232,20 +9412,21 @@ public class Clock : Widget
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\Counters.widget.cs
-SIZE: 1.52 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 1.64 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 public class Counters : Widget
 {
+	public Theme theme = new();
 	public TextBlock textBlock = new();
-	long cpuUsage = 0;
-	float downSpeed = 0f, upSpeed = 0f;
-	float memUsage = 0;
+
 	public Counters(WidgetEnv ENV) : base(ENV)
 	{
-		textBlock.Foreground = Theme.TEXT_COLOR;
-		textBlock.FontFamily = Theme.FONT_FAMILY;
+		textBlock.Foreground = theme.TEXT_COLOR;
+		textBlock.FontFamily = theme.FONT_FAMILY;
+		textBlock.VerticalAlignment = VerticalAlignment.Center;
+		textBlock.Margin = new(0);
 
 		Sambar.api.CPU_PERFORMANCE_NOTIFIED += (_usage) => { cpuUsage = _usage[0]; };
 		Sambar.api.NETWORK_SPEED_NOTIFIED += (_speeds) => { downSpeed = _speeds[0]; upSpeed = _speeds[1]; };
@@ -9254,6 +9435,10 @@ public class Counters : Widget
 
 		this.Content = textBlock;
 	}
+
+	long cpuUsage = 0;
+	float downSpeed = 0f, upSpeed = 0f;
+	float memUsage = 0;
 
 	public void UpdateText()
 	{
@@ -9290,28 +9475,13 @@ public class Counters : Widget
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\HideTaskbar.widget.cs
-SIZE: 0.61 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 0.12 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 public class HideTaskbar : Widget
 {
 	public HideTaskbar(WidgetEnv ENV) : base(ENV)
-	{
-		RoundedButton btn = new();
-		btn.Height = Theme.BUTTON_HEIGHT;
-		btn.Width = Theme.BUTTON_WIDTH;
-		btn.Text = "H";
-		btn.Foreground = Theme.TEXT_COLOR;
-		btn.Background = Theme.BUTTON_BACKGROUND;
-		btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
-		btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
-		btn.FontFamily = Theme.FONT_FAMILY;
-		btn.HoverEffect = true;
-		btn.MouseDown += ButtonMouseDown;
-		this.Content = btn;
-	}
-	public void ButtonMouseDown(object? sender, MouseEventArgs e)
 	{
 		Sambar.api.ToggleTaskbar();
 	}
@@ -9321,31 +9491,42 @@ public class HideTaskbar : Widget
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\NetworkManager.widget.cs
-SIZE: 0.82 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 1.07 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 public class NetworkManager : Widget
 {
-	public NetworkManager(WidgetEnv ENV): base(ENV)
+	public RoundedButton btn = new();
+	public string iconFile = "wifi.svg";
+	public Theme theme = new();
+
+	public NetworkManager(WidgetEnv ENV) : base(ENV) { }
+
+	public override void Init()
 	{
-		RoundedButton btn = new();
-		//btn.Text = "W";
-		btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
-		btn.Margin = Theme.BUTTON_MARGIN;
-		btn.Height = Theme.BUTTON_HEIGHT;
-		btn.Width = Theme.BUTTON_WIDTH;
-		btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "wifi.svg");
+		if (File.Exists(Path.Join(ENV.ASSETS_FOLDER, iconFile)))
+		{
+			btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, iconFile);
+		}
+		else
+		{
+			btn.ImageSrc = Path.Join(ENV.IMPORTS_ASSETS_FOLDER, iconFile);
+		}
+		btn.CornerRadius = theme.BUTTON_CORNER_RADIUS;
+		btn.Margin = theme.BUTTON_MARGIN;
+		btn.Height = theme.BUTTON_HEIGHT;
+		btn.Width = theme.BUTTON_WIDTH;
 		btn.IconWidth = 16;
 		btn.IconHeight = 16;
-		btn.FontFamily = Theme.FONT_FAMILY;
-		btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
-		btn.Background = Theme.BUTTON_BACKGROUND;
+		btn.FontFamily = theme.FONT_FAMILY;
+		btn.HoverColor = theme.BUTTON_HOVER_COLOR;
+		btn.Background = theme.BUTTON_BACKGROUND;
 		btn.HoverEffect = false;
 		btn.MouseDown += ButtonMouseDown;
-		this.Content = btn;
-		this.Background = Theme.WIDGET_BACKGROUND;
 
+		this.Background = theme.WIDGET_BACKGROUND;
+		this.Content = btn;
 	}
 
 	public void ButtonMouseDown(object? sender, MouseEventArgs e)
@@ -9359,28 +9540,30 @@ public class NetworkManager : Widget
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\ScribblePad.widget.cs
-SIZE: 0.85 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 0.89 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 public class ScribblePad : Widget
 {
+	public Theme theme = new();
+	public RoundedButton btn = new();
 	InkCanvas inkCanvas = new();
-	RoundedButton btn = new();
-	public ScribblePad(WidgetEnv ENV): base(ENV)
+
+	public ScribblePad(WidgetEnv ENV) : base(ENV)
 	{
 		DrawingAttributes drawingAttributes = new();
 		drawingAttributes.Color = Colors.White;
 		inkCanvas.DefaultDrawingAttributes = drawingAttributes;
 
-		btn.Height = Theme.BUTTON_HEIGHT;
-		btn.Width = Theme.BUTTON_WIDTH;
+		btn.Height = theme.BUTTON_HEIGHT;
+		btn.Width = theme.BUTTON_WIDTH;
 		btn.Text = "S";
-		btn.Foreground = Theme.TEXT_COLOR;
-		btn.Background = Theme.BUTTON_BACKGROUND;
-		btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
-		btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
-		btn.FontFamily = Theme.FONT_FAMILY;
+		btn.Foreground = theme.TEXT_COLOR;
+		btn.Background = theme.BUTTON_BACKGROUND;
+		btn.HoverColor = theme.BUTTON_HOVER_COLOR;
+		btn.CornerRadius = theme.BUTTON_CORNER_RADIUS;
+		btn.FontFamily = theme.FONT_FAMILY;
 		btn.HoverEffect = true;
 		btn.MouseDown += ButtonMouseDown;
 		this.Content = btn;
@@ -9397,26 +9580,27 @@ public class ScribblePad : Widget
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\StartButton.widget.cs
-SIZE: 0.64 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 0.75 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
-
-using System.IO;
 
 public class StartButton : Widget
 {
-	public StartButton(WidgetEnv ENV): base(ENV)
+	public Theme theme = new();
+	public RoundedButton btn = new();
+
+	public StartButton(WidgetEnv ENV) : base(ENV)
 	{
-		RoundedButton btn = new();
 		btn.Height = 16;
 		btn.Width = 16;
-		btn.Foreground = Theme.TEXT_COLOR;
-		btn.Background = Theme.BUTTON_BACKGROUND;
-		btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
-		btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
-		btn.FontFamily = Theme.FONT_FAMILY;
+		btn.Foreground = theme.TEXT_COLOR;
+		btn.Background = theme.BUTTON_BACKGROUND;
+		btn.HoverColor = theme.BUTTON_HOVER_COLOR;
+		btn.CornerRadius = theme.BUTTON_CORNER_RADIUS;
+		btn.FontFamily = theme.FONT_FAMILY;
 		btn.HoverEffect = false;
-		btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "start.svg"); 
+		if (!ENV.IS_IMPORTED) btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "start.svg");
+		else btn.ImageSrc = Path.Join(ENV.IMPORTS_ASSETS_FOLDER, "start.svg");
 		btn.MouseDown += ButtonMouseDown;
 		this.Content = btn;
 	}
@@ -9431,8 +9615,8 @@ public class StartButton : Widget
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\TaskbarApps.widget.cs
-SIZE: 2.11 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 2.82 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 public class TaskbarApps : Widget
@@ -9440,6 +9624,22 @@ public class TaskbarApps : Widget
 	StackPanel panel = new();
 	RunningApp focusedApp;
 	List<RoundedButton> btns = new();
+	public Theme theme = new();
+
+	/*
+	 * Made public so that they can be edited in a mod file (TaskbarApps.mod.cs)
+	 * */
+
+	//public int BUTTON_HEIGHT = Theme.BUTTON_HEIGHT;
+	//public int BUTTON_WIDTH = Theme.BUTTON_WIDTH;
+
+	//public Brush BUTTON_BACKGROUND = Theme.BUTTON_BACKGROUND;
+	//public Brush BUTTON_BORDER_COLOR = Theme.BUTTON_BORDER_COLOR;
+	//public Thickness BUTTON_BORDER_THICKNESS = Theme.BUTTON_BORDER_THICKNESS;
+
+	//public Brush BUTTON_PRESSED_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	//public Brush BUTTON_PRESSED_BORDER_COLOR = Utils.BrushFromHex("#22F803");
+	//public Thickness BUTTON_PRESSED_BORDER_THICKNESS = new(0, 5, 0, 0);
 
 	public TaskbarApps(WidgetEnv ENV) : base(ENV)
 	{
@@ -9464,10 +9664,10 @@ public class TaskbarApps : Widget
 				RoundedButton btn = new();
 				btn.Id = app.hWnd.ToString();
 				btn.Icon = app.icon;
-				btn.Height = Sambar.api.config.height;
-				btn.Width = Sambar.api.config.height;
-				btn.IconHeight = Theme.BUTTON_HEIGHT;
-				btn.IconWidth = Theme.BUTTON_WIDTH;
+				btn.Height = theme.BUTTON_HEIGHT;
+				btn.Width = theme.BUTTON_WIDTH;
+				btn.IconHeight = theme.BUTTON_HEIGHT - 2;
+				btn.IconWidth = theme.BUTTON_WIDTH - 2;
 				btn.Margin = new(0, 0, 5, 0);
 				btn.HoverEffect = false;
 				List<MenuButton> menuItems = new()
@@ -9512,15 +9712,15 @@ public class TaskbarApps : Widget
 			{
 				if (btn.Id == app.hWnd.ToString())
 				{
-					btn.Background = Theme.BUTTON_PRESSED_BACKGROUND;
-					btn.BorderBrush = Utils.BrushFromHex("#22F803");
-					btn.BorderThickness = new(0, 5, 0, 0);
+					btn.Background = theme.BUTTON_PRESSED_BACKGROUND;
+					btn.BorderBrush = theme.BUTTON_PRESSED_BORDER_COLOR;
+					btn.BorderThickness = theme.BUTTON_PRESSED_BORDER_THICKNESS;
 				}
 				else
 				{
-					btn.Background = Theme.BUTTON_BACKGROUND;
-					btn.BorderBrush = Theme.BUTTON_BORDER_COLOR;
-					btn.BorderThickness = new(0);
+					btn.Background = theme.BUTTON_BACKGROUND;
+					btn.BorderBrush = theme.BUTTON_BORDER_COLOR;
+					btn.BorderThickness = theme.BUTTON_BORDER_THICKNESS;
 				}
 			}
 		});
@@ -9531,8 +9731,8 @@ public class TaskbarApps : Widget
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\Tray.widget.cs
-SIZE: 2.33 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 2.3 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 using System.IO;
@@ -9540,21 +9740,27 @@ using System.IO;
 public class Tray : Widget
 {
 	sambar.Menu? menu = null;
-	public Tray(WidgetEnv ENV) : base(ENV)
-	{
-		//UpdateTrayPanel();
 
-		RoundedButton btn = new();
-		btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "arrow_down.svg");
-		btn.IconHeight = Theme.ICON_HEIGHT;
-		btn.IconWidth = Theme.ICON_WIDTH;
-		btn.Height = Theme.BUTTON_HEIGHT;
-		btn.Width = Theme.BUTTON_WIDTH;
-		btn.Margin = Theme.BUTTON_MARGIN;
-		btn.Foreground = Theme.TEXT_COLOR;
-		btn.Background = Theme.BUTTON_BACKGROUND;
-		btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
-		btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
+	public Theme theme = new();
+	public RoundedButton btn = new();
+	public string iconFile = "arrow_down.svg";
+
+	public Tray(WidgetEnv ENV) : base(ENV) { }
+	public override void Init()
+	{
+		if (File.Exists(Path.Join(ENV.ASSETS_FOLDER, iconFile)))
+			btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, iconFile);
+		else
+			btn.ImageSrc = Path.Join(ENV.IMPORTS_ASSETS_FOLDER, iconFile);
+		btn.IconHeight = theme.ICON_HEIGHT;
+		btn.IconWidth = theme.ICON_WIDTH;
+		btn.Height = theme.BUTTON_HEIGHT;
+		btn.Width = theme.BUTTON_WIDTH;
+		btn.Margin = theme.BUTTON_MARGIN;
+		btn.Foreground = theme.TEXT_COLOR;
+		btn.Background = theme.BUTTON_BACKGROUND;
+		btn.HoverColor = theme.BUTTON_HOVER_COLOR;
+		btn.CornerRadius = theme.BUTTON_CORNER_RADIUS;
 		btn.HoverEffect = false;
 		btn.MouseDown += (s, e) =>
 		{
@@ -9563,19 +9769,9 @@ public class Tray : Widget
 		};
 
 		this.Content = btn;
-		this.Background = Theme.WIDGET_BACKGROUND;
-		this.CornerRadius = Theme.WIDGET_CORNER_RADIUS;
+		this.Background = theme.WIDGET_BACKGROUND;
+		this.CornerRadius = theme.WIDGET_CORNER_RADIUS;
 
-		//Task.Run(async() =>
-		//{
-		//    Sambar.api.Print("STARTING TRAY LOOP");
-		//    while(true)
-		//    {
-		//        UpdateTrayPanel();
-		//        Sambar.api.Print("TRAY UPDATED");
-		//        await Task.Delay(1000);
-		//    }
-		//});
 		Sambar.api.TASKBAR_CHANGED += () => UpdateTrayPanel();
 	}
 
@@ -9591,14 +9787,14 @@ public class Tray : Widget
 			foreach (var trayIcon in trayIcons)
 			{
 				RoundedButton iconBtn = new();
-				iconBtn.Height = Theme.BUTTON_HEIGHT;
-				iconBtn.Width = Theme.BUTTON_WIDTH;
-				iconBtn.Margin = Theme.BUTTON_MARGIN;
-				iconBtn.Foreground = Theme.TEXT_COLOR;
-				iconBtn.Background = Theme.BUTTON_BACKGROUND;
-				iconBtn.HoverColor = Theme.BUTTON_HOVER_COLOR;
-				iconBtn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
-				iconBtn.FontFamily = Theme.FONT_FAMILY;
+				iconBtn.Height = theme.BUTTON_HEIGHT;
+				iconBtn.Width = theme.BUTTON_WIDTH;
+				iconBtn.Margin = theme.BUTTON_MARGIN;
+				iconBtn.Foreground = theme.TEXT_COLOR;
+				iconBtn.Background = theme.BUTTON_BACKGROUND;
+				iconBtn.HoverColor = theme.BUTTON_HOVER_COLOR;
+				iconBtn.CornerRadius = theme.BUTTON_CORNER_RADIUS;
+				iconBtn.FontFamily = theme.FONT_FAMILY;
 				iconBtn.Icon = trayIcon.icon;
 				iconBtn.HoverEffect = false;
 				iconBtn.Margin = new(10, 10, 0, 0);
@@ -9625,23 +9821,30 @@ public class Tray : Widget
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\Wallpapers.widget.cs
-SIZE: 3.86 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 5.38 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 public class Wallpapers : Widget
 {
-	public Wallpapers(WidgetEnv ENV) : base(ENV)
+	public RoundedButton btn = new();
+	public string iconFile = "image.svg";
+	public Theme theme = new();
+
+	public Wallpapers(WidgetEnv ENV) : base(ENV) { }
+	public override void Init()
 	{
-		RoundedButton btn = new();
-		btn.Height = Theme.BUTTON_HEIGHT;
-		btn.Width = Theme.BUTTON_WIDTH;
-		btn.Margin = Theme.BUTTON_MARGIN;
-		btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "image.svg");
+		if (File.Exists(Path.Join(ENV.ASSETS_FOLDER, iconFile)))
+			btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, iconFile);
+		else
+			btn.ImageSrc = Path.Join(ENV.IMPORTS_ASSETS_FOLDER, iconFile);
+		btn.Height = theme.BUTTON_HEIGHT;
+		btn.Width = theme.BUTTON_WIDTH;
+		btn.Margin = theme.BUTTON_MARGIN;
 		btn.IconWidth = 13;
 		btn.IconHeight = 13;
-		btn.Background = Theme.BUTTON_BACKGROUND;
-		btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
+		btn.Background = theme.BUTTON_BACKGROUND;
+		btn.CornerRadius = theme.BUTTON_CORNER_RADIUS;
 		btn.MouseDown += ButtonMouseDown;
 		this.Content = btn;
 	}
@@ -9658,11 +9861,48 @@ public class Wallpapers : Widget
 				imageSelector.Load(walls)
 			)
 		);
-		imageSelector.IMAGE_SELECTED += (imgFile) => Sambar.api.SetWallpaper(imgFile, WallpaperAnimation.NONE);
+		imageSelector.IMAGE_SELECTED += (imgFile) => Sambar.api.SetWallpaper(imgFile, CreateAnimation());
 		//imageSelector.IMAGE_SELECTED += (imgFile) => Sambar.api.SetWallpaper(imgFile);
 
 		menu.KeyDown += (s, e) => { if (e.Key == Key.Escape) menu.Close(); };
 		menu.Content = imageSelector;
+	}
+
+	public WallpaperAnimation CreateAnimation()
+	{
+		WallpaperAnimation animation = new();
+
+		double final_radius = Math.Max(Sambar.screenWidth, Sambar.screenHeight);
+		final_radius += 0.25 * final_radius;
+		double radiusX_initial = 0, radiusX_final = final_radius;
+		double radiusY_initial = 0, radiusY_final = final_radius;
+
+		int duration = 2;
+		DoubleAnimation doubleAnimationX = new()
+		{
+			From = radiusX_initial,
+			To = radiusX_final,
+			Duration = TimeSpan.FromSeconds(duration),
+			AutoReverse = false
+		};
+		DoubleAnimation doubleAnimationY = new()
+		{
+			From = radiusX_initial,
+			To = radiusY_final,
+			Duration = TimeSpan.FromSeconds(duration),
+			AutoReverse = false
+		};
+
+		Storyboard.SetTargetName(doubleAnimationX, animation.maskShapeIdentifier);
+		Storyboard.SetTargetProperty(doubleAnimationX, new PropertyPath(EllipseGeometry.RadiusXProperty));
+		Storyboard.SetTargetName(doubleAnimationY, animation.maskShapeIdentifier);
+		Storyboard.SetTargetProperty(doubleAnimationY, new PropertyPath(EllipseGeometry.RadiusYProperty));
+
+		animation.maskShape = new EllipseGeometry(new Point(0, 0), radiusX_initial, radiusY_initial);
+		animation.sequence.Children.Add(doubleAnimationX);
+		animation.sequence.Children.Add(doubleAnimationY);
+
+		return animation;
 	}
 }
 
@@ -9783,36 +10023,41 @@ public class ImageSelector : Grid
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\Workspaces.widget.cs
-SIZE: 2.32 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 2.43 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 public class Workspaces : Widget
 {
 	List<Workspace> workspaces = new();
 	public List<RoundedButton> buttons = new();
-	public Workspaces(WidgetEnv ENV) : base(ENV)
+	public Theme theme = new();
+
+	public Workspaces(WidgetEnv ENV) : base(ENV) { }
+	public override void Init()
 	{
 		workspaces = Sambar.api.workspaces;
 
-		//this.CornerRadius = Theme.WIDGET_CORNER_RADIUS;
-		StackPanelWithGaps panel = new(Theme.WIDGET_GAP, workspaces.Count);
+		//this.CornerRadius = theme.WIDGET_CORNER_RADIUS;
+		StackPanelWithGaps panel = new(theme.WIDGET_GAP, workspaces.Count);
 		panel.Orientation = Orientation.Horizontal;
 		panel.VerticalAlignment = VerticalAlignment.Center;
 		panel.ClipToBounds = true;
+		panel.Height = Sambar.api.config.height;
+
 		for (int i = 1; i <= workspaces.Count; i++)
 		{
 			RoundedButton btn = new();
 			btn.Text = $"{i}";
-			btn.FontFamily = Theme.FONT_FAMILY;
-			btn.CornerRadius = Theme.BUTTON_CORNER_RADIUS;
-			btn.Width = Theme.BUTTON_WIDTH;
-			btn.Height = Theme.BUTTON_HEIGHT;
-			btn.BorderThickness = Theme.BUTTON_BORDER_THICKNESS;
-			btn.BorderBrush = Theme.BUTTON_BORDER_COLOR;
-			btn.Foreground = Theme.TEXT_COLOR;
-			btn.HoverColor = Theme.BUTTON_HOVER_COLOR;
-			btn.Background = Theme.BUTTON_BACKGROUND;
+			btn.FontFamily = theme.FONT_FAMILY;
+			btn.CornerRadius = theme.BUTTON_CORNER_RADIUS;
+			btn.Width = theme.BUTTON_WIDTH;
+			btn.Height = theme.BUTTON_HEIGHT;
+			btn.BorderThickness = theme.BUTTON_BORDER_THICKNESS;
+			btn.BorderBrush = theme.BUTTON_BORDER_COLOR;
+			btn.Foreground = theme.TEXT_COLOR;
+			btn.HoverColor = theme.BUTTON_HOVER_COLOR;
+			btn.Background = theme.BUTTON_BACKGROUND;
 			btn.HoverEffect = true;
 			btn.MouseDown += WorkspaceButtonClicked;
 			buttons.Add(btn);
@@ -9820,7 +10065,7 @@ public class Workspaces : Widget
 		}
 		Sambar.api.Print($"workspaces: {workspaces.Count}, buttons: {buttons.Count}, index: {Sambar.api.currentWorkspace.index}");
 		if (buttons.Count > 0)
-			buttons[Sambar.api.currentWorkspace.index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
+			buttons[Sambar.api.currentWorkspace.index].Background = theme.BUTTON_PRESSED_BACKGROUND;
 		Sambar.api.GLAZE_WORKSPACE_CHANGED += (workspace) =>
 		{
 			RedrawButtons(workspace.index);
@@ -9834,14 +10079,14 @@ public class Workspaces : Widget
 		{
 			foreach (var button in buttons)
 			{
-				button.Background = Theme.BUTTON_BACKGROUND;
+				button.Background = theme.BUTTON_BACKGROUND;
 			}
-			buttons[index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
+			buttons[index].Background = theme.BUTTON_PRESSED_BACKGROUND;
 			buttons[index].HoverEffect = false;
 		});
 	}
 
-	// for updating Glaze when buttons pressed
+	// for updating Glaze when buttons pressed 
 	bool buttonRedrawing = false;
 	public void WorkspaceButtonClicked(object? sender, RoutedEventArgs e)
 	{
@@ -9859,6 +10104,270 @@ public class Workspaces : Widget
 		});
 	}
 }
+
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Islands\.config.cs
+SIZE: 0.42 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+public class BaseConfig : Config
+{
+	public BaseConfig()
+	{
+		this.height = 25;
+		this.width = 0;
+		this.marginXLeft = 10;
+		this.marginXRight = 10;
+		this.marginYTop = 10;
+		this.paddingXLeft = 0;
+		this.paddingXRight = 0;
+		this.paddingYTop = 0;
+		this.paddingYDown = 0;
+		this.backgroundColor = "transparent";
+		this.borderColor = "#ffffff";
+		this.borderThickness = new(0);
+		this.roundedCorners = false;
+	}
+}
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Islands\.imports.cs
+SIZE: 0.41 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+WidgetImports imports = new()
+{
+	importsPack = "Base",
+	widgets = ["Clock", "Counters", "TaskbarApps", "AudioVisualizer", "AudioInformation", "Workspaces", "HideTaskbar"]
+};
+imports.usings["ActionCenter"] = new();
+imports.usings["ActionCenter"].Add(("Base", "Tray"));
+imports.usings["ActionCenter"].Add(("Base", "NetworkManager"));
+imports.usings["ActionCenter"].Add(("Base", "Wallpapers"));
+return imports;
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Islands\.layout.cs
+SIZE: 2.48 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+class BaseLayout : Layout
+{
+	/// <summary>
+	/// Create placeholder borders for each widget. These borders must be
+	/// declared as fields of the Layout class and their names must match
+	/// the name of their respective widget class
+	/// </summary>
+
+	Border Workspaces = new();
+	Border Clock = new();
+	Border Counters = new();
+	Border TaskbarApps = new();
+	Border ActionCenter = new();
+
+	public BaseLayout()
+	{
+		/// <summary>
+		/// Build the layout after choosing a layout type
+		/// <summary>
+		Grid grid = new();
+
+		ColumnDefinition _col1 = new() { Width = new GridLength(1, GridUnitType.Star) };
+		ColumnDefinition _col2 = new() { Width = new GridLength(1, GridUnitType.Auto) };
+		ColumnDefinition _col3 = new() { Width = new GridLength(1, GridUnitType.Star) };
+
+		grid.ColumnDefinitions.Add(_col1);
+		grid.ColumnDefinitions.Add(_col2);
+		grid.ColumnDefinitions.Add(_col3);
+
+		StackPanel col1 = new();
+		StackPanel col2 = new();
+		StackPanel col3 = new();
+
+		/// <summary>
+		/// In WPF VerticalAlignment and HorizontalAlignment are
+		/// properties of an objects that specifies how it aligns
+		/// itself in its parent container. It is NOT about specifying
+		/// to a container element how to align its children
+		/// </summary>
+
+		col1.Orientation = Orientation.Horizontal;
+		col1.VerticalAlignment = VerticalAlignment.Center;
+
+		col2.Orientation = Orientation.Horizontal;
+		col2.HorizontalAlignment = HorizontalAlignment.Center;
+		col2.VerticalAlignment = VerticalAlignment.Center;
+
+		col3.Orientation = Orientation.Horizontal;
+		col3.HorizontalAlignment = HorizontalAlignment.Right;
+		col3.VerticalAlignment = VerticalAlignment.Center;
+		col3.FlowDirection = FlowDirection.RightToLeft;
+		//col3.Margin = new(0, 0, 0, 0);
+
+		Grid.SetColumn(col1, 0);
+		Grid.SetColumn(col2, 1);
+		Grid.SetColumn(col3, 2);
+
+		// col1
+		col1.Children.Add(Workspaces);
+		TaskbarApps.Margin = new(5, 0, 0, 0);
+		col1.Children.Add(TaskbarApps);
+		// col2
+		Clock.HorizontalAlignment = HorizontalAlignment.Center;
+		col2.Children.Add(Clock);
+		// col3
+		col3.Children.Add(Counters);
+		Counters.Margin = new(0, 0, 10, 0);
+		col3.Children.Add(ActionCenter);
+
+		/// <summary>
+		/// Add all borders to the layout type [Grid || StackPanel]
+		/// </summary>
+		grid.Children.Add(col1);
+		grid.Children.Add(col2);
+		grid.Children.Add(col3);
+		/// <summary>
+		/// Set the finished layout type as the container
+		/// <summary>
+		//this.Container = panel;
+		this.Container = grid;
+	}
+}
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Islands\.theme.cs
+SIZE: 1.18 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+// GLOBAL RESOURCES USED BY YOUR THEME
+// ALL VARIABLES MUST BE STATIC
+
+// Fluent Icons
+// https://fluenticons.co/
+public class Theme
+{
+	public Brush TEXT_COLOR = Utils.BrushFromHex("#EBDBB2");
+	public FontFamily FONT_FAMILY = new("JetBrains Mono");
+
+	public Brush BUTTON_FOREGROUND = new SolidColorBrush(Colors.White);
+	public Brush BUTTON_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public Brush BUTTON_PRESSED_BACKGROUND = Utils.BrushFromHex("#575555");
+	public Brush BUTTON_BORDER_COLOR = new SolidColorBrush(Colors.Black);
+	public Brush BUTTON_PRESSED_BORDER_COLOR = Utils.BrushFromHex("#22F803");
+
+	public Brush BUTTON_HOVER_COLOR = Utils.BrushFromHex("#828181");
+	public CornerRadius BUTTON_CORNER_RADIUS = new(5);
+	public Thickness BUTTON_MARGIN = new(2);
+	public int ICON_WIDTH = 16;
+	public int ICON_HEIGHT = 16;
+	public int BUTTON_WIDTH = 20;
+	public int BUTTON_HEIGHT = 20;
+	public Thickness BUTTON_BORDER_THICKNESS = new(0);
+	public Thickness BUTTON_PRESSED_BORDER_THICKNESS = new(0, 5, 0, 0);
+
+	public Brush WIDGET_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public CornerRadius WIDGET_CORNER_RADIUS = new(5);
+	public int WIDGET_GAP = 5;
+}
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Islands\ActionCenter.widget.cs
+SIZE: 0.58 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+/*
+ * Combines NetworkManager, Tray and Wallpaper widgets from Base
+ * */
+
+public class ActionCenter : Widget
+{
+	public ActionCenter(WidgetEnv ENV) : base(ENV)
+	{
+		StackPanel panel = new();
+		panel.Orientation = Orientation.Horizontal;
+
+		NetworkManager wifi = new(ENV);
+		Tray tray = new(ENV);
+		Wallpapers wall = new(ENV);
+
+		wifi.Init();
+		tray.Init();
+		wall.Init();
+
+		panel.Children.Add(wifi);
+		panel.Children.Add(tray);
+		panel.Children.Add(wall);
+
+		this.CornerRadius = new(8);
+		this.Background = Utils.BrushFromHex("#1a1a1a");
+		this.Content = panel;
+	}
+}
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Islands\Clock.mod.cs
+SIZE: 0.28 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+return (dynamic clock, dynamic ENV) =>
+{
+	clock.Background = Utils.BrushFromHex("#1a1a1a");
+	clock.CornerRadius = new CornerRadius(8);
+	clock.timeString = (Func<Time, string>)((time) =>
+	{
+		return $"{time.hours}:{time.minutes} {time.day} {time.monthName} {time.year}";
+	});
+};
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Islands\Counters.mod.cs
+SIZE: 0.2 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+return (dynamic counters, dynamic ENV) =>
+{
+	counters.Background = Utils.BrushFromHex("#1a1a1a");
+	counters.CornerRadius = new CornerRadius(8);
+	counters.textBlock.Margin = new Thickness(5);
+};
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Islands\Workspaces.mod.cs
+SIZE: 0.29 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+return (dynamic workspaces, dynamic ENV) =>
+{
+	workspaces.Background = Utils.BrushFromHex("#1a1a1a");
+	workspaces.CornerRadius = new CornerRadius(8);
+	workspaces.theme.BUTTON_PRESSED_BACKGROUND = Utils.BrushFromHex("#d856f5");
+	workspaces.theme.BUTTON_CORNER_RADIUS = new CornerRadius(8);
+};
 
 
 
@@ -9893,14 +10402,14 @@ public class BaseConfig : Config
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Plain1\.imports.cs
-SIZE: 0.2 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 0.21 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 return new WidgetImports
 {
 	importsPack = "Base",
-	widgets = ["Clock", "Tray", "Counters", "TaskbarApps", "AudioVisualizer", "AudioInformation", "Workspaces", "NetworkManager", "Wallpapers"]
+	widgets = ["Clock", "Tray", "Counters", "TaskbarApps", "AudioVisualizer", "AudioInformation", "Workspaces", "NetworkManager", "Wallpapers", "HideTaskbar"]
 };
 
 
@@ -10015,8 +10524,8 @@ class BaseLayout : Layout
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Plain1\.theme.cs
-SIZE: 1.2 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 1.18 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 // GLOBAL RESOURCES USED BY YOUR THEME
@@ -10026,25 +10535,217 @@ MODIFIED: 09/25/2025 13:32:59
 // https://fluenticons.co/
 public class Theme
 {
-    public static Brush TEXT_COLOR = Utils.BrushFromHex("#EBDBB2");
-    public static FontFamily FONT_FAMILY = new("JetBrains Mono");
+	public Brush TEXT_COLOR = Utils.BrushFromHex("#EBDBB2");
+	public FontFamily FONT_FAMILY = new("JetBrains Mono");
 
-    public static Brush BUTTON_FOREGROUND = new SolidColorBrush(Colors.White);
-    public static Brush BUTTON_BACKGROUND = new SolidColorBrush(Colors.Transparent);
-    public static Brush BUTTON_PRESSED_BACKGROUND = Utils.BrushFromHex("#575555");
-    public static Brush BUTTON_BORDER_COLOR = new SolidColorBrush(Colors.Black);
-    public static Brush BUTTON_HOVER_COLOR = Utils.BrushFromHex("#828181");
-    public static CornerRadius BUTTON_CORNER_RADIUS = new(0);
-    public static Thickness BUTTON_MARGIN = new(0);
-    public static int ICON_WIDTH = 14;
-    public static int ICON_HEIGHT= 14;    
-    public static int BUTTON_WIDTH = 20;
-    public static int BUTTON_HEIGHT = 20;
-    public static Thickness BUTTON_BORDER_THICKNESS = new(0);
+	public Brush BUTTON_FOREGROUND = new SolidColorBrush(Colors.White);
+	public Brush BUTTON_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public Brush BUTTON_PRESSED_BACKGROUND = Utils.BrushFromHex("#575555");
+	public Brush BUTTON_BORDER_COLOR = new SolidColorBrush(Colors.Black);
+	public Brush BUTTON_PRESSED_BORDER_COLOR = Utils.BrushFromHex("#22F803");
 
-    public static Brush WIDGET_BACKGROUND = new SolidColorBrush(Colors.Transparent);
-    public static CornerRadius WIDGET_CORNER_RADIUS = new(5);
-    public static int WIDGET_GAP = 5;
+	public Brush BUTTON_HOVER_COLOR = Utils.BrushFromHex("#828181");
+	public CornerRadius BUTTON_CORNER_RADIUS = new(0);
+	public Thickness BUTTON_MARGIN = new(0);
+	public int ICON_WIDTH = 14;
+	public int ICON_HEIGHT = 14;
+	public int BUTTON_WIDTH = 20;
+	public int BUTTON_HEIGHT = 20;
+	public Thickness BUTTON_BORDER_THICKNESS = new(0);
+	public Thickness BUTTON_PRESSED_BORDER_THICKNESS = new(0, 5, 0, 0);
+
+	public Brush WIDGET_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public CornerRadius WIDGET_CORNER_RADIUS = new(5);
+	public int WIDGET_GAP = 5;
+}
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Transparent\.config.cs
+SIZE: 0.42 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+public class BaseConfig : Config
+{
+	public BaseConfig()
+	{
+		this.height = 20;
+		this.width = 0;
+		this.marginXLeft = 0;
+		this.marginXRight = 0;
+		this.marginYTop = 0;
+		this.paddingXLeft = 0;
+		this.paddingXRight = 0;
+		this.paddingYTop = 0;
+		this.paddingYDown = 0;
+		this.backgroundColor = "transparent";
+		this.borderColor = "transparent";
+		this.borderThickness = new(0);
+		this.roundedCorners = false;
+	}
+}
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Transparent\.imports.cs
+SIZE: 0.21 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+return new WidgetImports
+{
+	importsPack = "Base",
+	widgets = ["Clock", "Tray", "Counters", "TaskbarApps", "AudioVisualizer", "AudioInformation", "Workspaces", "NetworkManager", "Wallpapers", "HideTaskbar"]
+};
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Transparent\.layout.cs
+SIZE: 2.97 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+class BaseLayout : Layout
+{
+	/// <summary>
+	/// Create placeholder borders for each widget. These borders must be
+	/// declared as fields of the Layout class and their names must match
+	/// the name of their respective widget class
+	/// </summary>
+
+	Border Workspaces = new();
+	Border Tray = new();
+	Border NetworkManager = new();
+	Border HideTaskbar = new();
+	Border Clock = new();
+	Border ScribblePad = new();
+	Border StartButton = new();
+	Border Counters = new();
+	Border TaskbarApps = new();
+	Border Wallpapers = new();
+
+	public BaseLayout()
+	{
+		/// <summary>
+		/// Build the layout after choosing a layout type
+		/// <summary>
+		Grid grid = new();
+
+		ColumnDefinition _col1 = new() { Width = new GridLength(1, GridUnitType.Star) };
+		ColumnDefinition _col2 = new() { Width = new GridLength(1, GridUnitType.Auto) };
+		ColumnDefinition _col3 = new() { Width = new GridLength(1, GridUnitType.Star) };
+
+		grid.ColumnDefinitions.Add(_col1);
+		grid.ColumnDefinitions.Add(_col2);
+		grid.ColumnDefinitions.Add(_col3);
+
+		StackPanel col1 = new();
+		StackPanel col2 = new();
+		StackPanel col3 = new();
+
+		/// <summary>
+		/// In WPF VerticalAlignment and HorizontalAlignment are
+		/// properties of an objects that specifies how it aligns
+		/// itself in its parent container. It is NOT about specifying
+		/// to a container element how to align its children
+		/// </summary>
+
+		col1.Orientation = Orientation.Horizontal;
+		col1.VerticalAlignment = VerticalAlignment.Center;
+
+		col2.Orientation = Orientation.Horizontal;
+		col2.HorizontalAlignment = HorizontalAlignment.Center;
+		col2.VerticalAlignment = VerticalAlignment.Center;
+
+		col3.Orientation = Orientation.Horizontal;
+		col3.HorizontalAlignment = HorizontalAlignment.Right;
+		col3.VerticalAlignment = VerticalAlignment.Center;
+		col3.FlowDirection = FlowDirection.RightToLeft;
+		col3.Margin = new(0, 0, 6, 0);
+
+		Grid.SetColumn(col1, 0);
+		Grid.SetColumn(col2, 1);
+		Grid.SetColumn(col3, 2);
+
+		// col1
+		col1.Children.Add(Workspaces);
+		TaskbarApps.Margin = new(5, 0, 0, 0);
+		col1.Children.Add(TaskbarApps);
+		// col2
+		Clock.HorizontalAlignment = HorizontalAlignment.Center;
+		col2.Children.Add(Clock);
+		// col3
+		List<Border> systemTray = new();
+		systemTray.Add(StartButton);
+		systemTray.Add(Counters);
+		systemTray.Add(NetworkManager);
+		systemTray.Add(Tray);
+		systemTray.Add(Wallpapers);
+		//systemTray.Add(HideTaskbar);
+		//systemTray.Add(ScribblePad);
+		systemTray.ForEach(border =>
+		{
+			border.Margin = new(0, 0, 5, 0);
+			border.VerticalAlignment = VerticalAlignment.Center;
+			col3.Children.Add(border);
+		});
+		Counters.Margin = new(10, 0, 10, 0);
+
+		/// <summary>
+		/// Add all borders to the layout type [Grid || StackPanel]
+		/// </summary>
+		grid.Children.Add(col1);
+		grid.Children.Add(col2);
+		grid.Children.Add(col3);
+		/// <summary>
+		/// Set the finished layout type as the container
+		/// <summary>
+		//this.Container = panel;
+		this.Container = grid;
+	}
+}
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Transparent\.theme.cs
+SIZE: 1.18 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+// GLOBAL RESOURCES USED BY YOUR THEME
+// ALL VARIABLES MUST BE STATIC
+
+// Fluent Icons
+// https://fluenticons.co/
+public class Theme
+{
+	public Brush TEXT_COLOR = Utils.BrushFromHex("#EBDBB2");
+	public FontFamily FONT_FAMILY = new("JetBrains Mono");
+
+	public Brush BUTTON_FOREGROUND = new SolidColorBrush(Colors.White);
+	public Brush BUTTON_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public Brush BUTTON_PRESSED_BACKGROUND = Utils.BrushFromHex("#575555");
+	public Brush BUTTON_BORDER_COLOR = new SolidColorBrush(Colors.Black);
+	public Brush BUTTON_PRESSED_BORDER_COLOR = Utils.BrushFromHex("#22F803");
+
+	public Brush BUTTON_HOVER_COLOR = Utils.BrushFromHex("#828181");
+	public CornerRadius BUTTON_CORNER_RADIUS = new(0);
+	public Thickness BUTTON_MARGIN = new(0);
+	public int ICON_WIDTH = 14;
+	public int ICON_HEIGHT = 14;
+	public int BUTTON_WIDTH = 20;
+	public int BUTTON_HEIGHT = 20;
+	public Thickness BUTTON_BORDER_THICKNESS = new(0);
+	public Thickness BUTTON_PRESSED_BORDER_THICKNESS = new(0, 5, 0, 0);
+
+	public Brush WIDGET_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public CornerRadius WIDGET_CORNER_RADIUS = new(5);
+	public int WIDGET_GAP = 5;
 }
 
 
@@ -10079,14 +10780,14 @@ public class BaseConfig : Config
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\.imports.cs
-SIZE: 0.18 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 0.2 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 return new WidgetImports
 {
 	importsPack = "Base",
-	widgets = ["Clock", "Tray", "Counters", "TaskbarApps", "AudioVisualizer", "AudioInformation", "NetworkManager", "Wallpapers"]
+	widgets = ["Clock", "Tray", "Counters", "TaskbarApps", "AudioVisualizer", "AudioInformation", "NetworkManager", "Wallpapers", "HideTaskbar"]
 };
 
 
@@ -10214,8 +10915,8 @@ class BaseLayout : Layout
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\.theme.cs
-SIZE: 1.15 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 1.17 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 // GLOBAL RESOURCES USED BY YOUR THEME
@@ -10225,33 +10926,36 @@ MODIFIED: 09/26/2025 08:24:32
 // https://fluenticons.co/
 public class Theme
 {
-	public static Brush TEXT_COLOR = Utils.BrushFromHex("#000000");
-	public static FontFamily FONT_FAMILY = new("MS Sans Serif");
+	public Brush TEXT_COLOR = Utils.BrushFromHex("#000000");
+	public FontFamily FONT_FAMILY = new("JetBrains Mono");
 
-	public static Brush BUTTON_FOREGROUND = new SolidColorBrush(Colors.White);
-	public static Brush BUTTON_BACKGROUND = new SolidColorBrush(Colors.Transparent);
-	public static Brush BUTTON_PRESSED_BACKGROUND = Utils.BrushFromHex("#575555");
-	public static Brush BUTTON_BORDER_COLOR = new SolidColorBrush(Colors.Black);
-	public static Brush BUTTON_HOVER_COLOR = Utils.BrushFromHex("#828181");
-	public static CornerRadius BUTTON_CORNER_RADIUS = new(0);
-	public static Thickness BUTTON_MARGIN = new(0);
-	public static int ICON_WIDTH = 14;
-	public static int ICON_HEIGHT = 14;
-	public static int BUTTON_WIDTH = 19;
-	public static int BUTTON_HEIGHT = 19;
-	public static Thickness BUTTON_BORDER_THICKNESS = new(0);
+	public Brush BUTTON_FOREGROUND = new SolidColorBrush(Colors.White);
+	public Brush BUTTON_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public Brush BUTTON_PRESSED_BACKGROUND = Utils.BrushFromHex("#575555");
 
-	public static Brush WIDGET_BACKGROUND = new SolidColorBrush(Colors.Transparent);
-	public static CornerRadius WIDGET_CORNER_RADIUS = new(5);
-	public static int WIDGET_GAP = 5;
+	public Brush BUTTON_BORDER_COLOR = new SolidColorBrush(Colors.Black);
+	public Brush BUTTON_PRESSED_BORDER_COLOR = Utils.BrushFromHex("#22F803");
+	public Brush BUTTON_HOVER_COLOR = Utils.BrushFromHex("#828181");
+	public CornerRadius BUTTON_CORNER_RADIUS = new(0);
+	public Thickness BUTTON_MARGIN = new(0);
+	public int ICON_WIDTH = 14;
+	public int ICON_HEIGHT = 14;
+	public int BUTTON_WIDTH = 19;
+	public int BUTTON_HEIGHT = 19;
+	public Thickness BUTTON_BORDER_THICKNESS = new(0);
+	public Thickness BUTTON_PRESSED_BORDER_THICKNESS = new(1);
+
+	public Brush WIDGET_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public CornerRadius WIDGET_CORNER_RADIUS = new(5);
+	public int WIDGET_GAP = 5;
 }
 
 
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\Clock.mod.cs
-SIZE: 0.39 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 0.41 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -10261,7 +10965,7 @@ MODIFIED: 09/26/2025 08:24:32
 using System.Windows;
 using System.Windows.Media;
 
-return (dynamic clock) =>
+return (dynamic clock, dynamic ENV) =>
 {
 	clock.textBlock.FontWeight = FontWeights.SemiBold;
 	clock.textBlock.SetValue(TextOptions.TextRenderingModeProperty, TextRenderingMode.Aliased);
@@ -10273,8 +10977,8 @@ return (dynamic clock) =>
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\Counters.mod.cs
-SIZE: 0.41 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 0.42 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 /*
@@ -10284,7 +10988,7 @@ MODIFIED: 09/26/2025 08:24:32
 using System.Windows;
 using System.Windows.Media;
 
-return (dynamic counters) =>
+return (dynamic counters, dynamic ENV) =>
 {
 	counters.textBlock.FontWeight = FontWeights.SemiBold;
 	counters.textBlock.SetValue(TextOptions.TextRenderingModeProperty, TextRenderingMode.Aliased);
@@ -10294,21 +10998,121 @@ return (dynamic counters) =>
 
 
 ================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\NetworkManager.mod.cs
+SIZE: 0.25 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+using System.IO;
+
+return (dynamic networkManager, dynamic ENV) =>
+{
+	//networkManager.btn.ImageSrc = Path.Join(ENV.ASSETS_FOLDER, "wifi.ico");
+	networkManager.iconFile = "wifi.ico";
+	Sambar.api.Print("NETWORK MANAFER: " + ENV.ASSETS_FOLDER);
+};
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\StartButton.widget.cs
+SIZE: 0.6 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+public class StartButton : Widget
+{
+	public Theme theme = new();
+	public Button btn = new();
+
+	public StartButton(WidgetEnv ENV) : base(ENV)
+	{
+		Image icon = new() { Source = Sambar.api.GetImageSource(Path.Join(ENV.ASSETS_FOLDER, "windows.ico")) };
+		icon.Width = 15;
+
+		btn.Height = 19;
+		btn.Width = 19;
+		btn.Foreground = theme.TEXT_COLOR;
+		btn.Background = theme.BUTTON_BACKGROUND;
+		btn.FontFamily = theme.FONT_FAMILY;
+		btn.Content = icon;
+		btn.Click += Clicked;
+		this.Content = btn;
+	}
+
+	public void Clicked(object sender, RoutedEventArgs e)
+	{
+		Sambar.api.StartMenu();
+	}
+}
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\TaskbarApps.mod.cs
+SIZE: 0.35 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+using System.Windows;
+using System.Windows.Media;
+
+return (dynamic taskbarApps, dynamic ENV) =>
+{
+	taskbarApps.theme.BUTTON_PRESSED_BORDER_COLOR = new SolidColorBrush(Colors.Black);
+	taskbarApps.theme.BUTTON_PRESSED_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	taskbarApps.theme.BUTTON_WIDTH = 18;
+	taskbarApps.theme.BUTTON_HEIGHT = 18;
+};
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\Tray.mod.cs
+SIZE: 0.1 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+return (dynamic networkManager, dynamic ENV) =>
+{
+	networkManager.iconFile = "tray_apps.ico";
+};
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\Wallpapers.mod.cs
+SIZE: 0.12 KB
+MODIFIED: 09/29/2025 14:26:49
+================================================================================
+
+using System.IO;
+
+return (dynamic networkManager, dynamic ENV) =>
+{
+	networkManager.iconFile = "wallpaper.ico";
+};
+
+
+
+================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\Workspaces.widget.cs
-SIZE: 2.23 KB
-MODIFIED: 09/26/2025 08:24:32
+SIZE: 2.37 KB
+MODIFIED: 09/29/2025 14:26:49
 ================================================================================
 
 public class Workspaces : Widget
 {
 	List<Workspace> workspaces = new();
 	public List<Button> buttons = new();
+	public Theme theme = new();
+
 	public Workspaces(WidgetEnv ENV) : base(ENV)
 	{
 		workspaces = Sambar.api.workspaces;
 
-		//this.CornerRadius = Theme.WIDGET_CORNER_RADIUS;
-		StackPanelWithGaps panel = new(0, workspaces.Count);
+		//this.CornerRadius = theme.WIDGET_CORNER_RADIUS;
+		StackPanelWithGaps panel = new(2, workspaces.Count);
 		panel.Orientation = Orientation.Horizontal;
 		panel.VerticalAlignment = VerticalAlignment.Center;
 		panel.ClipToBounds = true;
@@ -10316,18 +11120,22 @@ public class Workspaces : Widget
 		{
 			Button btn = new();
 			btn.Content = new TextBlock() { Text = $"{i}" };
-			btn.FontFamily = Theme.FONT_FAMILY;
-			btn.Width = Theme.BUTTON_WIDTH;
-			btn.Height = Theme.BUTTON_HEIGHT;
-			btn.Foreground = Theme.TEXT_COLOR;
-			btn.Background = Theme.BUTTON_BACKGROUND;
+			btn.FontFamily = theme.FONT_FAMILY;
+			btn.Width = theme.BUTTON_WIDTH;
+			btn.Height = theme.BUTTON_HEIGHT;
+			btn.Foreground = theme.TEXT_COLOR;
+			btn.Background = theme.BUTTON_BACKGROUND;
 			btn.Click += WorkspaceButtonClicked;
 			buttons.Add(btn);
 			panel.Add(btn);
 		}
 		Sambar.api.Print($"workspaces: {workspaces.Count}, buttons: {buttons.Count}, index: {Sambar.api.currentWorkspace.index}");
 		if (buttons.Count > 0)
-			buttons[Sambar.api.currentWorkspace.index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
+		{
+			var selectedButton = buttons[Sambar.api.currentWorkspace.index];
+			selectedButton.Background = theme.BUTTON_PRESSED_BACKGROUND;
+			selectedButton.Foreground = new SolidColorBrush(Colors.White);
+		}
 		Sambar.api.GLAZE_WORKSPACE_CHANGED += (workspace) =>
 		{
 			RedrawButtons(workspace.index);
@@ -10341,11 +11149,11 @@ public class Workspaces : Widget
 		{
 			foreach (var button in buttons)
 			{
-				button.Foreground = Theme.TEXT_COLOR;
-				button.Background = Theme.BUTTON_BACKGROUND;
+				button.Foreground = theme.TEXT_COLOR;
+				button.Background = theme.BUTTON_BACKGROUND;
 			}
 			buttons[index].Foreground = new SolidColorBrush(Colors.White);
-			buttons[index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
+			buttons[index].Background = theme.BUTTON_PRESSED_BACKGROUND;
 		});
 	}
 
@@ -10386,7 +11194,7 @@ MODIFIED: 09/25/2025 13:32:59
 
 
 ===============================================================================
-EXPORT COMPLETED: 09/29/2025 14:26:47
-Total Files Exported: 87
+EXPORT COMPLETED: 09/29/2025 14:27:08
+Total Files Exported: 104
 Output File: .\Docs\project_export.txt
 ===============================================================================
