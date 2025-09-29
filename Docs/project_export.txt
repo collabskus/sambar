@@ -1,7 +1,7 @@
 ﻿
 ===============================================================================
 sambar PROJECT EXPORT
-Generated: 09/26/2025 08:24:24
+Generated: 09/29/2025 14:26:43
 Project Path: D:\DEV\sambar
 ===============================================================================
 
@@ -144,11 +144,20 @@ D:\DEV\SAMBAR
 |       |           start.svg
 |       |           wifi.svg
 |       |           
-|       \---Plain1
+|       +---Plain1
+|       |       .config.cs
+|       |       .imports.cs
+|       |       .layout.cs
+|       |       .theme.cs
+|       |       
+|       \---Windows98
 |               .config.cs
 |               .imports.cs
 |               .layout.cs
 |               .theme.cs
+|               Clock.mod.cs
+|               Counters.mod.cs
+|               Workspaces.widget.cs
 |               
 \---Todo
         Bugs.md
@@ -215,40 +224,319 @@ To start hacking with sambar have a go at [Tutorials](https://github.com/TheAjay
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\claude.md
-SIZE: 1.58 KB
-MODIFIED: 09/25/2025 16:08:25
+SIZE: 8.79 KB
+MODIFIED: 09/29/2025 14:26:13
 ================================================================================
 
-# Sambar Code Review Summary
+# Comprehensive Sambar Security and Architecture Review
 
-## Critical Security Risk
-Your widget system executes arbitrary C# code without sandboxing:
+## ðŸš¨ Critical Security Vulnerabilities
+
+### 1. Arbitrary Code Execution Without Sandboxing
+**Location**: `WidgetEngine.cs`, `GetObjectFromScript<T>()`
+
 ```csharp
 obj = await CSharpScript.EvaluateAsync<T>(script, options: options);
 ```
-Any `.cs` file in WidgetPacks can access files, install malware, or compromise the system. This is a show-stopper security vulnerability.
 
-## Resource Management Failures
-- Static file handles never disposed: `public static FileStream logFile = File.Open(...)`
-- Infinite loops without cancellation tokens: `while (true)` with no exit mechanism
-- Event subscriptions never unsubscribed, causing memory leaks
+**Impact**: Complete system compromise. Any widget can:
+- Execute arbitrary system commands
+- Access the filesystem without restriction
+- Install persistent malware
+- Exfiltrate sensitive data
+- Manipulate other processes
 
-## Architecture Problems
-- God object: `Api` class handles everything across 15+ files
-- Static coupling: `Sambar.api.someMethod()` calls everywhere make testing impossible
-- No error checking on Win32 API calls
-- Excessive polling (100ms intervals) instead of Windows events
+**Recommended Solutions**:
+- **Option A**: Replace Roslyn scripting with a proper plugin architecture using `AssemblyLoadContext` with restricted permissions
+- **Option B**: Implement AppDomain sandboxing (if targeting .NET Framework)
+- **Option C**: Use Windows Job Objects to isolate widget processes
+- **Option D**: Transition to a declarative widget format (JSON/YAML) with no code execution
 
-## Immediate Fixes Required
-1. **Security**: Sandbox widget execution or redesign the plugin system
-2. **Resources**: Implement IDisposable patterns and CancellationTokens
-3. **Threading**: Add proper dispatcher checks for UI updates
-4. **Win32**: Add error handling and return value validation
+### 2. Insecure Widget Compilation
+**Location**: `WidgetEngine.cs:CompileToDll()`
 
-## Technical Strengths
-Despite these issues, the project shows deep Windows API knowledge, creative taskbar interception, and solid widget architecture concepts. The core functionality is impressive but needs significant safety hardening before any public use.
+Widgets are compiled with full access to dangerous APIs:
+```csharp
+MetadataReference.CreateFromFile(typeof(System.IO.File).Assembly.Location)
+```
 
-The security vulnerability alone makes this unsuitable for distribution without major architectural changes to the widget loading system.
+**Missing**:
+- No code signing verification
+- No permission model
+- No API allowlisting
+- No runtime monitoring
+
+## âš ï¸ Severe Resource Management Issues
+
+### 1. Unmanaged File Handle Leak
+**Location**: `Logger.cs:14`
+
+```csharp
+public static FileStream logFile = File.Open(Paths.logFile, FileMode.OpenOrCreate);
+public static StreamWriter logFileWriter = new(logFile);
+```
+
+**Problems**:
+- Never disposed (no `using` statement or `IDisposable` implementation)
+- Static lifetime means it persists until process termination
+- File remains locked, preventing external access
+- Potential data loss on crash
+
+**Fix**:
+```csharp
+public sealed class Logger : IDisposable
+{
+    private static readonly Lazy<Logger> _instance = new(() => new Logger());
+    private readonly FileStream _logFile;
+    private readonly StreamWriter _logWriter;
+    
+    private Logger()
+    {
+        _logFile = File.Open(Paths.logFile, FileMode.Append, FileAccess.Write, FileShare.Read);
+        _logWriter = new StreamWriter(_logFile) { AutoFlush = true };
+    }
+    
+    public static Logger Instance => _instance.Value;
+    
+    public void Dispose()
+    {
+        _logWriter?.Dispose();
+        _logFile?.Dispose();
+    }
+}
+```
+
+### 2. Unbounded Loops Without Cancellation
+**Locations**: Multiple files
+
+```csharp
+// Counters.cs:47 - CPU monitoring loop
+while (true) { await Task.Delay(1000); }
+
+// WindowTracker.cs:75 - App monitoring loop  
+while (true) { await Task.Delay(100); }
+```
+
+**Problems**:
+- No graceful shutdown mechanism
+- Thread/Task accumulation on widget reload
+- Prevents clean application exit
+
+**Fix Pattern**:
+```csharp
+private readonly CancellationTokenSource _cts = new();
+
+public async Task MonitorAsync()
+{
+    while (!_cts.Token.IsCancellationRequested)
+    {
+        // work
+        await Task.Delay(1000, _cts.Token);
+    }
+}
+
+public void Dispose() => _cts.Cancel();
+```
+
+### 3. Event Subscription Memory Leaks
+**Location**: Multiple widgets
+
+Widgets subscribe to API events but never unsubscribe:
+```csharp
+Sambar.api.CLOCK_TICKED += ClockTickedEventHandler;
+Sambar.api.TASKBAR_APPS_EVENT += UpdateTaskbarApps;
+```
+
+**Impact**: Widgets can't be garbage collected, causing memory accumulation over time.
+
+**Fix**: Implement proper lifecycle management:
+```csharp
+public class Widget : IDisposable
+{
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            Sambar.api.CLOCK_TICKED -= ClockTickedEventHandler;
+        }
+    }
+}
+```
+
+## ðŸ—ï¸ Architecture Anti-Patterns
+
+### 1. God Object: The `Api` Class
+**Location**: `Api.cs` + 15 partial class files
+
+**Problems**:
+- Single Responsibility Principle violation
+- 2000+ lines across multiple files
+- Impossible to mock for testing
+- Tight coupling to everything
+
+**Refactor Strategy**:
+```csharp
+// Instead of one Api class, use composition:
+public interface ISystemMonitor
+{
+    event Action<long[]> CpuPerformanceChanged;
+    void StartMonitoring();
+}
+
+public interface IWindowManager
+{
+    event Action<RunningApp> ActiveWindowChanged;
+    List<RunningApp> GetTaskbarApps();
+}
+
+// Widget constructor injection:
+public class MyWidget : Widget
+{
+    public MyWidget(ISystemMonitor monitor, IWindowManager windows)
+    {
+        monitor.CpuPerformanceChanged += OnCpuChanged;
+    }
+}
+```
+
+### 2. Static Coupling Everywhere
+**Location**: Throughout codebase
+
+```csharp
+Sambar.api.someMethod();  // Static reference from anywhere
+```
+
+**Problems**:
+- Impossible to unit test
+- Hidden dependencies
+- No dependency injection
+- Circular dependencies
+
+### 3. Missing Win32 Error Handling
+**Location**: All Win32 API calls
+
+Example from `Api.cs:19`:
+```csharp
+User32.SetWindowPos(hWnd, (nint)(-1), 0, 0, 0, 0, ...);
+// No return value check!
+```
+
+**Fix Pattern**:
+```csharp
+if (!User32.SetWindowPos(hWnd, (nint)(-1), 0, 0, 0, 0, flags))
+{
+    int error = Marshal.GetLastWin32Error();
+    Logger.Log($"SetWindowPos failed: 0x{error:X}");
+    throw new Win32Exception(error);
+}
+```
+
+### 4. Excessive Polling vs Event-Driven Design
+**Location**: Multiple monitoring loops
+
+```csharp
+await Task.Delay(100);  // Polling every 100ms
+```
+
+Should use:
+- `FileSystemWatcher` for file changes
+- Windows Event Log API for system events
+- WMI event subscriptions for hardware changes
+- Native window message hooks
+
+## ðŸ”§ Threading and Concurrency Issues
+
+### 1. Missing Dispatcher Checks
+**Location**: Widget UI updates
+
+```csharp
+textBlock.Text = $"CPU: {cpuUsage}%";  // Might be called from background thread
+```
+
+**Fix**:
+```csharp
+Dispatcher.Invoke(() => textBlock.Text = $"CPU: {cpuUsage}%");
+// Or use DispatcherObject.CheckAccess()
+```
+
+### 2. Race Conditions in State Management
+**Location**: `TrayIconsManager.cs:59`
+
+```csharp
+public void Update(NOTIFYICONDATA nid)
+{
+    icons[index] = new(nid);  // Not thread-safe
+}
+```
+
+**Fix**: Use `ConcurrentDictionary` or add locks.
+
+## ðŸ’¾ Data Management Problems
+
+### 1. Widget Compilation Caching Issues
+**Location**: `WidgetEngine.cs`
+
+- MD5 hashing for change detection (MD5 is cryptographically broken)
+- No cache invalidation on dependency changes
+- Race conditions in multi-threaded compilation
+
+### 2. Memory Leaks in UI Components
+**Location**: `TaskbarApps.widget.cs`
+
+Creating UI elements in loops without proper cleanup:
+```csharp
+foreach (var app in apps)
+{
+    RoundedButton btn = new();  // Never explicitly disposed
+    panel.Children.Add(btn);
+}
+```
+
+## ðŸŽ¯ Immediate Action Items (Prioritized)
+
+### P0 - Security (Block Release)
+1. **Remove or sandbox CSharpScript.EvaluateAsync** - This is a critical vulnerability
+2. **Implement code signing** for widget validation
+3. **Add permission model** for filesystem/network access
+
+### P1 - Stability (Critical Bugs)
+1. **Add CancellationToken** to all async loops
+2. **Dispose Logger resources** properly
+3. **Implement IDisposable** in all widgets
+4. **Add Win32 error handling** everywhere
+
+### P2 - Architecture (Technical Debt)
+1. **Refactor Api class** into separate services
+2. **Implement dependency injection** container
+3. **Replace polling with event-driven** patterns
+4. **Add unit test infrastructure**
+
+### P3 - Code Quality
+1. Add comprehensive exception handling
+2. Implement structured logging (e.g., Serilog)
+3. Add XML documentation comments
+4. Configure static analysis (Roslyn analyzers)
+
+## âœ… Technical Strengths to Preserve
+
+1. **Deep Win32 expertise**: Taskbar interception via `Shell_TrayWnd` window class hijacking is clever
+2. **Widget compilation caching**: The hash-based compilation skipping is a good optimization
+3. **Separation of concerns**: WidgetPacks as plugins is a solid extensibility model
+4. **WPF integration**: Using WPF for UI rendering is appropriate for Windows desktop
+
+## ðŸ“‹ Recommended Next Steps
+
+1. **Create a security audit document** listing all widget capabilities
+2. **Design a permission manifest system** (similar to Android/browser extensions)
+3. **Implement a plugin SDK** with safe APIs instead of arbitrary code execution
+4. **Add integration tests** for Win32 interop code
+5. **Document the architecture** with diagrams showing component relationships
+
+## Final Assessment
+
+This project demonstrates impressive technical knowledge but is fundamentally **not production-ready** due to the arbitrary code execution vulnerability. The widget system needs a complete security redesign before any public distribution. Consider this a proof-of-concept that requires substantial hardening.
+
+**Estimated effort to production-ready**: 4-6 weeks of focused security and architecture work.
 
 
 
@@ -355,14 +643,14 @@ new plugins the Sambar Api is incredibly useful, see the Api reference here.
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\project_export.txt
-SIZE: 12.96 KB
-MODIFIED: 09/26/2025 08:24:25
+SIZE: 20.46 KB
+MODIFIED: 09/29/2025 14:26:44
 ================================================================================
 
 
 ===============================================================================
 sambar PROJECT EXPORT
-Generated: 09/26/2025 08:24:24
+Generated: 09/29/2025 14:26:43
 Project Path: D:\DEV\sambar
 ===============================================================================
 
@@ -505,11 +793,20 @@ D:\DEV\SAMBAR
 |       |           start.svg
 |       |           wifi.svg
 |       |           
-|       \---Plain1
+|       +---Plain1
+|       |       .config.cs
+|       |       .imports.cs
+|       |       .layout.cs
+|       |       .theme.cs
+|       |       
+|       \---Windows98
 |               .config.cs
 |               .imports.cs
 |               .layout.cs
 |               .theme.cs
+|               Clock.mod.cs
+|               Counters.mod.cs
+|               Workspaces.widget.cs
 |               
 \---Todo
         Bugs.md
@@ -576,40 +873,319 @@ To start hacking with sambar have a go at [Tutorials](https://github.com/TheAjay
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\claude.md
-SIZE: 1.58 KB
-MODIFIED: 09/25/2025 16:08:25
+SIZE: 8.79 KB
+MODIFIED: 09/29/2025 14:26:13
 ================================================================================
 
-# Sambar Code Review Summary
+# Comprehensive Sambar Security and Architecture Review
 
-## Critical Security Risk
-Your widget system executes arbitrary C# code without sandboxing:
+## ðŸš¨ Critical Security Vulnerabilities
+
+### 1. Arbitrary Code Execution Without Sandboxing
+**Location**: `WidgetEngine.cs`, `GetObjectFromScript<T>()`
+
 ```csharp
 obj = await CSharpScript.EvaluateAsync<T>(script, options: options);
 ```
-Any `.cs` file in WidgetPacks can access files, install malware, or compromise the system. This is a show-stopper security vulnerability.
 
-## Resource Management Failures
-- Static file handles never disposed: `public static FileStream logFile = File.Open(...)`
-- Infinite loops without cancellation tokens: `while (true)` with no exit mechanism
-- Event subscriptions never unsubscribed, causing memory leaks
+**Impact**: Complete system compromise. Any widget can:
+- Execute arbitrary system commands
+- Access the filesystem without restriction
+- Install persistent malware
+- Exfiltrate sensitive data
+- Manipulate other processes
 
-## Architecture Problems
-- God object: `Api` class handles everything across 15+ files
-- Static coupling: `Sambar.api.someMethod()` calls everywhere make testing impossible
-- No error checking on Win32 API calls
-- Excessive polling (100ms intervals) instead of Windows events
+**Recommended Solutions**:
+- **Option A**: Replace Roslyn scripting with a proper plugin architecture using `AssemblyLoadContext` with restricted permissions
+- **Option B**: Implement AppDomain sandboxing (if targeting .NET Framework)
+- **Option C**: Use Windows Job Objects to isolate widget processes
+- **Option D**: Transition to a declarative widget format (JSON/YAML) with no code execution
 
-## Immediate Fixes Required
-1. **Security**: Sandbox widget execution or redesign the plugin system
-2. **Resources**: Implement IDisposable patterns and CancellationTokens
-3. **Threading**: Add proper dispatcher checks for UI updates
-4. **Win32**: Add error handling and return value validation
+### 2. Insecure Widget Compilation
+**Location**: `WidgetEngine.cs:CompileToDll()`
 
-## Technical Strengths
-Despite these issues, the project shows deep Windows API knowledge, creative taskbar interception, and solid widget architecture concepts. The core functionality is impressive but needs significant safety hardening before any public use.
+Widgets are compiled with full access to dangerous APIs:
+```csharp
+MetadataReference.CreateFromFile(typeof(System.IO.File).Assembly.Location)
+```
 
-The security vulnerability alone makes this unsuitable for distribution without major architectural changes to the widget loading system.
+**Missing**:
+- No code signing verification
+- No permission model
+- No API allowlisting
+- No runtime monitoring
+
+## âš ï¸ Severe Resource Management Issues
+
+### 1. Unmanaged File Handle Leak
+**Location**: `Logger.cs:14`
+
+```csharp
+public static FileStream logFile = File.Open(Paths.logFile, FileMode.OpenOrCreate);
+public static StreamWriter logFileWriter = new(logFile);
+```
+
+**Problems**:
+- Never disposed (no `using` statement or `IDisposable` implementation)
+- Static lifetime means it persists until process termination
+- File remains locked, preventing external access
+- Potential data loss on crash
+
+**Fix**:
+```csharp
+public sealed class Logger : IDisposable
+{
+    private static readonly Lazy<Logger> _instance = new(() => new Logger());
+    private readonly FileStream _logFile;
+    private readonly StreamWriter _logWriter;
+    
+    private Logger()
+    {
+        _logFile = File.Open(Paths.logFile, FileMode.Append, FileAccess.Write, FileShare.Read);
+        _logWriter = new StreamWriter(_logFile) { AutoFlush = true };
+    }
+    
+    public static Logger Instance => _instance.Value;
+    
+    public void Dispose()
+    {
+        _logWriter?.Dispose();
+        _logFile?.Dispose();
+    }
+}
+```
+
+### 2. Unbounded Loops Without Cancellation
+**Locations**: Multiple files
+
+```csharp
+// Counters.cs:47 - CPU monitoring loop
+while (true) { await Task.Delay(1000); }
+
+// WindowTracker.cs:75 - App monitoring loop  
+while (true) { await Task.Delay(100); }
+```
+
+**Problems**:
+- No graceful shutdown mechanism
+- Thread/Task accumulation on widget reload
+- Prevents clean application exit
+
+**Fix Pattern**:
+```csharp
+private readonly CancellationTokenSource _cts = new();
+
+public async Task MonitorAsync()
+{
+    while (!_cts.Token.IsCancellationRequested)
+    {
+        // work
+        await Task.Delay(1000, _cts.Token);
+    }
+}
+
+public void Dispose() => _cts.Cancel();
+```
+
+### 3. Event Subscription Memory Leaks
+**Location**: Multiple widgets
+
+Widgets subscribe to API events but never unsubscribe:
+```csharp
+Sambar.api.CLOCK_TICKED += ClockTickedEventHandler;
+Sambar.api.TASKBAR_APPS_EVENT += UpdateTaskbarApps;
+```
+
+**Impact**: Widgets can't be garbage collected, causing memory accumulation over time.
+
+**Fix**: Implement proper lifecycle management:
+```csharp
+public class Widget : IDisposable
+{
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            Sambar.api.CLOCK_TICKED -= ClockTickedEventHandler;
+        }
+    }
+}
+```
+
+## ðŸ—ï¸ Architecture Anti-Patterns
+
+### 1. God Object: The `Api` Class
+**Location**: `Api.cs` + 15 partial class files
+
+**Problems**:
+- Single Responsibility Principle violation
+- 2000+ lines across multiple files
+- Impossible to mock for testing
+- Tight coupling to everything
+
+**Refactor Strategy**:
+```csharp
+// Instead of one Api class, use composition:
+public interface ISystemMonitor
+{
+    event Action<long[]> CpuPerformanceChanged;
+    void StartMonitoring();
+}
+
+public interface IWindowManager
+{
+    event Action<RunningApp> ActiveWindowChanged;
+    List<RunningApp> GetTaskbarApps();
+}
+
+// Widget constructor injection:
+public class MyWidget : Widget
+{
+    public MyWidget(ISystemMonitor monitor, IWindowManager windows)
+    {
+        monitor.CpuPerformanceChanged += OnCpuChanged;
+    }
+}
+```
+
+### 2. Static Coupling Everywhere
+**Location**: Throughout codebase
+
+```csharp
+Sambar.api.someMethod();  // Static reference from anywhere
+```
+
+**Problems**:
+- Impossible to unit test
+- Hidden dependencies
+- No dependency injection
+- Circular dependencies
+
+### 3. Missing Win32 Error Handling
+**Location**: All Win32 API calls
+
+Example from `Api.cs:19`:
+```csharp
+User32.SetWindowPos(hWnd, (nint)(-1), 0, 0, 0, 0, ...);
+// No return value check!
+```
+
+**Fix Pattern**:
+```csharp
+if (!User32.SetWindowPos(hWnd, (nint)(-1), 0, 0, 0, 0, flags))
+{
+    int error = Marshal.GetLastWin32Error();
+    Logger.Log($"SetWindowPos failed: 0x{error:X}");
+    throw new Win32Exception(error);
+}
+```
+
+### 4. Excessive Polling vs Event-Driven Design
+**Location**: Multiple monitoring loops
+
+```csharp
+await Task.Delay(100);  // Polling every 100ms
+```
+
+Should use:
+- `FileSystemWatcher` for file changes
+- Windows Event Log API for system events
+- WMI event subscriptions for hardware changes
+- Native window message hooks
+
+## ðŸ”§ Threading and Concurrency Issues
+
+### 1. Missing Dispatcher Checks
+**Location**: Widget UI updates
+
+```csharp
+textBlock.Text = $"CPU: {cpuUsage}%";  // Might be called from background thread
+```
+
+**Fix**:
+```csharp
+Dispatcher.Invoke(() => textBlock.Text = $"CPU: {cpuUsage}%");
+// Or use DispatcherObject.CheckAccess()
+```
+
+### 2. Race Conditions in State Management
+**Location**: `TrayIconsManager.cs:59`
+
+```csharp
+public void Update(NOTIFYICONDATA nid)
+{
+    icons[index] = new(nid);  // Not thread-safe
+}
+```
+
+**Fix**: Use `ConcurrentDictionary` or add locks.
+
+## ðŸ’¾ Data Management Problems
+
+### 1. Widget Compilation Caching Issues
+**Location**: `WidgetEngine.cs`
+
+- MD5 hashing for change detection (MD5 is cryptographically broken)
+- No cache invalidation on dependency changes
+- Race conditions in multi-threaded compilation
+
+### 2. Memory Leaks in UI Components
+**Location**: `TaskbarApps.widget.cs`
+
+Creating UI elements in loops without proper cleanup:
+```csharp
+foreach (var app in apps)
+{
+    RoundedButton btn = new();  // Never explicitly disposed
+    panel.Children.Add(btn);
+}
+```
+
+## ðŸŽ¯ Immediate Action Items (Prioritized)
+
+### P0 - Security (Block Release)
+1. **Remove or sandbox CSharpScript.EvaluateAsync** - This is a critical vulnerability
+2. **Implement code signing** for widget validation
+3. **Add permission model** for filesystem/network access
+
+### P1 - Stability (Critical Bugs)
+1. **Add CancellationToken** to all async loops
+2. **Dispose Logger resources** properly
+3. **Implement IDisposable** in all widgets
+4. **Add Win32 error handling** everywhere
+
+### P2 - Architecture (Technical Debt)
+1. **Refactor Api class** into separate services
+2. **Implement dependency injection** container
+3. **Replace polling with event-driven** patterns
+4. **Add unit test infrastructure**
+
+### P3 - Code Quality
+1. Add comprehensive exception handling
+2. Implement structured logging (e.g., Serilog)
+3. Add XML documentation comments
+4. Configure static analysis (Roslyn analyzers)
+
+## âœ… Technical Strengths to Preserve
+
+1. **Deep Win32 expertise**: Taskbar interception via `Shell_TrayWnd` window class hijacking is clever
+2. **Widget compilation caching**: The hash-based compilation skipping is a good optimization
+3. **Separation of concerns**: WidgetPacks as plugins is a solid extensibility model
+4. **WPF integration**: Using WPF for UI rendering is appropriate for Windows desktop
+
+## ðŸ“‹ Recommended Next Steps
+
+1. **Create a security audit document** listing all widget capabilities
+2. **Design a permission manifest system** (similar to Android/browser extensions)
+3. **Implement a plugin SDK** with safe APIs instead of arbitrary code execution
+4. **Add integration tests** for Win32 interop code
+5. **Document the architecture** with diagrams showing component relationships
+
+## Final Assessment
+
+This project demonstrates impressive technical knowledge but is fundamentally **not production-ready** due to the arbitrary code execution vulnerability. The widget system needs a complete security redesign before any public distribution. Consider this a proof-of-concept that requires substantial hardening.
+
+**Estimated effort to production-ready**: 4-6 weeks of focused security and architecture work.
 
 
 
@@ -716,8 +1292,8 @@ new plugins the Sambar Api is incredibly useful, see the Api reference here.
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\project_export.txt
-SIZE: 12.96 KB
-MODIFIED: 09/26/2025 08:24:25
+SIZE: 20.46 KB
+MODIFIED: 09/29/2025 14:26:44
 ================================================================================
 
 
@@ -837,8 +1413,8 @@ And just like that your layout is finished.
 
 ================================================================================
 FILE: :\DEV\sambar\Docs\Tutorials\Widgets.md
-SIZE: 2.26 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 3.86 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 # Creating a widget
@@ -914,7 +1490,34 @@ class MyNewWidget: Widget
 
 Now thats it ! Provided that `MyNewWidget` has been added in the `.layout.cs` to specify where the widget should be on the bar, you should see "Hello, World!" next time you launch sambar.
 
+### Things to note about widgets
 
+Since widgets are `UIElements` that are added to the sambar they are ran on the main UIThread.
+This is necessary because WPF doesnt allow UI updation or even setting UIElements that arent owned/created on the main UIThread. Therefore it is totally possible to crash sambar from widgets.
+
+On hindsight this is a good thing since you precisely know what went wrong with your configuration or the action performed that led to the crash, but it can be annoying. Also it doesnt make sense to crash the entire bar just because one `Widget` had an `ArrayOutOfBounds` exception.
+
+Therefore to meet in the middle all methods of the `Widget` class will get automatically wrapped in a `try catch` block so that one widget crashing does not crash the other widgets. Also the widget is instantiated in a similar `try catch` block so that no funny things in its constructor can cause an abrupt crash. Any exceptions on these methods will be logged by the logger and a visual menu will be displayed that can be closed showing the exception message.
+
+It is still possible to crash the entire thing from a widget if you do something like subscribe to an event using an inline function that is not a method of your widget. This is because only class methods are automatically wrapped with try catch blocks not the anonymous lambdas.
+
+```cs
+public MyWidget() {
+    MY_EVENT += (arg) => {
+        /* do stuff */
+    }
+}
+```
+instrad of the above, create a method and subscribe
+
+```cs
+public MyWidget() {
+    MY_EVENT += MyEventHandler;
+}
+void MyEventHandler(string arg) {
+    /* do stuff */
+}
+```
 
 
 
@@ -1030,8 +1633,8 @@ using System.Windows;
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Api\Api.cs
-SIZE: 1.09 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 1.11 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 /*
@@ -1065,6 +1668,7 @@ public partial class Api
 		SystemInit();
 		SystemTrayInit();
 		TaskbarInterceptorInit();
+		CustomWindowsInit();
 		ClockInit();
 		CountersInit();
 		initTasks.AddRange([
@@ -1641,8 +2245,8 @@ public partial class Api
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Api\CustomWindows.cs
-SIZE: 5.02 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 5.32 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 /*
@@ -1674,7 +2278,6 @@ public partial class Api
 {
 	private void CustomWindowsInit()
 	{
-
 	}
 
 	public (ThreadWindow, WpfPlot, FilledSignal) CreateAudioVisualizer(
@@ -1737,6 +2340,10 @@ public partial class Api
 			_overlayWnd = value;
 		}
 	}
+
+	/// <summary>
+	/// Creates a background overlay window that fills the desktop
+	/// </summary>
 	public Window CreateDesktopOverlay()
 	{
 		activeOverlayWnd = new WidgetWindow()
@@ -1749,6 +2356,14 @@ public partial class Api
 			Height = Sambar.screenHeight,
 		};
 		return activeOverlayWnd;
+	}
+
+	/// <summary>
+	/// normal win32 messagebox
+	/// </summary>
+	public void MessageBox(string message)
+	{
+		Task.Run(() => User32.MessageBox(Sambar.api!.bar.hWnd, message, "SambarMessageWindow", 0));
 	}
 }
 
@@ -2269,8 +2884,8 @@ public partial class Api {
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Api\Menus.cs
-SIZE: 5.44 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 5.58 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 /*
@@ -2281,9 +2896,7 @@ MODIFIED: 09/25/2025 13:32:59
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Controls;
-using System.Diagnostics;
-using System.Windows.Threading;
-using Windows.ApplicationModel.VoiceCommands;
+using System.Windows.Input;
 
 namespace sambar;
 public partial class Api
@@ -2306,7 +2919,9 @@ public partial class Api
 		}
 	}
 
-	// when menus that are automatically oriented relative to the calling user element
+	/// <summary>
+	/// when menus that are automatically oriented relative to the calling user element
+	/// </summary>
 	public Menu CreateMenu(UserControl callingElement, int width = 100, int height = 100)
 	{
 		int x = (int)callingElement.PointToScreen(new Point(callingElement.Width / 2, callingElement.Height / 2)).X - (width / 2);
@@ -2320,6 +2935,9 @@ public partial class Api
 		return activeMenu;
 	}
 
+	/// <summary>
+	/// Menu at arbitrary location
+	/// <summary>
 	public Menu CreateMenu(int x, int y, int width, int height, bool centerOffset = false)
 	{
 		if (centerOffset)
@@ -2328,7 +2946,9 @@ public partial class Api
 		return activeMenu;
 	}
 
-	// context menu with menubuttons
+	/// <summary>
+	/// Right click context menu with menubuttons
+	/// <summary>
 	public Menu CreateContextMenu(List<MenuButton> items)
 	{
 		User32.GetCursorPos(out POINT pt);
@@ -2360,6 +2980,7 @@ public class Menu : Window
 		this.Left = x;
 		this.Top = y;
 		this.ShowActivated = true;
+		this.KeyDown += (s, e) => { if (e.Key == Key.Escape) CustomClose(); };
 
 		hWnd = new WindowInteropHelper(this).EnsureHandle();
 		uint exStyles = User32.GetWindowLong(hWnd, GETWINDOWLONG.GWL_EXSTYLE);
@@ -3721,8 +4342,8 @@ public struct COMPONENTSOPT
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Config\Config.cs
-SIZE: 1.68 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 1.73 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 /*
@@ -3731,6 +4352,7 @@ MODIFIED: 09/25/2025 13:32:59
 */
 
 using Newtonsoft.Json;
+using System.Windows;
 
 namespace sambar;
 
@@ -3748,7 +4370,7 @@ public class Config
 	public string backgroundColor = "";
 	public bool roundedCorners = true;
 	public string borderColor = "";
-	public int borderThickness = 0;
+	public Thickness borderThickness = new(0);
 	public string widgetPack = "Base";
 
 	[JsonConstructor]
@@ -3765,9 +4387,10 @@ public class Config
 		string? backgroundColor,
 		bool? roundedCorners,
 		string? borderColor,
-		int? borderThickness,
+		Thickness? borderThickness,
 		string? widgetPack
-	) {
+	)
+	{
 
 		this.height = height ?? 40;
 		this.width = width ?? 0;
@@ -3780,12 +4403,13 @@ public class Config
 		this.paddingYDown = paddingYDown ?? 0;
 		this.backgroundColor = backgroundColor ?? "#ffffff";
 		this.borderColor = borderColor ?? "#ffffff";
-		this.borderThickness = borderThickness ?? 0;
+		this.borderThickness = borderThickness ?? new(0);
 		this.widgetPack = widgetPack ?? "Base";
 	}
 
-	public Config(int screenWidth) {
-		width = screenWidth - (marginXLeft + marginXRight);	
+	public Config(int screenWidth)
+	{
+		width = screenWidth - (marginXLeft + marginXRight);
 	}
 
 	public Config() { }
@@ -3804,8 +4428,8 @@ public class WidgetImports
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Config\Layout.cs
-SIZE: 0.66 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 0.62 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 /*
@@ -3813,6 +4437,7 @@ MODIFIED: 09/25/2025 13:32:59
     Copyright (c) 2025 Ajaykrishnan R	
 */
 
+using System.Windows;
 using System.Windows.Controls;
 using System.Reflection;
 
@@ -3820,20 +4445,21 @@ namespace sambar;
 
 public class Layout
 {
-    public Panel Container;
-    public Dictionary<string, Border> WidgetToContainerMap = new();
-    public Layout()
-    {
-        this.GetType()
-            .GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-            .ToList()
-            .Where(fieldInfo => fieldInfo.FieldType == typeof(Border))
-            .ToList()
-            .ForEach(fieldInfo =>
-            {
-                WidgetToContainerMap[fieldInfo.Name] = (Border)fieldInfo.GetValue(this);
-            });
-    }
+	//public Panel Container;
+	public UIElement Container;
+	public Dictionary<string, Border> WidgetToContainerMap = new();
+	public Layout()
+	{
+		this.GetType()
+			.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+			.ToList()
+			.Where(fieldInfo => fieldInfo.FieldType == typeof(Border))
+			.ToList()
+			.ForEach(fieldInfo =>
+			{
+				WidgetToContainerMap[fieldInfo.Name] = (Border)fieldInfo.GetValue(this);
+			});
+	}
 }
 
 
@@ -3940,8 +4566,8 @@ public class WidgetEnv
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Engine\WidgetEngine.cs
-SIZE: 12.18 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 14.8 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 /*
@@ -3973,6 +4599,7 @@ using ScottPlot.WPF;
 using SkiaSharp;
 using SkiaSharp.Views.WPF;
 using SkiaSharp.Views.Desktop;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace sambar;
 
@@ -4073,7 +4700,7 @@ internal class WidgetLoader
 					string fileContent = File.ReadAllText(file.FullName);
 					//string finalScript = widgetsPrefix + "\n" + fileContent;
 					string dllName = file.Name.Replace(".cs", "");
-					Utils.CompileStringToDll(fileContent, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)]);
+					Utils.CompileStringToDll(fileContent, $"{dllName}", [(Path.Join(Paths.dllFolder, ".theme.dll"), null)], wrapInTryCatch: true);
 					widgetToDllMap[file.Name.Replace(".widget.cs", "")] = Path.Join(Paths.dllFolder, dllName + ".dll");
 				}
 			);
@@ -4097,7 +4724,24 @@ internal class WidgetLoader
 			Type widgetType = typesInAssembly.Where(type => type.IsSubclassOf(typeof(Widget))).First();
 			// prepare the ENV VARS for widget
 			WidgetEnv env = PrepareEnvVarsForWidget(widgetName.Key);
-			Widget widget = (Widget)Activator.CreateInstance(widgetType, [env])!; // where the widget actually runs
+			Widget? widget = null;
+			try
+			{
+				widget = (Widget)Activator.CreateInstance(widgetType, [env])!; // where the widget actually runs
+
+				// check if <widgetName.mod.cs> exists and apply 
+				string modFile = Path.Join(Paths.widgetPacksFolder, widgetPackName, $"{widgetName.Key}.mod.cs");
+				if (File.Exists(modFile))
+				{
+					var modAction = GetObjectFromScript<Action<dynamic>>(modFile);
+					Logger.Log($"modFile exists: {modFile}, modActionNull: {modAction == null}");
+					modAction!(widget);
+				}
+			}
+			catch (Exception ex)
+			{
+				Logger.Log($"[ WIDGET-LOADING/MOD-FAILED, {widgetName.Key} (exception at constructor) ]\n{ex.Message}");
+			}
 			if (widget != null) { widgets.Add(widget); }
 		}
 
@@ -4125,7 +4769,7 @@ internal class WidgetLoader
 	/// <param name="classCode"></param>
 	/// <param name="dllName"></param>
 	/// <param name="additionalDllsAndUsings"></param>
-	public static void CompileToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null)
+	public static void CompileToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null, bool wrapInTryCatch = false)
 	{
 		List<MetadataReference> references =
 		[
@@ -4196,6 +4840,16 @@ using SkiaSharp.Views.WPF;
 		string code = usingsPrefix + classCode;
 		CSharpParseOptions parseOptions = new(LanguageVersion.Preview);
 		SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code, parseOptions);
+
+		// we do this so that every method in our widget class is wrapped inside a
+		// try catch block
+		if (wrapInTryCatch)
+		{
+			code = TryCatchAdder(code);
+			syntaxTree = CSharpSyntaxTree.ParseText(code);
+			Logger.Log($"[ WIDGET-COMPILE-STRING ]\n{code}");
+		}
+
 		CSharpCompilationOptions compilationOptions = new(OutputKind.DynamicallyLinkedLibrary);
 
 		CSharpCompilation compilation = CSharpCompilation.Create(
@@ -4213,7 +4867,7 @@ using SkiaSharp.Views.WPF;
 			Logger.Log($"COMPILATION FAILED: {dllName}");
 			foreach (Diagnostic err in result.Diagnostics)
 			{
-				Logger.Log(err.GetMessage());
+				Logger.Log($"{err.Location.SourceSpan}: {err.GetMessage()}");
 			}
 		}
 		ms.Seek(0, SeekOrigin.Begin);
@@ -4244,17 +4898,10 @@ using SkiaSharp.Views.WPF;
 	}
 
 	/// <summary>
-	/// Evaluate Script
-	/// (Alternative to CompileDll)
+	/// Evaluate string
 	/// </summary>
-	public static T? GetObjectFromScript<T>(string scriptPath)
+	public static T? GetObjectFromString<T>(string script, string? scriptPath = null)
 	{
-		if (!File.Exists(scriptPath))
-		{
-			Logger.Log($"{scriptPath} does not exist, exiting...");
-			return default(T);
-		}
-		string script = File.ReadAllText(scriptPath);
 		ScriptOptions options = ScriptOptions.Default
 								.AddReferences(typeof(Sambar).Assembly)
 								.WithImports("sambar");
@@ -4267,12 +4914,29 @@ using SkiaSharp.Views.WPF;
 			}
 			catch (Exception ex)
 			{
-				Logger.Log($"unable to compile {scriptPath}");
+				Logger.Log($"unable to compile {(scriptPath == null ? script : scriptPath)}");
 				Logger.Log(ex.Message);
 			}
 		});
 		_t.Start();
 		_t.Join();
+		return obj;
+	}
+
+	/// <summary>
+	/// Evaluate Script
+	/// (Alternative to CompileDll)
+	/// </summary>
+	public static T? GetObjectFromScript<T>(string scriptPath)
+	{
+		if (!File.Exists(scriptPath))
+		{
+			Logger.Log($"{scriptPath} does not exist, exiting...");
+			return default(T);
+		}
+		string script = File.ReadAllText(scriptPath);
+		T? obj = default(T);
+		obj = GetObjectFromString<T>(script, scriptPath);
 		return obj;
 	}
 
@@ -4290,6 +4954,49 @@ using SkiaSharp.Views.WPF;
 		return env;
 	}
 
+	public static string TryCatchAdder(string classCode)
+	{
+		SyntaxTree tree = CSharpSyntaxTree.ParseText(classCode);
+
+		var methods = tree.GetRoot()
+						  .DescendantNodes()
+						  .OfType<MethodDeclarationSyntax>()
+						  .ToArray();
+
+		int charsAdded = 0;
+		foreach (var method in methods)
+		{
+			int startBrace = method.Body.OpenBraceToken.SpanStart + charsAdded;
+			int endBrace = method.Body.CloseBraceToken.SpanStart + charsAdded;
+			bool returnDefault = method.ReturnType.ToString() != "void";
+			string _classCode = AddTryCatchToFunctionBlock(classCode, startBrace, endBrace, returnDefault);
+			charsAdded += _classCode.Length - classCode.Length;
+			classCode = _classCode;
+		}
+
+		return classCode;
+	}
+
+	/// <summary>
+	///     | startBrace
+	/// try {
+	/// 	-- functionBody --
+	/// }
+	/// | endBrace
+	/// </summary>
+	public static string AddTryCatchToFunctionBlock(string classCode, int startBrace, int endBrace, bool returnDefault = false)
+	{
+		return
+		  new string(classCode.Take(startBrace + 1).ToArray())
+		+ "try {"
+		+ new string(classCode.Skip(startBrace + 1).Take(endBrace - startBrace - 1).ToArray())
+		+ "}"
+		+ "catch(Exception ex) {"
+		+ """Sambar.api.Print($"[ WIDGET-EXCEPTION ]\n{ex.Message}"); Sambar.api.MessageBox(ex.Message);"""
+		+ (returnDefault ? "return default;" : "return;")
+		+ "}"
+		+ new string(classCode.TakeLast(classCode.Length - endBrace).ToArray());
+	}
 }
 
 
@@ -4572,8 +5279,8 @@ class Target
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Sambar.cs
-SIZE: 3.88 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 3.99 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 /*
@@ -4680,6 +5387,9 @@ public partial class Sambar : Window
 		this.Height = config.height;
 		this.Left = config.marginXLeft;
 		this.Top = config.marginYTop;
+
+		this.BorderBrush = Utils.BrushFromHex(config.borderColor);
+		this.BorderThickness = config.borderThickness;
 
 		Logger.Log($"this.Width: {config.width}");
 
@@ -5118,8 +5828,8 @@ public class RoundedButton : UserControl
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Ui\StackPanel.cs
-SIZE: 2.12 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 1.68 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 /*
@@ -5135,78 +5845,80 @@ using System.Windows.Media;
 
 namespace sambar;
 
-public class StackPanelWithGaps: StackPanel 
+public class StackPanelWithGaps : StackPanel
 {
-    int gap;
-    int capacity; 
-    public StackPanelWithGaps(int gap, int capacity)
-    {
-        this.gap = gap;
-        this.capacity = capacity;
+	int gap;
+	int capacity;
+	public StackPanelWithGaps(int gap, int capacity)
+	{
+		this.gap = gap;
+		this.capacity = capacity;
 
-        if(this.Orientation == Orientation.Horizontal) {
-            this.HorizontalAlignment = HorizontalAlignment.Left;
-            this.VerticalAlignment = VerticalAlignment.Center; 
-        }
-        else 
-        {
-            this.HorizontalAlignment = HorizontalAlignment.Center;
-            this.VerticalAlignment = VerticalAlignment.Top;
-        }
-    }
+		if (this.Orientation == Orientation.Horizontal)
+		{
+			this.HorizontalAlignment = HorizontalAlignment.Left;
+			this.VerticalAlignment = VerticalAlignment.Center;
+		}
+		else
+		{
+			this.HorizontalAlignment = HorizontalAlignment.Center;
+			this.VerticalAlignment = VerticalAlignment.Top;
+		}
+	}
 
-    int currentElement = 0;
-    public void Add(UserControl control) {
-        Logger.Log($"currentElement: {currentElement}, capacity: {capacity}");
-        if(currentElement < capacity - 1)
-        {
-            if(this.Orientation == Orientation.Horizontal)
-            {
-                control.Margin = new(gap, 0, 0, 0);
-            }
-            else
-            {
-                control.Margin = new(0, gap, 0, 0);
-            }
-        } 
-        else if(currentElement == capacity - 1)
-        {
-            if(this.Orientation == Orientation.Horizontal)
-            {
-                Logger.Log("LAST ELEMENT");
-                control.Margin = new(gap, 0, gap, 0);
-            }
-            else
-            {
-                control.Margin = new(0, gap, 0, gap);
-            }
-        }
-        else
-        {
-            var last = this.Children[^1] as UserControl;
-            if(this.Orientation == Orientation.Horizontal)
-            {
-                last.Margin = new(gap, 0, 0, 0);
-                control.Margin = new(gap, 0, gap, 0);
-            }
-            else
-            {
-                last.Margin = new(0, gap, 0, 0);
-                control.Margin = new(0, gap, 0, gap);
-            }
-            capacity++;
-        }
-        this.Children.Add(control);
-        currentElement++;
-    }
+	int currentElement = 0;
+	public void Add(Control control)
+	{
+		Logger.Log($"currentElement: {currentElement}, capacity: {capacity}");
+		if (currentElement < capacity - 1)
+		{
+			if (this.Orientation == Orientation.Horizontal)
+			{
+				control.Margin = new(gap, 0, 0, 0);
+			}
+			else
+			{
+				control.Margin = new(0, gap, 0, 0);
+			}
+		}
+		else if (currentElement == capacity - 1)
+		{
+			if (this.Orientation == Orientation.Horizontal)
+			{
+				Logger.Log("LAST ELEMENT");
+				control.Margin = new(gap, 0, gap, 0);
+			}
+			else
+			{
+				control.Margin = new(0, gap, 0, gap);
+			}
+		}
+		else
+		{
+			var last = this.Children[^1] as UserControl;
+			if (this.Orientation == Orientation.Horizontal)
+			{
+				last.Margin = new(gap, 0, 0, 0);
+				control.Margin = new(gap, 0, gap, 0);
+			}
+			else
+			{
+				last.Margin = new(0, gap, 0, 0);
+				control.Margin = new(0, gap, 0, gap);
+			}
+			capacity++;
+		}
+		this.Children.Add(control);
+		currentElement++;
+	}
 }
 
 
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Utils\Core.cs
-SIZE: 14.12 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 14.21 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 /*
@@ -5540,17 +6252,17 @@ public partial class Utils
 		return str.ToString();
 	}
 
-	public static void CompileFileToDll(string fileName, string dllName, List<(string, string?)>? additionalDllsAndUsings = null)
+	public static void CompileFileToDll(string fileName, string dllName, List<(string, string?)>? additionalDllsAndUsings = null, bool wrapInTryCatch = false)
 	{
 		string classCode = File.ReadAllText(fileName);
-		Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName, additionalDllsAndUsings));
+		Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName, additionalDllsAndUsings, wrapInTryCatch));
 		thread.Start();
 		thread.Join();
 	}
 
-	public static void CompileStringToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null)
+	public static void CompileStringToDll(string classCode, string dllName, List<(string, string?)>? additionalDllsAndUsings = null, bool wrapInTryCatch = false)
 	{
-		Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName, additionalDllsAndUsings));
+		Thread thread = new(() => WidgetLoader.CompileToDll(classCode, dllName, additionalDllsAndUsings, wrapInTryCatch));
 		thread.Start();
 		thread.Join();
 	}
@@ -6618,8 +7330,8 @@ public enum MONITOR_DPI_TYPE
 
 ================================================================================
 FILE: :\DEV\sambar\Src\Classes\Win32\Functions.cs
-SIZE: 9.84 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 9.96 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 /*
@@ -6635,7 +7347,9 @@ namespace sambar;
 
 public class User32
 {
-	// user32
+	[DllImport("user32.dll", SetLastError = true)]
+	public static extern int MessageBox(nint hWnd, string title, string message, uint type);
+
 	[DllImport("user32.dll", SetLastError = true)]
 	public static extern int SetWindowLong(nint hWnd, int nIndex, int dwNewLong);
 
@@ -6799,8 +7513,8 @@ public class User32
 	[DllImport("user32.dll", SetLastError = true)]
 	public extern static nint MonitorFromWindow(nint hWnd, uint dwFlags);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    public static extern nint SetParent(nint hWndChild, nint hWndNewParent);
+	[DllImport("user32.dll", SetLastError = true)]
+	public static extern nint SetParent(nint hWndChild, nint hWndNewParent);
 }
 
 public class Shell32
@@ -8218,38 +8932,38 @@ public partial class Program
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\.init.cs
 SIZE: 0.06 KB
-MODIFIED: 09/25/2025 13:32:59
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 // return the widget pack's name
 
-return "Plain1";
+return "Windows98";
 
 
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\.config.cs
-SIZE: 0.47 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 0.39 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
-public class BaseConfig : Config 
+public class BaseConfig : Config
 {
-    public BaseConfig() 
-    { 
-        this.height = 30;
-        this.width = 0;
-        this.marginXLeft = 10;
-        this.marginXRight = 10;
-        this.marginYTop = 10;
-        this.paddingXLeft = 0;
-        this.paddingXRight = 0;
-        this.paddingYTop = 0;
-        this.paddingYDown = 0;
-        this.backgroundColor = "#282828";
-        this.borderColor = "#ffffff";
-        this.borderThickness = 0;
-    }
+	public BaseConfig()
+	{
+		this.height = 30;
+		this.width = 0;
+		this.marginXLeft = 10;
+		this.marginXRight = 10;
+		this.marginYTop = 10;
+		this.paddingXLeft = 0;
+		this.paddingXRight = 0;
+		this.paddingYTop = 0;
+		this.paddingYDown = 0;
+		this.backgroundColor = "#282828";
+		this.borderColor = "#ffffff";
+		this.borderThickness = new(0);
+	}
 }
 
 
@@ -8489,12 +9203,12 @@ public class AudioVisualizer : Widget
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\Clock.widget.cs
 SIZE: 0.49 KB
-MODIFIED: 09/25/2025 13:32:59
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 public class Clock : Widget
 {
-	TextBlock textBlock = new();
+	public TextBlock textBlock = new();
 
 	public Clock(WidgetEnv ENV) : base(ENV)
 	{
@@ -8518,17 +9232,17 @@ public class Clock : Widget
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\Counters.widget.cs
-SIZE: 1.51 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 1.52 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 public class Counters : Widget
 {
-	TextBlock textBlock = new();
+	public TextBlock textBlock = new();
 	long cpuUsage = 0;
 	float downSpeed = 0f, upSpeed = 0f;
 	float memUsage = 0;
-	public Counters(WidgetEnv ENV): base(ENV)
+	public Counters(WidgetEnv ENV) : base(ENV)
 	{
 		textBlock.Foreground = Theme.TEXT_COLOR;
 		textBlock.FontFamily = Theme.FONT_FAMILY;
@@ -9070,13 +9784,13 @@ public class ImageSelector : Grid
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Base\Workspaces.widget.cs
 SIZE: 2.32 KB
-MODIFIED: 09/25/2025 13:32:59
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 public class Workspaces : Widget
 {
 	List<Workspace> workspaces = new();
-	List<RoundedButton> buttons = new();
+	public List<RoundedButton> buttons = new();
 	public Workspaces(WidgetEnv ENV) : base(ENV)
 	{
 		workspaces = Sambar.api.workspaces;
@@ -9151,8 +9865,8 @@ public class Workspaces : Widget
 
 ================================================================================
 FILE: :\DEV\sambar\Src\WidgetPacks\Plain1\.config.cs
-SIZE: 0.41 KB
-MODIFIED: 09/25/2025 13:32:59
+SIZE: 0.42 KB
+MODIFIED: 09/26/2025 08:24:32
 ================================================================================
 
 public class BaseConfig : Config
@@ -9170,7 +9884,7 @@ public class BaseConfig : Config
 		this.paddingYDown = 0;
 		this.backgroundColor = "#1a1a1a";
 		this.borderColor = "#ffffff";
-		this.borderThickness = 0;
+		this.borderThickness = new(0);
 		this.roundedCorners = false;
 	}
 }
@@ -9336,6 +10050,329 @@ public class Theme
 
 
 ================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\.config.cs
+SIZE: 0.42 KB
+MODIFIED: 09/26/2025 08:24:32
+================================================================================
+
+public class BaseConfig : Config
+{
+	public BaseConfig()
+	{
+		this.height = 20;
+		this.width = 0;
+		this.marginXLeft = 0;
+		this.marginXRight = 0;
+		this.marginYTop = 0;
+		this.paddingXLeft = 0;
+		this.paddingXRight = 0;
+		this.paddingYTop = 0;
+		this.paddingYDown = 0;
+		this.backgroundColor = "#c0c0c0";
+		this.borderColor = "#ffffff";
+		this.borderThickness = new(0);
+		this.roundedCorners = false;
+	}
+}
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\.imports.cs
+SIZE: 0.18 KB
+MODIFIED: 09/26/2025 08:24:32
+================================================================================
+
+return new WidgetImports
+{
+	importsPack = "Base",
+	widgets = ["Clock", "Tray", "Counters", "TaskbarApps", "AudioVisualizer", "AudioInformation", "NetworkManager", "Wallpapers"]
+};
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\.layout.cs
+SIZE: 3.34 KB
+MODIFIED: 09/26/2025 08:24:32
+================================================================================
+
+class BaseLayout : Layout
+{
+	/// <summary>
+	/// Create placeholder borders for each widget. These borders must be
+	/// declared as fields of the Layout class and their names must match
+	/// the name of their respective widget class
+	/// </summary>
+
+	Border Workspaces = new();
+	Border Tray = new();
+	Border NetworkManager = new();
+	Border HideTaskbar = new();
+	Border Clock = new();
+	Border ScribblePad = new();
+	Border StartButton = new();
+	Border Counters = new();
+	Border TaskbarApps = new();
+	Border Wallpapers = new();
+
+	public BaseLayout()
+	{
+		/// <summary>
+		/// Build the layout after choosing a layout type
+		/// <summary>
+		Grid grid = new();
+
+		ColumnDefinition _col1 = new() { Width = new GridLength(1, GridUnitType.Star) };
+		ColumnDefinition _col2 = new() { Width = new GridLength(1, GridUnitType.Auto) };
+		ColumnDefinition _col3 = new() { Width = new GridLength(1, GridUnitType.Star) };
+
+		grid.ColumnDefinitions.Add(_col1);
+		grid.ColumnDefinitions.Add(_col2);
+		grid.ColumnDefinitions.Add(_col3);
+
+		StackPanel col1 = new();
+		StackPanel col2 = new();
+		StackPanel col3 = new();
+
+		/// <summary>
+		/// In WPF VerticalAlignment and HorizontalAlignment are
+		/// properties of an objects that specifies how it aligns
+		/// itself in its parent container. It is NOT about specifying
+		/// to a container element how to align its children
+		/// </summary>
+
+		col1.Orientation = Orientation.Horizontal;
+		col1.VerticalAlignment = VerticalAlignment.Center;
+
+		col2.Orientation = Orientation.Horizontal;
+		col2.HorizontalAlignment = HorizontalAlignment.Center;
+		col2.VerticalAlignment = VerticalAlignment.Center;
+
+		col3.Orientation = Orientation.Horizontal;
+		col3.HorizontalAlignment = HorizontalAlignment.Right;
+		col3.VerticalAlignment = VerticalAlignment.Center;
+		col3.FlowDirection = FlowDirection.RightToLeft;
+		col3.Margin = new(0, 0, 6, 0);
+
+		Grid.SetColumn(col1, 0);
+		Grid.SetColumn(col2, 1);
+		Grid.SetColumn(col3, 2);
+
+		// col1
+		col1.Children.Add(Workspaces);
+		TaskbarApps.Margin = new(5, 0, 0, 0);
+		col1.Children.Add(TaskbarApps);
+		// col2
+		Clock.HorizontalAlignment = HorizontalAlignment.Center;
+		col2.Children.Add(Clock);
+		// col3
+		List<Border> systemTray = new();
+		systemTray.Add(StartButton);
+		systemTray.Add(Counters);
+		systemTray.Add(NetworkManager);
+		systemTray.Add(Tray);
+		systemTray.Add(Wallpapers);
+		//systemTray.Add(HideTaskbar);
+		//systemTray.Add(ScribblePad);
+		systemTray.ForEach(border =>
+		{
+			border.Margin = new(0, 0, 5, 0);
+			border.VerticalAlignment = VerticalAlignment.Center;
+			col3.Children.Add(border);
+		});
+		Counters.Margin = new(10, 0, 10, 0);
+
+		/// <summary>
+		/// Add all borders to the layout type [Grid || StackPanel]
+		/// </summary>
+		grid.Children.Add(col1);
+		grid.Children.Add(col2);
+		grid.Children.Add(col3);
+		/// <summary>
+		/// Set the finished layout type as the container
+		/// <summary>
+		//this.Container = panel;
+
+		Border border1 = new(); // inner border
+		Border border2 = new(); // outer border
+
+		border1.Margin = new(0, 0, 0, 1);
+		border1.BorderBrush = Utils.BrushFromHex("#dfdfdf");
+		border1.BorderThickness = new(0, 0, 0, 1);
+
+		border2.BorderBrush = Utils.BrushFromHex("#ffffff");
+		border2.BorderThickness = new(0);
+
+		border1.Child = grid;
+		border2.Child = border1;
+		this.Container = border2;
+	}
+}
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\.theme.cs
+SIZE: 1.15 KB
+MODIFIED: 09/26/2025 08:24:32
+================================================================================
+
+// GLOBAL RESOURCES USED BY YOUR THEME
+// ALL VARIABLES MUST BE STATIC
+
+// Fluent Icons
+// https://fluenticons.co/
+public class Theme
+{
+	public static Brush TEXT_COLOR = Utils.BrushFromHex("#000000");
+	public static FontFamily FONT_FAMILY = new("MS Sans Serif");
+
+	public static Brush BUTTON_FOREGROUND = new SolidColorBrush(Colors.White);
+	public static Brush BUTTON_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public static Brush BUTTON_PRESSED_BACKGROUND = Utils.BrushFromHex("#575555");
+	public static Brush BUTTON_BORDER_COLOR = new SolidColorBrush(Colors.Black);
+	public static Brush BUTTON_HOVER_COLOR = Utils.BrushFromHex("#828181");
+	public static CornerRadius BUTTON_CORNER_RADIUS = new(0);
+	public static Thickness BUTTON_MARGIN = new(0);
+	public static int ICON_WIDTH = 14;
+	public static int ICON_HEIGHT = 14;
+	public static int BUTTON_WIDTH = 19;
+	public static int BUTTON_HEIGHT = 19;
+	public static Thickness BUTTON_BORDER_THICKNESS = new(0);
+
+	public static Brush WIDGET_BACKGROUND = new SolidColorBrush(Colors.Transparent);
+	public static CornerRadius WIDGET_CORNER_RADIUS = new(5);
+	public static int WIDGET_GAP = 5;
+}
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\Clock.mod.cs
+SIZE: 0.39 KB
+MODIFIED: 09/26/2025 08:24:32
+================================================================================
+
+/*
+ * Mofidies the base clock widget (Base\Clock.widget.cs)
+ * */
+
+using System.Windows;
+using System.Windows.Media;
+
+return (dynamic clock) =>
+{
+	clock.textBlock.FontWeight = FontWeights.SemiBold;
+	clock.textBlock.SetValue(TextOptions.TextRenderingModeProperty, TextRenderingMode.Aliased);
+	clock.textBlock.SetValue(TextOptions.TextFormattingModeProperty, TextFormattingMode.Display);
+};
+
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\Counters.mod.cs
+SIZE: 0.41 KB
+MODIFIED: 09/26/2025 08:24:32
+================================================================================
+
+/*
+ * Mofidies the base clock widget (Base\Counters.widget.cs)
+ * */
+
+using System.Windows;
+using System.Windows.Media;
+
+return (dynamic counters) =>
+{
+	counters.textBlock.FontWeight = FontWeights.SemiBold;
+	counters.textBlock.SetValue(TextOptions.TextRenderingModeProperty, TextRenderingMode.Aliased);
+	counters.textBlock.SetValue(TextOptions.TextFormattingModeProperty, TextFormattingMode.Display);
+};
+
+
+
+================================================================================
+FILE: :\DEV\sambar\Src\WidgetPacks\Windows98\Workspaces.widget.cs
+SIZE: 2.23 KB
+MODIFIED: 09/26/2025 08:24:32
+================================================================================
+
+public class Workspaces : Widget
+{
+	List<Workspace> workspaces = new();
+	public List<Button> buttons = new();
+	public Workspaces(WidgetEnv ENV) : base(ENV)
+	{
+		workspaces = Sambar.api.workspaces;
+
+		//this.CornerRadius = Theme.WIDGET_CORNER_RADIUS;
+		StackPanelWithGaps panel = new(0, workspaces.Count);
+		panel.Orientation = Orientation.Horizontal;
+		panel.VerticalAlignment = VerticalAlignment.Center;
+		panel.ClipToBounds = true;
+		for (int i = 1; i <= workspaces.Count; i++)
+		{
+			Button btn = new();
+			btn.Content = new TextBlock() { Text = $"{i}" };
+			btn.FontFamily = Theme.FONT_FAMILY;
+			btn.Width = Theme.BUTTON_WIDTH;
+			btn.Height = Theme.BUTTON_HEIGHT;
+			btn.Foreground = Theme.TEXT_COLOR;
+			btn.Background = Theme.BUTTON_BACKGROUND;
+			btn.Click += WorkspaceButtonClicked;
+			buttons.Add(btn);
+			panel.Add(btn);
+		}
+		Sambar.api.Print($"workspaces: {workspaces.Count}, buttons: {buttons.Count}, index: {Sambar.api.currentWorkspace.index}");
+		if (buttons.Count > 0)
+			buttons[Sambar.api.currentWorkspace.index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
+		Sambar.api.GLAZE_WORKSPACE_CHANGED += (workspace) =>
+		{
+			RedrawButtons(workspace.index);
+		};
+		this.Content = panel;
+	}
+
+	public void RedrawButtons(int index)
+	{
+		this.Thread.Invoke(() =>
+		{
+			foreach (var button in buttons)
+			{
+				button.Foreground = Theme.TEXT_COLOR;
+				button.Background = Theme.BUTTON_BACKGROUND;
+			}
+			buttons[index].Foreground = new SolidColorBrush(Colors.White);
+			buttons[index].Background = Theme.BUTTON_PRESSED_BACKGROUND;
+		});
+	}
+
+	// for updating Glaze when buttons pressed
+	bool buttonRedrawing = false;
+	public void WorkspaceButtonClicked(object? sender, RoutedEventArgs e)
+	{
+		buttonRedrawing = true;
+		var btn = sender as Button;
+		string clickedBtnName = (btn.Content as TextBlock).Text.ToString();
+		Sambar.api.Print($"clickedBtnName: {clickedBtnName}");
+		Workspace clickedWorkspace = workspaces.Where(wksp => wksp.name == clickedBtnName).First();
+		int clickedBtnIndex = clickedWorkspace.index;
+		RedrawButtons(clickedBtnIndex);
+		Task.Run(async () =>
+		{
+			await Sambar.api.ChangeWorkspace(clickedWorkspace);
+			await Task.Delay(3000);
+			buttonRedrawing = false;
+		});
+	}
+}
+
+
+
+
+================================================================================
 FILE: :\DEV\sambar\Todo\Bugs.md
 SIZE: 0.23 KB
 MODIFIED: 09/25/2025 13:32:59
@@ -9349,7 +10386,7 @@ MODIFIED: 09/25/2025 13:32:59
 
 
 ===============================================================================
-EXPORT COMPLETED: 09/26/2025 08:24:27
-Total Files Exported: 80
+EXPORT COMPLETED: 09/29/2025 14:26:47
+Total Files Exported: 87
 Output File: .\Docs\project_export.txt
 ===============================================================================
